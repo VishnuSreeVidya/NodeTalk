@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Base ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Glass utility ---------- */
+@layer components {
+  .glass {
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+  }
+  .glass-strong {
+    @apply bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl;
+  }
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl rounded-2xl;
+  }
+  .glass-input {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-xl
+           px-4 py-3 text-white placeholder-white/40
+           focus:outline-none focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20
+           transition-all duration-300;
+  }
+  .glass-btn {
+    @apply glass rounded-xl px-6 py-3 font-semibold text-white
+           hover:bg-white/20 active:scale-[0.97]
+           transition-all duration-200 ease-out;
+  }
+  .glass-btn-primary {
+    @apply glass-btn bg-gradient-to-r from-purple-500/60 to-fuchsia-500/60
+           border-purple-400/30 hover:from-purple-500/80 hover:to-fuchsia-500/80;
+  }
+}
+
+/* ---------- Theme variables ---------- */
+.theme-glass-dark {
+  --bg-gradient-from: #0f0f1a;
+  --bg-gradient-to: #1a1a2e;
+  --sidebar-bg: rgba(15, 15, 26, 0.6);
+  --chat-bg: rgba(20, 20, 35, 0.4);
+  --accent: #a78bfa;
+  --accent-glow: rgba(167, 139, 250, 0.25);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --bubble-own: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(99, 102, 241, 0.4));
+  --bubble-other: rgba(255, 255, 255, 0.06);
+}
+
+.theme-amethyst {
+  --bg-gradient-from: #1a0a2e;
+  --bg-gradient-to: #2d1b4e;
+  --sidebar-bg: rgba(26, 10, 46, 0.6);
+  --chat-bg: rgba(40, 20, 70, 0.4);
+  --accent: #c084fc;
+  --accent-glow: rgba(192, 132, 252, 0.25);
+  --text-primary: #faf5ff;
+  --text-secondary: #d8b4fe;
+  --bubble-own: linear-gradient(135deg, rgba(168, 85, 247, 0.5), rgba(217, 70, 239, 0.4));
+  --bubble-other: rgba(255, 255, 255, 0.06);
+}
+
+.theme-cyberpunk {
+  --bg-gradient-from: #0a0a0a;
+  --bg-gradient-to: #1a0a0a;
+  --sidebar-bg: rgba(0, 0, 0, 0.7);
+  --chat-bg: rgba(10, 0, 0, 0.5);
+  --accent: #ff2d95;
+  --accent-glow: rgba(255, 45, 149, 0.3);
+  --text-primary: #fcee0a;
+  --text-secondary: #ff6ec7;
+  --bubble-own: linear-gradient(135deg, rgba(255, 45, 149, 0.5), rgba(255, 0, 128, 0.3));
+  --bubble-other: rgba(255, 255, 255, 0.04);
+}
+
+/* ---------- Apply theme ---------- */
+.app-container {
+  background: linear-gradient(135deg, var(--bg-gradient-from), var(--bg-gradient-to));
+  color: var(--text-primary);
+  transition: background 0.5s ease, color 0.3s ease;
+}
+
+/* ---------- Presence dot ---------- */
+.presence-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.presence-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+.presence-dot.offline {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ---------- Typing dots ---------- */
+.typing-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ---------- Call overlay ---------- */
+.call-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+}
+
+.call-video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-video-container video {
+  position: absolute;
+  object-fit: cover;
+}
+
+.call-video-container video.remote-video {
+  width: 100%;
+  height: 100%;
+}
+
+.call-video-container video.local-video {
+  width: 180px;
+  height: 240px;
+  bottom: 24px;
+  right: 24px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  object-fit: cover;
+  z-index: 10;
+}
+
+/* ---------- Emoji picker ---------- */
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  padding: 8px;
+}
+
+.emoji-grid button {
+  font-size: 24px;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.15s;
+  text-align: center;
+}
+.emoji-grid button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.2);
+}
+
+/* ---------- Image message ---------- */
+.chat-image {
+  max-width: 280px;
+  max-height: 300px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.chat-image:hover {
+  transform: scale(1.02);
+}
+
+/* ---------- Image preview ---------- */
+.image-preview {
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.image-preview img {
+  max-height: 120px;
+  object-fit: cover;
+}
+.image-preview button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
