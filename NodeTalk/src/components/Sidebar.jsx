@@ -100,14 +100,14 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
 
   return (
     <div
-      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200 relative"
+      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200 relative backdrop-blur-xl"
       style={{ background: 'var(--sidebar-bg)' }}
     >
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-lg font-bold text-[#6D61FF]">
+            <div className="w-10 h-10 rounded-xl bg-[#6D61FF] flex items-center justify-center text-lg font-bold text-white shadow-sm">
               {profile?.username?.charAt(0).toUpperCase() || '?'}
             </div>
             <div>
@@ -152,7 +152,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
               } ${isCalling ? 'ring-2 ring-green-400/50' : ''}`}
             >
               <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-xl glass-strong flex items-center justify-center text-base font-bold text-[#6D61FF]">
+                <div className="w-11 h-11 rounded-xl bg-[#6D61FF] flex items-center justify-center text-base font-bold text-white shadow-sm">
                   {u.username?.charAt(0).toUpperCase() || '?'}
                 </div>
                 <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${u.is_online ? 'online' : 'offline'}`} />
