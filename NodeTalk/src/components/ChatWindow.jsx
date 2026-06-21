@@ -161,7 +161,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     return (
       <div className="flex-1 flex items-center justify-center app-container" style={{ background: 'var(--chat-bg)' }}>
         <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl glass-strong flex items-center justify-center text-4xl">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-[#6D61FF]/10 flex items-center justify-center text-4xl">
             💬
           </div>
           <h2 className="text-2xl font-bold text-[var(--text-primary)]">Welcome to NodeTalk</h2>
@@ -176,7 +176,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       {/* Chat header */}
       <div className="p-4 border-b border-gray-200 glass flex items-center gap-3 rounded-none">
         <div className="relative flex-shrink-0">
-          <div className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-sm font-bold text-[#6D61FF]">
+          <div className="w-10 h-10 rounded-xl bg-[#6D61FF] flex items-center justify-center text-sm font-bold text-white shadow-sm">
             {selectedUser.username?.charAt(0).toUpperCase() || '?'}
           </div>
           <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${selectedUser.is_online ? 'online' : 'offline'}`} />
