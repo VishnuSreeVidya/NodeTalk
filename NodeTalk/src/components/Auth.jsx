@@ -36,7 +36,7 @@ export default function Auth() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl glass-strong flex items-center justify-center text-3xl">
             💬
           </div>
-          <h1 className="text-3xl font-bold text-white">Glass Chat</h1>
+          <h1 className="text-3xl font-bold text-white">NodeTalk</h1>
           <p className="text-white/50 mt-1">Real‑time messenger</p>
         </div>
 
