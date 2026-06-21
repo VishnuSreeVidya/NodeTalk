@@ -100,7 +100,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
 
   return (
     <div
-      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200 relative backdrop-blur-xl"
+      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200/50 relative backdrop-blur-xl"
       style={{ background: 'var(--sidebar-bg)' }}
     >
       {/* Header */}
