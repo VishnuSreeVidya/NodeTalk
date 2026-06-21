@@ -64,18 +64,18 @@ CREATE POLICY "Users can view all profiles"
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   TO authenticated
-  USING (id = auth.user_id());
+  USING (id = auth.uid());
 
 -- Messages: users can read messages they sent or received, insert their own
 CREATE POLICY "Users can read their own messages"
   ON public.messages FOR SELECT
   TO authenticated
-  USING (sender_id = auth.user_id() OR receiver_id = auth.user_id());
+  USING (sender_id = auth.uid() OR receiver_id = auth.uid());
 
 CREATE POLICY "Users can insert their own messages"
   ON public.messages FOR INSERT
   TO authenticated
-  WITH CHECK (sender_id = auth.user_id());
+  WITH CHECK (sender_id = auth.uid());
 
 -- 6. ENABLE REALTIME (run in Supabase SQL editor)
 -- ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
