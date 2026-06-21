@@ -55,7 +55,7 @@ body {
   }
   .glass-btn {
     @apply glass rounded-lg px-5 py-2.5 font-medium text-[#6D61FF] text-sm
-           hover:bg-[#6D61FF]/8 active:scale-[0.98]
+           hover:bg-[#6D61FF]/10 active:scale-[0.98]
            transition-all duration-200 ease-out;
   }
   .glass-btn-primary {
