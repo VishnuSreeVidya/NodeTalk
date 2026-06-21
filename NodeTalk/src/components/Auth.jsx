@@ -30,7 +30,11 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 app-container">
+    <div className="min-h-screen w-full flex items-center justify-center p-4"
+      style={{
+        background: "url('https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat"
+      }}
+    >
       <div className="glass w-full max-w-md p-8 rounded-3xl animate-bounce-in">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl glass-strong flex items-center justify-center text-3xl">
