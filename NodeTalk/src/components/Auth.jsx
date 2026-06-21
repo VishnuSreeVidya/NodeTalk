@@ -32,12 +32,12 @@ export default function Auth() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4"
       style={{
-        background: 'linear-gradient(135deg, #f5f7fa, #e8ecf1)'
+        background: 'linear-gradient(135deg, #E0F2FE, #BAE6FD)'
       }}
     >
       <div className="w-full max-w-lg bg-white/80 backdrop-blur-xl flex items-center justify-center rounded-2xl shadow-sm border border-white/60 p-10">
         <form onSubmit={handleSubmit} className="flex flex-col w-full">
-          <h1 className="text-3xl font-bold text-center text-[#6D61FF] mb-2">
+          <h1 className="text-3xl font-bold text-center text-[#0EA5E9] mb-2">
             {isLogin ? 'Login' : 'Sign Up'}
           </h1>
           <p className="text-sm font-semibold text-center mb-6 text-[#5e5e5e]">

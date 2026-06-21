@@ -100,14 +100,14 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
 
   return (
     <div
-      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200/50 relative backdrop-blur-xl"
+      className="w-full lg:w-80 h-full flex flex-col border-r border-white/40 relative backdrop-blur-xl"
       style={{ background: 'var(--sidebar-bg)' }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-5 border-b border-white/40">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#6D61FF] flex items-center justify-center text-lg font-bold text-white shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-[#0EA5E9] flex items-center justify-center text-lg font-bold text-white shadow-sm">
               {profile?.username?.charAt(0).toUpperCase() || '?'}
             </div>
             <div>
@@ -119,7 +119,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
         </div>
 
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -133,7 +133,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       </div>
 
       {/* User list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+      <div className="flex-1 overflow-y-auto p-3 space-y-1">
         {filtered.length === 0 && (
           <p className="text-[var(--text-secondary)] text-center py-8 text-sm">No users found</p>
         )}
@@ -147,12 +147,12 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
               onClick={() => onSelectUser(u)}
               className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 text-left ${
                 isSelected
-                  ? 'bg-[#6D61FF]/10 border border-[#6D61FF]/20'
-                  : 'hover:bg-[#6D61FF]/5 border border-transparent'
+                  ? 'bg-[#0EA5E9]/10 shadow-sm border border-[#0EA5E9]/15'
+                  : 'hover:bg-white/50 border border-transparent'
               } ${isCalling ? 'ring-2 ring-green-400/50' : ''}`}
             >
               <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-xl bg-[#6D61FF] flex items-center justify-center text-base font-bold text-white shadow-sm">
+                <div className="w-11 h-11 rounded-2xl bg-[#0EA5E9] flex items-center justify-center text-base font-bold text-white shadow-sm">
                   {u.username?.charAt(0).toUpperCase() || '?'}
                 </div>
                 <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${u.is_online ? 'online' : 'offline'}`} />
@@ -165,9 +165,9 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] truncate">
                   {isCalling ? (
-                    <span className="text-green-500 animate-pulse">Incoming call...</span>
+                    <span className="text-emerald-500 animate-pulse">Incoming call...</span>
                   ) : isTyping ? (
-                    <span className="text-[#6D61FF] animate-fade-in">typing...</span>
+                    <span className="text-[#0EA5E9] animate-fade-in">typing...</span>
                   ) : (
                     u.status_message || 'Hey there!'
                   )}
@@ -179,10 +179,10 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       </div>
 
       {/* Logout */}
-      <div className="p-3 border-t border-gray-200">
+      <div className="p-4 border-t border-white/40">
         <button
           onClick={signOut}
-          className="w-full glass text-sm py-2.5 rounded-xl text-[var(--text-secondary)] hover:text-[#6D61FF] hover:bg-[#6D61FF]/5 transition-all flex items-center justify-center gap-2"
+          className="w-full glass rounded-xl text-sm py-2.5 text-[var(--text-secondary)] hover:text-[#0EA5E9] hover:bg-[#0EA5E9]/5 transition-all flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

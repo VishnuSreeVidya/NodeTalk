@@ -29,11 +29,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(109, 97, 255, 0.2);
+  background: rgba(14, 165, 233, 0.2);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(109, 97, 255, 0.35);
+  background: rgba(14, 165, 233, 0.35);
 }
 
 /* ---------- Glass utility ---------- */
@@ -48,37 +48,37 @@ body {
     @apply bg-white/60 backdrop-blur-lg border border-white/50 shadow-sm rounded-2xl;
   }
   .glass-input {
-    @apply bg-white border border-gray-200 rounded-lg
+    @apply bg-white/90 border border-gray-200/60 rounded-xl
            px-4 py-2.5 text-gray-700 placeholder-gray-400 text-sm
-           focus:outline-none focus:border-[#6D61FF] focus:ring-2 focus:ring-[#6D61FF]/15
+           focus:outline-none focus:border-[#0EA5E9] focus:ring-2 focus:ring-[#0EA5E9]/15
            transition-all duration-200;
   }
   .glass-btn {
-    @apply glass rounded-lg px-5 py-2.5 font-medium text-[#6D61FF] text-sm
-           hover:bg-[#6D61FF]/10 active:scale-[0.98]
+    @apply glass rounded-xl px-5 py-2.5 font-medium text-[#0EA5E9] text-sm
+           hover:bg-[#0EA5E9]/10 active:scale-[0.98]
            transition-all duration-200 ease-out;
   }
   .glass-btn-primary {
-    @apply bg-[#6D61FF] text-white px-5 py-2.5 rounded-lg font-medium text-sm
-           hover:bg-[#5A4FE0] active:scale-[0.98]
+    @apply bg-[#0EA5E9] text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-sm
+           hover:bg-[#0284C7] hover:shadow-md active:scale-[0.98]
            transition-all duration-200 ease-out;
   }
 }
 
 /* ---------- Theme variables ---------- */
 .theme-glass-dark {
-  --bg-gradient-from: #f5f7fa;
-  --bg-gradient-to: #e8ecf1;
-  --sidebar-bg: rgba(255, 255, 255, 0.75);
-  --chat-bg: rgba(255, 255, 255, 0.5);
-  --accent: #6D61FF;
-  --accent-glow: rgba(109, 97, 255, 0.15);
-  --text-primary: #1a1a2e;
-  --text-secondary: #6b7280;
-  --bubble-own: linear-gradient(135deg, #6D61FF, #7C73FF);
-  --bubble-other: #f0f1f3;
+  --bg-gradient-from: #E0F2FE;
+  --bg-gradient-to: #BAE6FD;
+  --sidebar-bg: rgba(255, 255, 255, 0.7);
+  --chat-bg: rgba(255, 255, 255, 0.4);
+  --accent: #0EA5E9;
+  --accent-glow: rgba(14, 165, 233, 0.12);
+  --text-primary: #0369A1;
+  --text-secondary: #0284C7;
+  --bubble-own: linear-gradient(135deg, #0EA5E9, #38BDF8);
+  --bubble-other: rgba(255, 255, 255, 0.85);
   --bubble-own-text: #ffffff;
-  --bubble-other-text: #1a1a2e;
+  --bubble-other-text: #0369A1;
 }
 
 .theme-amethyst {
