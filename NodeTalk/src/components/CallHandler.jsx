@@ -29,82 +29,6 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
   const durationIntervalRef = useRef(null)
   const incomingChannelRef = useRef(null)
 
-  // Trigger outgoing call when callRequest changes
-  useEffect(() => {
-    if (callRequest?.type === 'calling' && selectedUser) {
-      startCall(callRequest.callType)
-    }
-  }, [callRequest, selectedUser])
-
-  // Listen for incoming calls
-  useEffect(() => {
-    if (!user) return
-
-    const channel = supabase.channel(`calls-listener-${user.id}`, {
-      config: { broadcast: { self: false } },
-    })
-
-    channel.on('broadcast', { event: 'call-offer' }, async (payload) => {
-      const { senderId, senderName, callType: cType, offer } = payload.payload
-      if (senderId === user.id) return
-
-      setIncomingFrom({ id: senderId, name: senderName })
-      setCallType(cType)
-      setCallerName(senderName)
-      setState('ringing')
-
-      // Store offer data for when user accepts
-      window.__pendingOffer = { senderId, offer, cType }
-    })
-
-    channel.on('broadcast', { event: 'call-end' }, (payload) => {
-      if (payload.payload.senderId !== user.id) {
-        endCall()
-      }
-    })
-
-    channel.on('broadcast', { event: 'call-decline' }, (payload) => {
-      if (payload.payload.from === user.id) {
-        setState('idle')
-        cleanupStreams()
-      }
-    })
-
-    channel.subscribe()
-    incomingChannelRef.current = channel
-
-    return () => {
-      supabase.removeChannel(channel)
-      window.__pendingOffer = null
-    }
-  }, [user])
-
-  // Start timer when connected
-  useEffect(() => {
-    if (state === 'connected') {
-      const start = Date.now()
-      durationIntervalRef.current = setInterval(() => {
-        setCallDuration(Math.floor((Date.now() - start) / 1000))
-      }, 1000)
-    }
-    return () => {
-      if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current)
-        durationIntervalRef.current = null
-      }
-    }
-  }, [state])
-
-  // Attach streams to video elements
-  useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream
-    }
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream
-    }
-  }, [localStream, remoteStream])
-
   const cleanupStreams = useCallback(() => {
     if (localStream) {
       localStream.getTracks().forEach((t) => t.stop())
@@ -132,29 +56,7 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
     onCallChange?.(null)
   }, [user, cleanupStreams, channelRef, onCallChange])
 
-  const declineCall = useCallback(() => {
-    if (incomingFrom) {
-      const ch = supabase.channel(`calls-${incomingFrom.id}`, {
-        config: { broadcast: { self: false } },
-      })
-      ch.subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          ch.send({
-            type: 'broadcast',
-            event: 'call-decline',
-            payload: { from: user.id },
-          })
-        }
-      })
-      setTimeout(() => supabase.removeChannel(ch), 2000)
-    }
-    setState('idle')
-    setIncomingFrom(null)
-    cleanupStreams()
-    onCallChange?.(null)
-  }, [incomingFrom, user, cleanupStreams, onCallChange])
-
-  // Initiate a call
+  // Trigger outgoing call when callRequest changes
   const startCall = useCallback(async (type) => {
     if (!selectedUser) return
     setCallType(type)
@@ -224,12 +126,110 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
           offer: pc.localDescription,
         },
       })
-    } catch (err) {
+    } catch {
       setState('idle')
       cleanupStreams()
       onCallChange?.(null)
     }
   }, [selectedUser, user, profile, cleanupStreams, endCall, onCallChange])
+
+  useEffect(() => {
+    if (callRequest?.type === 'calling' && selectedUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      startCall(callRequest.callType)
+    }
+  }, [callRequest, selectedUser, startCall])
+
+  // Listen for incoming calls
+  useEffect(() => {
+    if (!user) return
+
+    const channel = supabase.channel(`calls-listener-${user.id}`, {
+      config: { broadcast: { self: false } },
+    })
+
+    channel.on('broadcast', { event: 'call-offer' }, async (payload) => {
+      const { senderId, senderName, callType: cType, offer } = payload.payload
+      if (senderId === user.id) return
+
+      setIncomingFrom({ id: senderId, name: senderName })
+      setCallType(cType)
+      setCallerName(senderName)
+      setState('ringing')
+
+      // Store offer data for when user accepts
+      window.__pendingOffer = { senderId, offer, cType }
+    })
+
+    channel.on('broadcast', { event: 'call-end' }, (payload) => {
+      if (payload.payload.senderId !== user.id) {
+        endCall()
+      }
+    })
+
+    channel.on('broadcast', { event: 'call-decline' }, (payload) => {
+      if (payload.payload.from === user.id) {
+        setState('idle')
+        cleanupStreams()
+      }
+    })
+
+    channel.subscribe()
+    incomingChannelRef.current = channel
+
+    return () => {
+      supabase.removeChannel(channel)
+      window.__pendingOffer = null
+    }
+  }, [user, endCall, cleanupStreams])
+
+  // Start timer when connected
+  useEffect(() => {
+    if (state === 'connected') {
+      const start = Date.now()
+      durationIntervalRef.current = setInterval(() => {
+        setCallDuration(Math.floor((Date.now() - start) / 1000))
+      }, 1000)
+    }
+    return () => {
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current)
+        durationIntervalRef.current = null
+      }
+    }
+  }, [state])
+
+  // Attach streams to video elements
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream
+    }
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream
+    }
+  }, [localStream, remoteStream])
+
+  const declineCall = useCallback(() => {
+    if (incomingFrom) {
+      const ch = supabase.channel(`calls-${incomingFrom.id}`, {
+        config: { broadcast: { self: false } },
+      })
+      ch.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          ch.send({
+            type: 'broadcast',
+            event: 'call-decline',
+            payload: { from: user.id },
+          })
+        }
+      })
+      setTimeout(() => supabase.removeChannel(ch), 2000)
+    }
+    setState('idle')
+    setIncomingFrom(null)
+    cleanupStreams()
+    onCallChange?.(null)
+  }, [incomingFrom, user, cleanupStreams, onCallChange])
 
   // Accept an incoming call
   const acceptCall = useCallback(async () => {
@@ -293,7 +293,7 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
       setState('connected')
       onCallChange?.({ type: 'connected', callerName: pending.senderName, callType: pending.cType })
       window.__pendingOffer = null
-    } catch (err) {
+    } catch {
       setState('idle')
       cleanupStreams()
       onCallChange?.(null)

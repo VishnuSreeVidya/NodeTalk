@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   username      TEXT UNIQUE NOT NULL,
   avatar_url    TEXT,
   bio           TEXT,
-  status_message TEXT DEFAULT 'Hey there! I am using Glass Chat.',
+  status_message TEXT DEFAULT 'Hey there! I am using NodeTalk.',
   is_online     BOOLEAN DEFAULT false,
   current_theme TEXT DEFAULT 'glass-dark',
   created_at    TIMESTAMPTZ DEFAULT now()

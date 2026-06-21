@@ -21,6 +21,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers()
 
     const channel = supabase
@@ -37,9 +38,14 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { if (user) fetchUsers() }, [user?.id])
+  useEffect(() => {
+    if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchUsers()
+    }
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) return
@@ -56,7 +62,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       updateOnlineStatus(false)
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [user])
+  }, [user, updateOnlineStatus])
 
   useEffect(() => {
     if (!user) return

@@ -32,8 +32,9 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   useEffect(() => {
     if (!selectedUser) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMessages()
-  }, [selectedUser?.id])
+  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!selectedUser) return
@@ -55,7 +56,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [selectedUser?.id])
+  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -82,7 +83,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       supabase.removeChannel(channel)
       clearTimeout(typingTimeoutRef.current)
     }
-  }, [selectedUser?.id])
+  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const broadcastTyping = () => {
     if (isTypingRef.current) return
@@ -163,7 +164,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           <div className="w-20 h-20 mx-auto mb-6 rounded-3xl glass-strong flex items-center justify-center text-4xl">
             💬
           </div>
-          <h2 className="text-2xl font-bold text-white/80">Welcome to Glass Chat</h2>
+          <h2 className="text-2xl font-bold text-white/80">Welcome to NodeTalk</h2>
           <p className="text-white/40 mt-2">Select a user from the sidebar to start chatting</p>
         </div>
       </div>
