@@ -35,23 +35,22 @@ export default function Auth() {
         background: "url('https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat"
       }}
     >
-      <div className="glass w-full max-w-md p-8 rounded-3xl animate-bounce-in">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl glass-strong flex items-center justify-center text-3xl">
-            💬
-          </div>
-          <h1 className="text-3xl font-bold text-white">NodeTalk</h1>
-          <p className="text-white/50 mt-1">Real‑time messenger</p>
-        </div>
+      <div className="w-full max-w-lg bg-[#f4fbfdb7] flex items-center justify-center rounded-2xl shadow-lg p-10">
+        <form onSubmit={handleSubmit} className="flex flex-col w-full">
+          <h1 className="text-3xl font-bold text-center text-[#6D61FF] mb-2">
+            {isLogin ? 'Login' : 'Sign Up'}
+          </h1>
+          <p className="text-sm font-semibold text-center mb-6 text-[#5e5e5e]">
+            {isLogin ? 'Please fill the details to login your account' : 'Create your account to get started'}
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <input
               type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="glass-input w-full"
+              className="p-3 mb-4 rounded-full border outline-none pl-5 border-gray-300"
             />
           )}
           <input
@@ -59,7 +58,7 @@ export default function Auth() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="glass-input w-full"
+            className="p-3 mb-4 rounded-full border outline-none pl-5 border-gray-300"
             required
           />
           <input
@@ -67,33 +66,33 @@ export default function Auth() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="glass-input w-full"
+            className="p-3 mb-4 rounded-full border outline-none pl-5 border-gray-300"
             minLength={6}
             required
           />
 
           {error && (
-            <p className="text-red-400 text-sm text-center animate-fade-in">{error}</p>
+            <p className="text-red-500 text-sm text-center mb-4">{error}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={busy}
-            className="glass-btn-primary w-full disabled:opacity-50"
-          >
-            {busy ? '⏳ Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
+          <div className="flex items-center justify-center gap-5 mt-2">
+            <button
+              type="submit"
+              disabled={busy}
+              className="bg-[#6D61FF] text-white p-2.5 w-32 rounded-full font-semibold disabled:opacity-50"
+            >
+              {busy ? '⏳' : isLogin ? 'Login' : 'Sign Up'}
+            </button>
 
-        <p className="text-center text-white/40 mt-6 text-sm">
-          {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-          <button
-            onClick={() => { setIsLogin(!isLogin); setError('') }}
-            className="text-purple-400 hover:text-purple-300 transition-colors font-medium"
-          >
-            {isLogin ? 'Sign Up' : 'Sign In'}
-          </button>
-        </p>
+            <button
+              type="button"
+              onClick={() => { setIsLogin(!isLogin); setError('') }}
+              className="bg-[#ffffffa7] border-2 font-bold border-[#6D61FF] text-[#6D61FF] flex items-center justify-center p-2.5 w-32 rounded-full"
+            >
+              {isLogin ? 'Sign Up' : 'Login'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
