@@ -1,4 +1,6 @@
-# Glass Chat — Real-time Messenger
+# NodeTalk — Real-time Messenger
+
+> **Live Demo:** [https://nodetalk-sli6.onrender.com/](https://nodetalk-sli6.onrender.com/)
 
 A feature-rich real-time chat application built with **React + Vite**, powered by **Supabase** (auth, database, realtime, storage) and styled with **Tailwind CSS**.
 
@@ -33,7 +35,7 @@ A feature-rich real-time chat application built with **React + Vite**, powered b
 
 1. **Clone & install**
    ```bash
-   cd realtime-chatbot
+   cd NodeTalk
    npm install
    ```
 
@@ -70,7 +72,7 @@ A feature-rich real-time chat application built with **React + Vite**, powered b
 ## Project Structure
 
 ```
-realtime-chatbot/
+NodeTalk/
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
