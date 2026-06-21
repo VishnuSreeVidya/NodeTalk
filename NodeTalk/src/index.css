@@ -29,53 +29,56 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(109, 97, 255, 0.2);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(109, 97, 255, 0.35);
 }
 
 /* ---------- Glass utility ---------- */
 @layer components {
   .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
+    @apply bg-[#f4fbfdb7] backdrop-blur-xl border border-white/50 shadow-lg;
   }
   .glass-strong {
-    @apply bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl;
+    @apply bg-[#f4fbfd] backdrop-blur-2xl border border-white/60 shadow-xl;
   }
   .glass-card {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl rounded-2xl;
+    @apply bg-[#f4fbfdb7] backdrop-blur-lg border border-white/40 shadow-md rounded-2xl;
   }
   .glass-input {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-xl
-           px-4 py-3 text-white placeholder-white/40
-           focus:outline-none focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20
+    @apply bg-white backdrop-blur-md border border-gray-300 rounded-full
+           px-5 py-3 text-gray-700 placeholder-gray-400
+           focus:outline-none focus:border-[#6D61FF] focus:ring-2 focus:ring-[#6D61FF]/20
            transition-all duration-300;
   }
   .glass-btn {
-    @apply glass rounded-xl px-6 py-3 font-semibold text-white
-           hover:bg-white/20 active:scale-[0.97]
+    @apply glass rounded-xl px-6 py-3 font-semibold text-[#6D61FF]
+           hover:bg-[#6D61FF]/10 active:scale-[0.97]
            transition-all duration-200 ease-out;
   }
   .glass-btn-primary {
-    @apply glass-btn bg-gradient-to-r from-purple-500/60 to-fuchsia-500/60
-           border-purple-400/30 hover:from-purple-500/80 hover:to-fuchsia-500/80;
+    @apply bg-[#6D61FF] text-white px-6 py-3 rounded-xl font-semibold
+           hover:opacity-90 active:scale-[0.97]
+           transition-all duration-200 ease-out;
   }
 }
 
 /* ---------- Theme variables ---------- */
 .theme-glass-dark {
-  --bg-gradient-from: #0f0f1a;
-  --bg-gradient-to: #1a1a2e;
-  --sidebar-bg: rgba(15, 15, 26, 0.6);
-  --chat-bg: rgba(20, 20, 35, 0.4);
-  --accent: #a78bfa;
-  --accent-glow: rgba(167, 139, 250, 0.25);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --bubble-own: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(99, 102, 241, 0.4));
-  --bubble-other: rgba(255, 255, 255, 0.06);
+  --bg-gradient-from: #e8edf5;
+  --bg-gradient-to: #f0f2f8;
+  --sidebar-bg: rgba(244, 251, 253, 0.85);
+  --chat-bg: rgba(244, 251, 253, 0.5);
+  --accent: #6D61FF;
+  --accent-glow: rgba(109, 97, 255, 0.2);
+  --text-primary: #2d2d3a;
+  --text-secondary: #5e5e5e;
+  --bubble-own: linear-gradient(135deg, #6D61FF, #8B7FFF);
+  --bubble-other: rgba(244, 251, 253, 0.9);
+  --bubble-own-text: #ffffff;
+  --bubble-other-text: #2d2d3a;
 }
 
 .theme-amethyst {

@@ -100,26 +100,26 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
 
   return (
     <div
-      className="w-full lg:w-80 h-full flex flex-col border-r border-white/10 relative"
+      className="w-full lg:w-80 h-full flex flex-col border-r border-gray-200 relative"
       style={{ background: 'var(--sidebar-bg)' }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-lg font-bold text-white">
+            <div className="w-10 h-10 rounded-xl glass-strong flex items-center justify-center text-lg font-bold text-[#6D61FF]">
               {profile?.username?.charAt(0).toUpperCase() || '?'}
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">{profile?.username || 'User'}</p>
-              <p className="text-xs text-white/40">{profile?.status_message || ''}</p>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">{profile?.username || 'User'}</p>
+              <p className="text-xs text-[var(--text-secondary)]">{profile?.status_message || ''}</p>
             </div>
           </div>
           <ThemeSelector />
         </div>
 
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -135,7 +135,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       {/* User list */}
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {filtered.length === 0 && (
-          <p className="text-white/30 text-center py-8 text-sm">No users found</p>
+          <p className="text-[var(--text-secondary)] text-center py-8 text-sm">No users found</p>
         )}
         {filtered.map((u) => {
           const isSelected = selectedUser?.id === u.id
@@ -147,12 +147,12 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
               onClick={() => onSelectUser(u)}
               className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 text-left ${
                 isSelected
-                  ? 'bg-white/15 border border-white/20'
-                  : 'hover:bg-white/5 border border-transparent'
+                  ? 'bg-[#6D61FF]/10 border border-[#6D61FF]/20'
+                  : 'hover:bg-[#6D61FF]/5 border border-transparent'
               } ${isCalling ? 'ring-2 ring-green-400/50' : ''}`}
             >
               <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-xl glass-strong flex items-center justify-center text-base font-bold">
+                <div className="w-11 h-11 rounded-xl glass-strong flex items-center justify-center text-base font-bold text-[#6D61FF]">
                   {u.username?.charAt(0).toUpperCase() || '?'}
                 </div>
                 <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${u.is_online ? 'online' : 'offline'}`} />
@@ -160,14 +160,14 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-white truncate">{u.username}</span>
-                  <span className="text-[10px] text-white/30">{u.is_online ? 'online' : 'offline'}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)] truncate">{u.username}</span>
+                  <span className="text-[10px] text-[var(--text-secondary)]">{u.is_online ? 'online' : 'offline'}</span>
                 </div>
-                <p className="text-xs text-white/40 truncate">
+                <p className="text-xs text-[var(--text-secondary)] truncate">
                   {isCalling ? (
-                    <span className="text-green-400 animate-pulse">Incoming call...</span>
+                    <span className="text-green-500 animate-pulse">Incoming call...</span>
                   ) : isTyping ? (
-                    <span className="text-purple-400 animate-fade-in">typing...</span>
+                    <span className="text-[#6D61FF] animate-fade-in">typing...</span>
                   ) : (
                     u.status_message || 'Hey there!'
                   )}
@@ -179,10 +179,10 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       </div>
 
       {/* Logout */}
-      <div className="p-3 border-t border-white/10">
+      <div className="p-3 border-t border-gray-200">
         <button
           onClick={signOut}
-          className="w-full glass text-sm py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+          className="w-full glass text-sm py-2.5 rounded-xl text-[var(--text-secondary)] hover:text-[#6D61FF] hover:bg-[#6D61FF]/5 transition-all flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

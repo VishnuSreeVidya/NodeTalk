@@ -17,11 +17,11 @@ export default function ThemeSelector() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="glass text-sm px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-white/15 transition-all"
+        className="glass text-sm px-3 py-2 rounded-xl flex items-center gap-2 hover:bg-[#6D61FF]/10 transition-all"
       >
         <span>{current?.icon}</span>
-        <span className="hidden sm:inline text-white/80">{themes.find(t => t.id === theme)?.label}</span>
-        <svg className={`w-3 h-3 text-white/50 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <span className="hidden sm:inline text-[var(--text-secondary)]">{themes.find(t => t.id === theme)?.label}</span>
+        <svg className={`w-3 h-3 text-[var(--text-secondary)] transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -38,14 +38,14 @@ export default function ThemeSelector() {
                   onClick={() => { setTheme(t.id); setOpen(false) }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                     theme === t.id
-                      ? 'bg-white/15 text-white'
-                      : 'text-white/60 hover:bg-white/10 hover:text-white'
+                      ? 'bg-[#6D61FF]/10 text-[#6D61FF]'
+                      : 'text-[var(--text-secondary)] hover:bg-[#6D61FF]/5 hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <span className="text-xl">{prev?.icon}</span>
                   <span className="font-medium">{t.label}</span>
                   {theme === t.id && (
-                    <svg className="w-4 h-4 ml-auto text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 ml-auto text-[#6D61FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
