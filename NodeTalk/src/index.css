@@ -69,8 +69,8 @@ body {
 .theme-glass-dark {
   --bg-gradient-from: #e8edf5;
   --bg-gradient-to: #f0f2f8;
-  --sidebar-bg: rgba(244, 251, 253, 0.85);
-  --chat-bg: rgba(244, 251, 253, 0.5);
+  --sidebar-bg: rgba(244, 251, 253, 0.88);
+  --chat-bg: rgba(244, 251, 253, 0.6);
   --accent: #6D61FF;
   --accent-glow: rgba(109, 97, 255, 0.2);
   --text-primary: #2d2d3a;
@@ -109,9 +109,9 @@ body {
 
 /* ---------- Apply theme ---------- */
 .app-container {
-  background: linear-gradient(135deg, var(--bg-gradient-from), var(--bg-gradient-to));
+  background: url('https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat fixed;
   color: var(--text-primary);
-  transition: background 0.5s ease, color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 /* ---------- Presence dot ---------- */
