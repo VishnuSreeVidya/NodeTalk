@@ -35,6 +35,7 @@ A feature-rich real-time chat application built with **React + Vite**, powered b
 
 1. **Clone & install**
    ```bash
+   git clone https://github.com/VishnuSreeVidya/NodeTalk.git
    cd NodeTalk
    npm install
    ```
