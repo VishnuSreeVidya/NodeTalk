@@ -26,41 +26,36 @@ A feature-rich real-time chat application built with **React + Vite**, powered b
 | Calls        | WebRTC (RTCPeerConnection)                      |
 | Icons        | Heroicons (inline SVG)                          |
 
-## Quick Start
-
-### Prerequisites
+## Prerequisites
 
 - Node.js 18+
-- A [Supabase](https://supabase.com) project (free tier works)
+- A Supabase project (free tier works)
 
-### Setup
+## Setup
 
 1. **Clone & install**
    ```bash
-   git clone https://github.com/VishnuSreeVidya/NodeTalk.git
-   cd NodeTalk/NodeTalk
+   cd NodeTalk
    npm install
    ```
 
 2. **Configure environment**
-   ```bash
-   cp .env.example .env
-   ```
-   Fill in your Supabase credentials in `.env`:
-   ```
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   ```
+   - Copy `.env.example` to `.env`
+   - Fill in your Supabase project URL and anon key:
+     ```
+     VITE_SUPABASE_URL=https://your-project.supabase.co
+     VITE_SUPABASE_ANON_KEY=your-anon-key-here
+     ```
 
 3. **Database setup**
-   - Run the SQL in `supabase-schema.sql` in your Supabase SQL Editor
-   - This creates the `profiles` and `messages` tables with RLS policies, triggers, and indexes
+   - Run the SQL in `supabase-schema.sql` in your Supabase SQL editor
+   - This creates `profiles`, `messages` tables with RLS policies, triggers, and indexes
 
 4. **Storage setup**
    - In Supabase Dashboard → Storage, create a public bucket named `chat-images`
    - Or uncomment and run the storage SQL at the bottom of `supabase-schema.sql`
 
-5. **Start the dev server**
+5. **Start dev server**
    ```bash
    npm run dev
    ```
@@ -116,7 +111,3 @@ NodeTalk/
 | Retro Cyberpunk    | Neon on black  |
 
 Switch themes from the sidebar header dropdown.
-
-## License
-
-This project is open source. Feel free to use and modify it.
