@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
 
   const updateOnlineStatus = async (isOnline) => {
     if (!user) return
-    await supabase.from('profiles').update({ is_online: isOnline }).eq('id', user.id)
+    await supabase.from('profiles').update({ is_online: isOnline, last_seen: new Date().toISOString() }).eq('id', user.id)
   }
 
   return (

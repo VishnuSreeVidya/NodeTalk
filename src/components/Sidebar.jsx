@@ -24,6 +24,8 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers()
 
+    supabase.rpc('cleanup_stale_users').then(() => fetchUsers())
+
     const channel = supabase
       .channel('profiles-channel')
       .on(
@@ -51,14 +53,19 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
     if (!user) return
     updateOnlineStatus(true)
 
+    const heartbeat = setInterval(() => {
+      updateOnlineStatus(true)
+    }, 30000)
+
     const handleBeforeUnload = () => {
-      navigator.sendBeacon(
-        `${supabase.supabaseUrl}/rest/v1/rpc/update_online_status?is_online=false`
-      )
+      const url = `${supabase.supabaseUrl}/rest/v1/profiles?id=eq.${user.id}`
+      const body = JSON.stringify({ is_online: false })
+      navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
     }
     window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
+      clearInterval(heartbeat)
       updateOnlineStatus(false)
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   bio           TEXT,
   status_message TEXT DEFAULT 'Hey there! I am using NodeTalk.',
   is_online     BOOLEAN DEFAULT false,
+  last_seen     TIMESTAMPTZ DEFAULT now(),
   current_theme TEXT DEFAULT 'glass-dark',
   created_at    TIMESTAMPTZ DEFAULT now()
 );
@@ -80,9 +81,20 @@ CREATE POLICY "Users can insert their own messages"
 -- 6. ENABLE REALTIME (run in Supabase SQL editor)
 -- ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
 
--- 7. STORAGE BUCKET SETUP (run separately in Supabase Storage dashboard)
--- Create a public bucket called "chat-images" via Supabase Dashboard > Storage
--- OR run:
--- INSERT INTO storage.buckets (id, name, public) VALUES ('chat-images', 'chat-images', true);
--- CREATE POLICY "Public Access" ON storage.objects FOR SELECT TO public USING (bucket_id = 'chat-images');
--- CREATE POLICY "Auth Upload" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'chat-images');
+-- 8. CLEANUP STALE ONLINE USERS (run periodically or on connect)
+CREATE OR REPLACE FUNCTION public.cleanup_stale_users()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY definer SET search_path = ''
+AS $$
+BEGIN
+  UPDATE public.profiles
+  SET is_online = false
+  WHERE is_online = true
+    AND last_seen < now() - interval '60 seconds';
+END;
+$$;
+
+-- Add last_seen index for cleanup performance
+CREATE INDEX IF NOT EXISTS idx_profiles_last_seen
+  ON public.profiles(last_seen DESC);

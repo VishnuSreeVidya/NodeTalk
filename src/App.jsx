@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from './context/AuthContext'
+import { supabase } from './supabaseClient'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import CallHandler from './components/CallHandler'
@@ -9,6 +10,26 @@ export default function App() {
   const { user, loading } = useAuth()
   const [selectedUser, setSelectedUser] = useState(null)
   const [callState, setCallState] = useState(null)
+
+  useEffect(() => {
+    if (!user) return
+    const channel = supabase
+      .channel('selected-user-sync')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles' },
+        (payload) => {
+          setSelectedUser((prev) => {
+            if (prev && prev.id === payload.new.id) {
+              return { ...prev, ...payload.new }
+            }
+            return prev
+          })
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [user])
 
   const handleSelectUser = useCallback((u) => {
     setSelectedUser(u)
