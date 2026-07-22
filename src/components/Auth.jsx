@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import ThemeSelector from './ThemeSelector'
 
 export default function Auth() {
   const { signIn, signUp } = useAuth()
@@ -30,17 +31,16 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4"
-      style={{
-        background: 'linear-gradient(135deg, #E0F2FE, #BAE6FD)'
-      }}
-    >
-      <div className="w-full max-w-lg bg-white/80 backdrop-blur-xl flex items-center justify-center rounded-2xl shadow-sm border border-white/60 p-10">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 app-container">
+      <div className="fixed top-5 right-5 z-50">
+        <ThemeSelector />
+      </div>
+      <div className="w-full max-w-lg glass-card flex items-center justify-center p-10">
         <form onSubmit={handleSubmit} className="flex flex-col w-full">
-          <h1 className="text-3xl font-bold text-center text-[#0EA5E9] mb-2">
+          <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--accent)' }}>
             {isLogin ? 'Login' : 'Sign Up'}
           </h1>
-          <p className="text-sm font-semibold text-center mb-6 text-[#5e5e5e]">
+          <p className="text-sm font-semibold text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
             {isLogin ? 'Please fill the details to login your account' : 'Create your account to get started'}
           </p>
 
