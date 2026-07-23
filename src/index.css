@@ -29,11 +29,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(14, 165, 233, 0.2);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(14, 165, 233, 0.35);
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 /* ---------- Glass utility ---------- */
@@ -236,6 +236,18 @@ body {
 }
 .chat-image:hover {
   transform: scale(1.02);
+}
+
+/* ---------- Skeleton loader ---------- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 12px;
 }
 
 /* ---------- Image preview ---------- */

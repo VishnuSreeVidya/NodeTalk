@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
-import { format } from 'date-fns'
-import EmojiPicker from './EmojiPicker'
-import ImageUpload from './ImageUpload'
+import MessageBubble from './MessageBubble'
+import MessageInput from './MessageInput'
 
 export default function ChatWindow({ selectedUser, onStartCall }) {
   const { user, profile } = useAuth()
@@ -13,9 +12,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const [receiverTyping, setReceiverTyping] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
   const bottomRef = useRef(null)
+  const messagesContainerRef = useRef(null)
   const typingTimeoutRef = useRef(null)
   const isTypingRef = useRef(false)
   const inputRef = useRef(null)
+  const [showScrollBtn, setShowScrollBtn] = useState(false)
 
   const fetchMessages = async () => {
     if (!selectedUser) return
@@ -26,7 +27,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .or(`and(sender_id.eq.${user.id},receiver_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},receiver_id.eq.${user.id})`)
       .order('created_at', { ascending: true })
 
-    if (!error && data) setMessages(data)
+    if (error) {
+      console.error('Failed to fetch messages:', error.message)
+    } else if (data) {
+      setMessages(data)
+    }
     setLoading(false)
   }
 
@@ -43,14 +48,22 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .channel(`messages-${user.id}-${selectedUser.id}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `sender_id=eq.${selectedUser.id}`,
-        },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `sender_id=eq.${selectedUser.id}` },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new])
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === payload.new.id)) return prev
+            return [...prev, payload.new]
+          })
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `sender_id=eq.${user.id}` },
+        (payload) => {
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === payload.new.id)) return prev
+            return [...prev, payload.new]
+          })
         }
       )
       .subscribe()
@@ -61,6 +74,18 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const scrollToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    setShowScrollBtn(false)
+  }, [])
+
+  const handleScroll = useCallback(() => {
+    const container = messagesContainerRef.current
+    if (!container) return
+    const { scrollTop, scrollHeight, clientHeight } = container
+    setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 100)
+  }, [])
 
   useEffect(() => {
     if (!selectedUser) return
@@ -123,28 +148,14 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
     if (!error) {
       setText('')
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          sender_id: user.id,
-          receiver_id: selectedUser.id,
-          message_text: payload.message_text,
-          image_url: imageUrl || null,
-          created_at: new Date().toISOString(),
-        },
-      ])
+    } else {
+      console.error('Failed to send message:', error.message)
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     sendMessage(text, null)
-  }
-
-  const handleInputChange = (e) => {
-    setText(e.target.value)
-    if (selectedUser) broadcastTyping()
   }
 
   const handleEmojiSelect = (emoji) => {
@@ -161,7 +172,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     return (
       <div className="flex-1 flex items-center justify-center app-container" style={{ background: 'var(--chat-bg)' }}>
         <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-[#0EA5E9]/10 flex items-center justify-center text-4xl">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl" style={{ background: 'color-mix(in srgb, var(--accent) 10%, transparent)' }}>
             💬
           </div>
           <h2 className="text-2xl font-bold text-[var(--text-primary)]">Welcome to NodeTalk</h2>
@@ -172,11 +183,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full app-container" style={{ background: 'var(--chat-bg)' }}>
+    <div className="flex-1 flex flex-col h-full app-container relative" style={{ background: 'var(--chat-bg)' }}>
       {/* Chat header */}
       <div className="p-4 border-b border-gray-200 glass flex items-center gap-3 rounded-none">
         <div className="relative flex-shrink-0">
-          <div className="w-10 h-10 rounded-xl bg-[#0EA5E9] flex items-center justify-center text-sm font-bold text-white shadow-sm">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-sm" style={{ background: 'var(--accent)' }}>
             {selectedUser.username?.charAt(0).toUpperCase() || '?'}
           </div>
           <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${selectedUser.is_online ? 'online' : 'offline'}`} />
@@ -185,26 +196,26 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           <p className="text-sm font-semibold text-[var(--text-primary)]">{selectedUser.username}</p>
           <p className="text-xs text-[var(--text-secondary)]">
             {receiverTyping
-              ? <span className="text-[#0EA5E9] animate-fade-in">typing...</span>
+              ? <span className="animate-fade-in" style={{ color: 'var(--accent)' }}>typing...</span>
               : (selectedUser.is_online ? 'Online' : 'Offline')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => onStartCall?.('audio')}
-            className="glass !p-2.5 !rounded-xl hover:bg-[#0EA5E9]/10 transition-all"
+            className="glass !p-2.5 !rounded-xl transition-all hover:bg-[var(--accent)]/10"
             title="Voice call"
           >
-            <svg className="w-5 h-5 text-[#0EA5E9]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
           </button>
           <button
             onClick={() => onStartCall?.('video')}
-            className="glass !p-2.5 !rounded-xl hover:bg-[#0EA5E9]/10 transition-all"
+            className="glass !p-2.5 !rounded-xl transition-all hover:bg-[var(--accent)]/10"
             title="Video call"
           >
-            <svg className="w-5 h-5 text-[#0EA5E9]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </button>
@@ -212,10 +223,18 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 space-y-3 relative"
+      >
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-6 h-6 border-2 border-purple-400/50 border-t-transparent rounded-full animate-spin" />
+          <div className="space-y-3 py-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+                <div className="skeleton w-48 h-12" />
+              </div>
+            ))}
           </div>
         )}
 
@@ -225,46 +244,9 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           </div>
         )}
 
-        {messages.map((msg) => {
-          const isOwn = msg.sender_id === user.id
-          const time = format(new Date(msg.created_at), 'hh:mm a')
-          const hasImage = !!msg.image_url
-          const hasText = !!msg.message_text && msg.message_text !== '📷 Image'
-
-          return (
-            <div
-              key={msg.id}
-              className={`flex ${isOwn ? 'justify-end' : 'justify-start'} animate-slide-up`}
-            >
-              <div
-                className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${
-                  isOwn ? 'rounded-br-md' : 'rounded-bl-md'
-                } shadow-sm`}
-                style={{
-                  background: isOwn ? 'var(--bubble-own)' : 'var(--bubble-other)',
-                  border: isOwn ? '1px solid rgba(109,97,255,0.3)' : '1px solid rgba(0,0,0,0.06)',
-                }}
-              >
-                {hasImage && (
-                  <img
-                    src={msg.image_url}
-                    alt="Shared image"
-                    className="chat-image mb-1"
-                    onClick={() => window.open(msg.image_url, '_blank')}
-                  />
-                )}
-                {hasText && (
-                  <p className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${isOwn ? 'text-white' : 'text-[var(--bubble-other-text)]'}`}>
-                    {msg.message_text}
-                  </p>
-                )}
-                <p className={`text-[10px] mt-1 ${isOwn ? 'text-white/60 text-right' : 'text-gray-400'}`}>
-                  {time}
-                </p>
-              </div>
-            </div>
-          )
-        })}
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} msg={msg} isOwn={msg.sender_id === user.id} />
+        ))}
 
         {receiverTyping && (
           <div className="flex justify-start animate-fade-in">
@@ -279,46 +261,32 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         <div ref={bottomRef} />
       </div>
 
+      {showScrollBtn && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 glass-strong rounded-full p-2.5 shadow-lg z-10 animate-fade-in hover:scale-110 transition-transform"
+          style={{ color: 'var(--accent)' }}
+          title="Jump to latest"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      )}
+
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 glass rounded-none">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowEmoji(!showEmoji)}
-              className="glass !p-3 !rounded-xl hover:bg-[#0EA5E9]/10 transition-all"
-            >
-              <svg className="w-5 h-5 text-[#0EA5E9]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-            <EmojiPicker
-              open={showEmoji}
-              onSelect={handleEmojiSelect}
-              onClose={() => setShowEmoji(false)}
-            />
-          </div>
-          <ImageUpload onUpload={handleImageUpload} disabled={!selectedUser} />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Type a message..."
-            value={text}
-            onChange={handleInputChange}
-            className="glass-input flex-1"
-            autoFocus
-          />
-          <button
-            type="submit"
-            disabled={!text.trim()}
-            className="glass-btn-primary !p-3 disabled:opacity-30"
-          >
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
-            </svg>
-          </button>
-        </div>
-      </form>
+      <MessageInput
+        ref={inputRef}
+        text={text}
+        setText={setText}
+        showEmoji={showEmoji}
+        setShowEmoji={setShowEmoji}
+        onEmojiSelect={handleEmojiSelect}
+        onImageUpload={handleImageUpload}
+        onSubmit={handleSubmit}
+        selectedUser={selectedUser}
+        onTyping={broadcastTyping}
+      />
     </div>
   )
 }

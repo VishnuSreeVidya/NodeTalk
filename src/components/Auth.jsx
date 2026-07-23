@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from './Toast'
 import ThemeSelector from './ThemeSelector'
+import heroImg from '../assets/hero.png'
 
 export default function Auth() {
   const { signIn, signUp } = useAuth()
+  const toast = useToast()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +24,7 @@ export default function Auth() {
       } else {
         if (!username.trim()) { setError('Username is required'); setBusy(false); return }
         await signUp(email, password, username)
-        alert('Account created! Check your email to confirm sign-up (or if confirmations are disabled, you are all set).')
+        toast.success('Account created! Check your email to confirm sign-up.')
       }
     } catch (err) {
       setError(err.message || 'Something went wrong')
@@ -35,7 +38,8 @@ export default function Auth() {
       <div className="fixed top-5 right-5 z-50">
         <ThemeSelector />
       </div>
-      <div className="w-full max-w-lg glass-card flex items-center justify-center p-10">
+      <div className="w-full max-w-lg glass-card flex flex-col items-center justify-center p-10">
+        <img src={heroImg} alt="NodeTalk" className="w-24 h-24 mb-4 object-contain" />
         <form onSubmit={handleSubmit} className="flex flex-col w-full">
           <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--accent)' }}>
             {isLogin ? 'Login' : 'Sign Up'}

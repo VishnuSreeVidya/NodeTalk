@@ -1,0 +1,231 @@
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "defs": {
+    "bg-deep": "#0B0F19",
+    "bg-base": "#111827",
+    "bg-raised": "#1A2236",
+    "bg-surface": "#1F2A40",
+    "bg-hover": "#253250",
+    "border-dim": "#1E293B",
+    "border-mid": "#334155",
+    "border-bright": "#475569",
+    "text-primary": "#F1F5F9",
+    "text-secondary": "#94A3B8",
+    "text-muted": "#64748B",
+    "accent-teal": "#2DD4BF",
+    "accent-blue": "#38BDF8",
+    "accent-purple": "#A78BFA",
+    "accent-green": "#4ADE80",
+    "accent-amber": "#FBBF24",
+    "accent-red": "#F87171",
+    "accent-pink": "#F472B6",
+    "diff-green-bg": "#0D2818",
+    "diff-red-bg": "#2D1215"
+  },
+  "theme": {
+    "primary": {
+      "dark": "accent-teal",
+      "light": "accent-teal"
+    },
+    "secondary": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "accent": {
+      "dark": "accent-purple",
+      "light": "accent-purple"
+    },
+    "error": {
+      "dark": "accent-red",
+      "light": "accent-red"
+    },
+    "warning": {
+      "dark": "accent-amber",
+      "light": "accent-amber"
+    },
+    "success": {
+      "dark": "accent-green",
+      "light": "accent-green"
+    },
+    "info": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "text": {
+      "dark": "text-primary",
+      "light": "text-primary"
+    },
+    "textMuted": {
+      "dark": "text-muted",
+      "light": "text-muted"
+    },
+    "background": {
+      "dark": "bg-deep",
+      "light": "bg-deep"
+    },
+    "backgroundPanel": {
+      "dark": "bg-base",
+      "light": "bg-base"
+    },
+    "backgroundElement": {
+      "dark": "bg-raised",
+      "light": "bg-raised"
+    },
+    "backgroundMenu": {
+      "dark": "bg-surface",
+      "light": "bg-surface"
+    },
+    "border": {
+      "dark": "border-mid",
+      "light": "border-mid"
+    },
+    "borderActive": {
+      "dark": "accent-teal",
+      "light": "accent-teal"
+    },
+    "borderSubtle": {
+      "dark": "border-dim",
+      "light": "border-dim"
+    },
+    "diffAdded": {
+      "dark": "accent-green",
+      "light": "accent-green"
+    },
+    "diffRemoved": {
+      "dark": "accent-red",
+      "light": "accent-red"
+    },
+    "diffContext": {
+      "dark": "text-muted",
+      "light": "text-muted"
+    },
+    "diffHunkHeader": {
+      "dark": "border-mid",
+      "light": "border-mid"
+    },
+    "diffHighlightAdded": {
+      "dark": "accent-green",
+      "light": "accent-green"
+    },
+    "diffHighlightRemoved": {
+      "dark": "accent-red",
+      "light": "accent-red"
+    },
+    "diffAddedBg": {
+      "dark": "diff-green-bg",
+      "light": "diff-green-bg"
+    },
+    "diffRemovedBg": {
+      "dark": "diff-red-bg",
+      "light": "diff-red-bg"
+    },
+    "diffContextBg": {
+      "dark": "bg-base",
+      "light": "bg-base"
+    },
+    "diffLineNumber": {
+      "dark": "text-muted",
+      "light": "text-muted"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "#0F2E1C",
+      "light": "#0F2E1C"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "#351518",
+      "light": "#351518"
+    },
+    "markdownText": {
+      "dark": "text-primary",
+      "light": "text-primary"
+    },
+    "markdownHeading": {
+      "dark": "accent-teal",
+      "light": "accent-teal"
+    },
+    "markdownLink": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "markdownLinkText": {
+      "dark": "accent-purple",
+      "light": "accent-purple"
+    },
+    "markdownCode": {
+      "dark": "accent-green",
+      "light": "accent-green"
+    },
+    "markdownBlockQuote": {
+      "dark": "text-muted",
+      "light": "text-muted"
+    },
+    "markdownEmph": {
+      "dark": "accent-amber",
+      "light": "accent-amber"
+    },
+    "markdownStrong": {
+      "dark": "text-primary",
+      "light": "text-primary"
+    },
+    "markdownHorizontalRule": {
+      "dark": "border-dim",
+      "light": "border-dim"
+    },
+    "markdownListItem": {
+      "dark": "accent-teal",
+      "light": "accent-teal"
+    },
+    "markdownListEnumeration": {
+      "dark": "accent-purple",
+      "light": "accent-purple"
+    },
+    "markdownImage": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "markdownImageText": {
+      "dark": "accent-purple",
+      "light": "accent-purple"
+    },
+    "markdownCodeBlock": {
+      "dark": "text-secondary",
+      "light": "text-secondary"
+    },
+    "syntaxComment": {
+      "dark": "text-muted",
+      "light": "text-muted"
+    },
+    "syntaxKeyword": {
+      "dark": "accent-purple",
+      "light": "accent-purple"
+    },
+    "syntaxFunction": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "syntaxVariable": {
+      "dark": "text-primary",
+      "light": "text-primary"
+    },
+    "syntaxString": {
+      "dark": "accent-green",
+      "light": "accent-green"
+    },
+    "syntaxNumber": {
+      "dark": "accent-amber",
+      "light": "accent-amber"
+    },
+    "syntaxType": {
+      "dark": "accent-teal",
+      "light": "accent-teal"
+    },
+    "syntaxOperator": {
+      "dark": "accent-blue",
+      "light": "accent-blue"
+    },
+    "syntaxPunctuation": {
+      "dark": "text-secondary",
+      "light": "text-secondary"
+    }
+  }
+}

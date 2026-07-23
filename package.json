@@ -12,11 +12,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",
     "date-fns": "^4.4.0",
-    "emoji-picker-react": "^4.19.1",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-router-dom": "^7.17.0",
-    "uuid": "^14.0.0"
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
