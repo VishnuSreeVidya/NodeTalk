@@ -15,6 +15,9 @@ NodeTalk is a modern real-time messaging application built with **React**, **Vit
 * 🖼️ **Image Sharing** – Upload and share images using Supabase Storage.
 * 😀 **Emoji Picker** – Express yourself with built-in emojis.
 * 📞 **Audio & Video Calls** – Peer-to-peer communication using WebRTC.
+* 🔒 **End-to-End Encryption** – Messages encrypted with AES-256-GCM using ECDH key exchange via the Web Crypto API. Server never sees plaintext.
+* ❤️ **Message Reactions** – React to any message with emoji (❤️👍😂😮😢🔥). Toggle on/off.
+* 💬 **Threaded Replies** – Quote-reply to any message with a threaded preview block.
 * 🎨 **Multiple Themes**
 
   * Glass Dark
@@ -34,6 +37,7 @@ NodeTalk is a modern real-time messaging application built with **React**, **Vit
 | Real-time      | Supabase Realtime                              |
 | Authentication | Supabase Auth                                  |
 | Storage        | Supabase Storage                               |
+| Encryption     | Web Crypto API (ECDH + AES-256-GCM)            |
 | Audio & Video  | WebRTC (RTCPeerConnection)                     |
 | Styling        | Tailwind CSS                                   |
 | Icons          | Heroicons                                      |
@@ -87,7 +91,9 @@ supabase-schema.sql
 This script creates:
 
 * Profiles table
-* Messages table
+* Messages table (with E2EE and reply columns)
+* User Keys table (E2EE public key exchange)
+* Reactions table (emoji reactions on messages)
 * Row Level Security (RLS) Policies
 * Triggers
 * Indexes
@@ -151,12 +157,23 @@ NodeTalk/
 │   │   ├── ChatWindow.jsx
 │   │   ├── EmojiPicker.jsx
 │   │   ├── ImageUpload.jsx
+│   │   ├── MessageBubble.jsx
+│   │   ├── MessageInput.jsx
+│   │   ├── ReactionBar.jsx
+│   │   ├── ReplyPreview.jsx
 │   │   ├── Sidebar.jsx
-│   │   └── ThemeSelector.jsx
+│   │   ├── ThemeSelector.jsx
+│   │   └── Toast.jsx
 │   │
 │   ├── context/
 │   │   ├── AuthContext.jsx
 │   │   └── ThemeContext.jsx
+│   │
+│   ├── hooks/
+│   │   └── useWebRTC.js
+│   │
+│   ├── utils/
+│   │   └── crypto.js
 │   │
 │   ├── App.jsx
 │   ├── main.jsx
@@ -192,20 +209,19 @@ NodeTalk/
 * Secure File Storage
 * Authenticated Database Access
 * Environment Variable Configuration
+* End-to-End Encryption (AES-256-GCM + ECDH P-256)
 
 ---
 
 ## 🚀 Future Enhancements
 
-* Group Chats
+* Group Chats & Channels
 * Read Receipts
-* Message Reactions
 * Voice Messages
 * Push Notifications
-* End-to-End Encryption
-* Message Search
-* File Sharing
-* User Profiles
+* Message Search & History
+* File/Document Sharing
+* User Profiles & Status
 * Chat Backup & Restore
 
 ---
