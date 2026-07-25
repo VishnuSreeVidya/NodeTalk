@@ -6,11 +6,13 @@ import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import CallHandler from './components/CallHandler'
 import Auth from './components/Auth'
+import GroupChatWindow from './features/groups/GroupChatWindow'
 import { useIsMobile } from './hooks/useMediaQuery'
 
 export default function App() {
   const { user, loading } = useAuth()
   const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedGroup, setSelectedGroup] = useState(null)
   const [callState, setCallState] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isMobile = useIsMobile()
@@ -37,6 +39,13 @@ export default function App() {
 
   const handleSelectUser = useCallback((u) => {
     setSelectedUser(u)
+    setSelectedGroup(null)
+    if (isMobile) setSidebarOpen(false)
+  }, [isMobile])
+
+  const handleSelectGroup = useCallback((g) => {
+    setSelectedGroup(g)
+    setSelectedUser(null)
     if (isMobile) setSidebarOpen(false)
   }, [isMobile])
 
@@ -107,16 +116,22 @@ export default function App() {
         <Sidebar
           selectedUser={selectedUser}
           onSelectUser={handleSelectUser}
+          selectedGroup={selectedGroup}
+          onSelectGroup={handleSelectGroup}
           incomingCall={callState?.type === 'ringing' ? callState : null}
         />
       </motion.div>
 
       {/* Chat area */}
       <div className="flex-1 min-w-0">
-        <ChatWindow
-          selectedUser={selectedUser}
-          onStartCall={handleStartCall}
-        />
+        {selectedGroup ? (
+          <GroupChatWindow group={selectedGroup} />
+        ) : (
+          <ChatWindow
+            selectedUser={selectedUser}
+            onStartCall={handleStartCall}
+          />
+        )}
       </div>
 
       {/* Call overlay */}

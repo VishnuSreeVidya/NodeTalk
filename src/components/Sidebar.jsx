@@ -7,15 +7,23 @@ import Avatar from '../ui/Avatar'
 import Badge from '../ui/Badge'
 import { useClickOutside } from '../hooks/useClickOutside'
 import { useToast } from './Toast'
+import CreateGroupModal from '../features/groups/CreateGroupModal'
+import ProfileModal from './ProfileModal'
+import SettingsModal from './SettingsModal'
+import NotificationBell from './NotificationBell'
 
-export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
+export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, incomingCall }) {
   const { user, profile, signOut, updateOnlineStatus } = useAuth()
   const toast = useToast()
   const [users, setUsers] = useState([])
+  const [groups, setGroups] = useState([])
   const [typingUsers, setTypingUsers] = useState({})
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState('chats')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [unreadCounts] = useState({})
   const typingRef = useRef(null)
   const profileMenuRef = useClickOutside(() => setShowProfileMenu(false), showProfileMenu)
@@ -34,9 +42,23 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
     }
   }
 
+  const fetchGroups = async () => {
+    if (!user) return
+    const { data, error } = await supabase
+      .from('group_members')
+      .select('groups:group_id(*, group_members(count))')
+      .eq('user_id', user.id)
+
+    if (!error && data) {
+      const groupList = data.map((gm) => gm.groups).filter(Boolean)
+      setGroups(groupList)
+    }
+  }
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers()
+    fetchGroups()
     supabase.rpc('cleanup_stale_users').then(() => fetchUsers())
 
     const channel = supabase
@@ -137,6 +159,20 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       className="w-full lg:w-80 h-full flex flex-col border-r border-white/30 relative backdrop-blur-xl"
       style={{ background: 'var(--sidebar-bg)' }}
     >
+      <CreateGroupModal
+        open={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onCreated={(g) => { fetchGroups(); onSelectGroup?.(g) }}
+        users={users}
+      />
+      <ProfileModal
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+      />
+      <SettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
       {/* Header */}
       <div className="p-4 border-b border-white/20">
         <div className="flex items-center justify-between mb-4">
@@ -149,7 +185,10 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
               <p className="text-[10px] text-[var(--text-secondary)] font-medium">{onlineCount} online</p>
             </div>
           </div>
-          <ThemeSelector />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <ThemeSelector />
+          </div>
         </div>
 
         {/* Search */}
@@ -261,9 +300,57 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
             )}
           </>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-3xl mb-3">🏠</p>
-            <p className="text-[var(--text-secondary)] text-sm">Groups coming soon</p>
+          <div>
+            <div className="px-2 py-2">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowCreateGroup(true)}
+                className="w-full glass rounded-xl py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/40"
+                style={{ color: 'var(--accent)' }}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Group
+              </motion.button>
+            </div>
+            {groups.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-3xl mb-3">🏠</p>
+                <p className="text-[var(--text-secondary)] text-sm">No groups yet</p>
+                <p className="text-[var(--text-secondary)] text-xs mt-1">Create one to get started</p>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {groups.filter((g) => g.name?.toLowerCase().includes(search.toLowerCase())).map((g, index) => {
+                  const isSelected = selectedGroup?.id === g.id
+                  return (
+                    <motion.button
+                      key={g.id}
+                      layout
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.02 }}
+                      onClick={() => onSelectGroup?.(g)}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-200 text-left ${
+                        isSelected ? 'shadow-sm' : 'hover:bg-white/40'
+                      }`}
+                      style={isSelected ? { background: 'color-mix(in srgb, var(--accent) 12%, transparent)' } : undefined}
+                    >
+                      <Avatar username={g.name} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <span className={`text-sm font-semibold truncate block ${isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]'}`}>
+                          {g.name}
+                        </span>
+                        <span className="text-[10px] text-[var(--text-secondary)]">
+                          {g.group_members?.[0]?.count || 0} members
+                        </span>
+                      </div>
+                    </motion.button>
+                  )
+                })}
+              </AnimatePresence>
+            )}
           </div>
         )}
       </div>
@@ -295,7 +382,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
               className="absolute bottom-full left-3 right-3 mb-2 glass-strong rounded-2xl p-2 shadow-xl z-10"
             >
               <button
-                onClick={() => { toast.info('Profile settings coming soon'); setShowProfileMenu(false) }}
+                onClick={() => { setShowProfile(true); setShowProfileMenu(false) }}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -304,7 +391,7 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
                 Profile
               </button>
               <button
-                onClick={() => { toast.info('Settings coming soon'); setShowProfileMenu(false) }}
+                onClick={() => { setShowSettings(true); setShowProfileMenu(false) }}
                 className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

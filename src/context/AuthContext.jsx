@@ -72,10 +72,19 @@ export function AuthProvider({ children }) {
     await supabase.from('profiles').update({ is_online: isOnline, last_seen: new Date().toISOString() }).eq('id', user.id)
   }
 
+  const updateProfile = async (updates) => {
+    if (!user) return
+    const { error } = await supabase.from('profiles').update(updates).eq('id', user.id)
+    if (!error) {
+      setProfile((prev) => ({ ...prev, ...updates }))
+    }
+    return { error }
+  }
+
   return (
     <AuthContext.Provider value={{
       user, profile, loading,
-      signUp, signIn, signOut, updateOnlineStatus, fetchProfile,
+      signUp, signIn, signOut, updateOnlineStatus, fetchProfile, updateProfile,
     }}>
       {children}
     </AuthContext.Provider>

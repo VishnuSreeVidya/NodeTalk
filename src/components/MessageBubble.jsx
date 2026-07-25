@@ -1,12 +1,14 @@
 import { useState, memo } from 'react'
 import { motion } from 'framer-motion'
 import ReactionBar from './ReactionBar'
+import FileAttachment from '../ui/FileAttachment'
 import { parseMarkdown, formatMessageTime } from '../lib/utils'
 
 function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, onContextMenu, decryptedText }) {
   const [hovering, setHovering] = useState(false)
   const displayText = decryptedText || msg.message_text
   const hasImage = !!msg.image_url
+  const hasFile = !!msg.file_url
   const hasText = !!displayText && displayText !== '📷 Image' && !msg.deleted_for_all
   const replyMsg = msg.reply_to ? allMessages.find((m) => m.id === msg.reply_to) : null
   const time = formatMessageTime(msg.created_at)
@@ -58,6 +60,17 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
               loading="lazy"
               onClick={() => window.open(msg.image_url, '_blank')}
             />
+          )}
+          {hasFile && (
+            <div className="mb-1.5">
+              <FileAttachment
+                url={msg.file_url}
+                fileName={msg.file_name}
+                fileType={msg.file_type}
+                fileSize={msg.file_size}
+                isOwn={isOwn}
+              />
+            </div>
           )}
           {hasText && (
             <div

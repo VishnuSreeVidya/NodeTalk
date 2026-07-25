@@ -1,14 +1,17 @@
 import { forwardRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import EmojiPicker from './EmojiPicker'
-import ImageUpload from './ImageUpload'
+import FileUpload from './FileUpload'
+import VoiceRecorder from './VoiceRecorder'
 import ReplyPreview from './ReplyPreview'
+import { formatFileSize } from '../lib/utils'
 
 const MessageInput = forwardRef(function MessageInput(
-  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onImageUpload, onSubmit, selectedUser, onTyping, replyTo, editMessage, onCancelReply, onCancelEdit },
+  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onFileUpload, onSubmit, selectedUser, onTyping, replyTo, editMessage, onCancelReply, onCancelEdit },
   inputRef
 ) {
   const [dragOver, setDragOver] = useState(false)
+  const [pendingFiles, setPendingFiles] = useState([])
 
   const handleChange = (e) => {
     setText(e.target.value)
@@ -18,28 +21,56 @@ const MessageInput = forwardRef(function MessageInput(
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      onSubmit(e)
+      if (pendingFiles.length > 0) {
+        submitFiles()
+      } else {
+        onSubmit(e)
+      }
     }
     if (e.key === 'Escape') {
       if (editMessage) onCancelEdit?.()
       else if (replyTo) onCancelReply?.()
+      else if (pendingFiles.length > 0) setPendingFiles([])
     }
+  }
+
+  const submitFiles = async () => {
+    for (const f of pendingFiles) {
+      await onFileUpload?.(f.url, f.meta)
+    }
+    if (text.trim()) {
+      onSubmit({ preventDefault: () => {} })
+    }
+    setPendingFiles([])
+  }
+
+  const handleFileUploaded = (url, meta) => {
+    setPendingFiles((prev) => [...prev, { url, meta }])
+  }
+
+  const removePendingFile = (index) => {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleDrop = (e) => {
     e.preventDefault()
     setDragOver(false)
     const file = e.dataTransfer.files[0]
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
+      const ext = file.name.split('.').pop()
       const url = URL.createObjectURL(file)
-      onImageUpload(url)
+      handleFileUploaded(url, { name: file.name, type: getFileType(file.name), mimeType: file.type, size: file.size })
     }
   }
 
   return (
     <form
-      onSubmit={onSubmit}
-      className="p-3 border-t border-white/20 glass rounded-none backdrop-blur-xl"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (pendingFiles.length > 0) submitFiles()
+        else onSubmit(e)
+      }}
+      className="p-3 border-t border-white/20 glass rounded-none backdrop-blur-xl relative"
       onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
@@ -66,6 +97,32 @@ const MessageInput = forwardRef(function MessageInput(
         )}
       </AnimatePresence>
 
+      {/* Pending file previews */}
+      <AnimatePresence>
+        {pendingFiles.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="flex gap-2 flex-wrap mb-2"
+          >
+            {pendingFiles.map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className="glass rounded-xl px-3 py-2 flex items-center gap-2 text-sm max-w-[200px]"
+              >
+                <span className="truncate text-[var(--text-primary)] flex-1">{f.meta.name}</span>
+                {f.meta.size && <span className="text-[10px] text-[var(--text-secondary)]">{formatFileSize(f.meta.size)}</span>}
+                <button type="button" onClick={() => removePendingFile(i)} className="text-[var(--text-secondary)] hover:text-red-400 transition-colors">&times;</button>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Drag overlay */}
       <AnimatePresence>
         {dragOver && (
@@ -76,7 +133,7 @@ const MessageInput = forwardRef(function MessageInput(
             className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed"
             style={{ borderColor: 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 5%, transparent)' }}
           >
-            <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>Drop image here</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>Drop file here</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -99,7 +156,14 @@ const MessageInput = forwardRef(function MessageInput(
             onClose={() => setShowEmoji(false)}
           />
         </div>
-        <ImageUpload onUpload={onImageUpload} disabled={!selectedUser} />
+        <FileUpload onUpload={handleFileUploaded} disabled={!selectedUser} />
+        <VoiceRecorder
+          onUpload={(url, meta) => {
+            if (onFileUpload) onFileUpload(url, meta)
+            else onImageUpload?.(url)
+          }}
+          disabled={!selectedUser}
+        />
         <input
           ref={inputRef}
           type="text"
@@ -112,7 +176,7 @@ const MessageInput = forwardRef(function MessageInput(
         />
         <motion.button
           type="submit"
-          disabled={!text.trim()}
+          disabled={!text.trim() && pendingFiles.length === 0}
           whileTap={{ scale: 0.9 }}
           className="glass-btn-primary !p-2.5 disabled:opacity-30"
         >
@@ -124,5 +188,20 @@ const MessageInput = forwardRef(function MessageInput(
     </form>
   )
 })
+
+function getFileType(filename) {
+  const ext = filename.split('.').pop().toLowerCase()
+  const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
+  const videoTypes = ['mp4', 'webm', 'ogg', 'mov']
+  const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'flac']
+  const docTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf']
+  const archiveTypes = ['zip', 'rar', '7z', 'tar', 'gz']
+  if (imageTypes.includes(ext)) return 'image'
+  if (videoTypes.includes(ext)) return 'video'
+  if (audioTypes.includes(ext)) return 'audio'
+  if (docTypes.includes(ext)) return 'document'
+  if (archiveTypes.includes(ext)) return 'archive'
+  return 'file'
+}
 
 export default MessageInput

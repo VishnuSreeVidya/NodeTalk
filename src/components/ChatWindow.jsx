@@ -108,6 +108,14 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
             if (prev.some((m) => m.id === payload.new.id)) return prev
             return [...prev, payload.new]
           })
+          if (document.hidden) {
+            supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'message',
+              title: selectedUser.username,
+              body: payload.new.message_text || '📷 Image',
+            })
+          }
         }
       )
       .on(
@@ -251,7 +259,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     }, 2000)
   }
 
-  const sendMessage = async (msgText, imageUrl) => {
+  const sendMessage = async (msgText, imageUrl, fileMeta) => {
     const payload = {
       sender_id: user.id,
       receiver_id: selectedUser.id,
@@ -292,6 +300,12 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     if (imageUrl) {
       payload.image_url = imageUrl
       payload.message_text = msgText || '📷 Image'
+    } else if (fileMeta) {
+      payload.file_url = fileMeta.file_url
+      payload.file_name = fileMeta.file_name
+      payload.file_type = fileMeta.file_type
+      payload.file_size = fileMeta.file_size
+      payload.message_text = msgText || fileMeta.file_name || '📎 File'
     } else {
       if (!msgText?.trim()) return
       if (sharedKey) {
@@ -362,6 +376,10 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   const handleImageUpload = (url) => {
     sendMessage('', url)
+  }
+
+  const handleFileUpload = (url, meta) => {
+    sendMessage(meta?.name || 'File', null, { file_url: url, file_name: meta?.name, file_type: meta?.type, file_size: meta?.size })
   }
 
   const handleReply = (msg) => {
@@ -665,6 +683,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         showEmoji={showEmoji}
         setShowEmoji={setShowEmoji}
         onEmojiSelect={handleEmojiSelect}
+        onFileUpload={handleFileUpload}
         onImageUpload={handleImageUpload}
         onSubmit={handleSubmit}
         selectedUser={selectedUser}
