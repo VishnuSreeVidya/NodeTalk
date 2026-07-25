@@ -48,10 +48,56 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const inputRef = useRef(null)
   const messagesRef = useRef(messages)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
+  const markReadTimerRef = useRef(null)
+  const lastMarkReadRef = useRef(0)
 
   useEffect(() => {
     messagesRef.current = messages
   })
+
+  const markAsRead = useCallback(async () => {
+    if (!selectedUser || !user) return
+    const now = Date.now()
+    if (now - lastMarkReadRef.current < 3000) return
+    lastMarkReadRef.current = now
+
+    const unreadIds = messagesRef.current
+      .filter((m) => m.sender_id === selectedUser.id && m.receiver_id === user.id && m.message_status !== 'read')
+      .map((m) => m.id)
+
+    if (unreadIds.length === 0) return
+
+    await supabase
+      .from('messages')
+      .update({ message_status: 'read', read_at: new Date().toISOString() })
+      .in('id', unreadIds)
+      .eq('message_status', 'delivered')
+  }, [selectedUser?.id, user?.id])
+
+  const markAsDelivered = useCallback(async () => {
+    if (!selectedUser || !user) return
+    const undeliveredIds = messagesRef.current
+      .filter((m) => m.sender_id === user.id && m.receiver_id === selectedUser.id && m.message_status === 'sent')
+      .map((m) => m.id)
+
+    if (undeliveredIds.length === 0) return
+
+    await supabase
+      .from('messages')
+      .update({ message_status: 'delivered' })
+      .in('id', undeliveredIds)
+  }, [selectedUser?.id, user?.id])
+
+  useEffect(() => {
+    if (!selectedUser) return
+    markAsRead()
+
+    const handleVisibility = () => {
+      if (!document.hidden) markAsRead()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [selectedUser?.id, messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchMessages = useCallback(async () => {
     if (!selectedUser) return
@@ -116,6 +162,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
               body: payload.new.message_text || '📷 Image',
             })
           }
+          clearTimeout(markReadTimerRef.current)
+          markReadTimerRef.current = setTimeout(() => {
+            markAsDelivered()
+            markAsRead()
+          }, 500)
         }
       )
       .on(
@@ -139,7 +190,10 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => {
+      supabase.removeChannel(channel)
+      clearTimeout(markReadTimerRef.current)
+    }
   }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -263,6 +317,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     const payload = {
       sender_id: user.id,
       receiver_id: selectedUser.id,
+      message_status: 'sent',
     }
 
     if (editMessage) {

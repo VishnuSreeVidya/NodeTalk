@@ -95,9 +95,35 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               )}
-              {msg.message_status && isOwn && (
-                <span className="text-[9px] opacity-50" style={{ color: isOwn ? 'white' : 'var(--text-secondary)' }}>
-                  {msg.message_status === 'read' ? '✓✓' : msg.message_status === 'delivered' ? '✓✓' : '✓'}
+              {isOwn && (
+                <span className="inline-flex items-center">
+                  {msg.message_status === 'sending' && (
+                    <svg className="w-4 h-3.5" viewBox="0 0 16 12" fill="none">
+                      <path d="M1 6l3.5 3.5L11 3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {msg.message_status === 'sent' && (
+                    <svg className="w-4 h-3.5" viewBox="0 0 16 12" fill="none">
+                      <path d="M1 6l3.5 3.5L11 3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {msg.message_status === 'delivered' && (
+                    <svg className="w-5 h-3.5" viewBox="0 0 20 12" fill="none">
+                      <path d="M1 6l3.5 3.5L11 3" stroke="rgba(255,255,255,0.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M5 6l3.5 3.5L15 3" stroke="rgba(255,255,255,0.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {msg.message_status === 'read' && (
+                    <svg className="w-5 h-3.5" viewBox="0 0 20 12" fill="none">
+                      <path d="M1 6l3.5 3.5L11 3" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M5 6l3.5 3.5L15 3" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {!msg.message_status && (
+                    <svg className="w-4 h-3.5" viewBox="0 0 16 12" fill="none">
+                      <path d="M1 6l3.5 3.5L11 3" stroke="rgba(255,255,255,0.4)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </span>
               )}
             </div>
