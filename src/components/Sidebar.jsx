@@ -1,14 +1,24 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import ThemeSelector from './ThemeSelector'
+import Avatar from '../ui/Avatar'
+import Badge from '../ui/Badge'
+import { useClickOutside } from '../hooks/useClickOutside'
+import { useToast } from './Toast'
 
 export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
   const { user, profile, signOut, updateOnlineStatus } = useAuth()
+  const toast = useToast()
   const [users, setUsers] = useState([])
   const [typingUsers, setTypingUsers] = useState({})
   const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState('chats')
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [unreadCounts] = useState({})
   const typingRef = useRef(null)
+  const profileMenuRef = useClickOutside(() => setShowProfileMenu(false), showProfileMenu)
 
   const fetchUsers = async () => {
     const { data, error } = await supabase
@@ -27,7 +37,6 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers()
-
     supabase.rpc('cleanup_stale_users').then(() => fetchUsers())
 
     const channel = supabase
@@ -120,33 +129,37 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
       u.username?.toLowerCase().includes(search.toLowerCase())
     ), [users, search])
 
+  const onlineCount = useMemo(() =>
+    users.filter((u) => u.is_online).length, [users])
+
   return (
     <div
-      className="w-full lg:w-80 h-full flex flex-col border-r border-white/40 relative backdrop-blur-xl"
+      className="w-full lg:w-80 h-full flex flex-col border-r border-white/30 relative backdrop-blur-xl"
       style={{ background: 'var(--sidebar-bg)' }}
     >
       {/* Header */}
-      <div className="p-5 border-b border-white/40">
+      <div className="p-4 border-b border-white/20">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-bold text-white shadow-sm" style={{ background: 'var(--accent)' }}>
-              {profile?.username?.charAt(0).toUpperCase() || '?'}
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-bold text-white shadow-md" style={{ background: 'var(--accent)' }}>
+              N
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--text-primary)]">{profile?.username || 'User'}</p>
-              <p className="text-xs text-[var(--text-secondary)]">{profile?.status_message || ''}</p>
+              <p className="text-sm font-bold text-[var(--text-primary)] tracking-tight">NodeTalk</p>
+              <p className="text-[10px] text-[var(--text-secondary)] font-medium">{onlineCount} online</p>
             </div>
           </div>
           <ThemeSelector />
         </div>
 
+        {/* Search */}
         <div className="relative">
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search conversations..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="glass-input w-full pl-10 text-sm"
@@ -154,65 +167,165 @@ export default function Sidebar({ selectedUser, onSelectUser, incomingCall }) {
         </div>
       </div>
 
-      {/* User list */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-1">
-        {filtered.length === 0 && (
-          <p className="text-[var(--text-secondary)] text-center py-8 text-sm">No users found</p>
-        )}
-        {filtered.map((u) => {
-          const isSelected = selectedUser?.id === u.id
-          const isTyping = typingUsers[u.id]
-          const isCalling = incomingCall?.callerId === u.id
-          return (
-            <button
-              key={u.id}
-              onClick={() => onSelectUser(u)}
-              className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all duration-200 text-left ${
-                isSelected
-                  ? 'shadow-sm border'
-                  : 'hover:bg-white/50 border border-transparent'
-              } ${isCalling ? 'ring-2 ring-green-400/50' : ''}`}
-              style={isSelected ? { background: 'color-mix(in srgb, var(--accent) 10%, transparent)', borderColor: 'color-mix(in srgb, var(--accent) 15%, transparent)' } : undefined}
-            >
-              <div className="relative flex-shrink-0">
-                <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-base font-bold text-white shadow-sm" style={{ background: 'var(--accent)' }}>
-                  {u.username?.charAt(0).toUpperCase() || '?'}
-                </div>
-                <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${u.is_online ? 'online' : 'offline'}`} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-[var(--text-primary)] truncate">{u.username}</span>
-                  <span className="text-[10px] text-[var(--text-secondary)]">{u.is_online ? 'online' : 'offline'}</span>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)] truncate">
-                  {isCalling ? (
-                    <span className="text-emerald-500 animate-pulse">Incoming call...</span>
-                  ) : isTyping ? (
-                    <span className="animate-fade-in" style={{ color: 'var(--accent)' }}>typing...</span>
-                  ) : (
-                    u.status_message || 'Hey there!'
-                  )}
-                </p>
-              </div>
-            </button>
-          )
-        })}
+      {/* Tabs */}
+      <div className="flex border-b border-white/20">
+        {['chats', 'groups'].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all relative ${
+              activeTab === tab
+                ? 'text-[var(--accent)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
+          >
+            {tab}
+            {activeTab === tab && (
+              <motion.div
+                layoutId="sidebar-tab"
+                className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
+                style={{ background: 'var(--accent)' }}
+              />
+            )}
+          </button>
+        ))}
       </div>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-white/40">
-        <button
-          onClick={signOut}
-          className="w-full glass rounded-xl text-sm py-2.5 text-[var(--text-secondary)] hover:text-[var(--accent)] transition-all flex items-center justify-center gap-2"
-          style={{ '--hover-bg': 'color-mix(in srgb, var(--accent) 5%, transparent)' }}
+      {/* User list */}
+      <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
+        {activeTab === 'chats' ? (
+          <>
+            {filtered.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-3xl mb-3">🔍</p>
+                <p className="text-[var(--text-secondary)] text-sm">No conversations found</p>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {filtered.map((u, index) => {
+                  const isSelected = selectedUser?.id === u.id
+                  const isTyping = typingUsers[u.id]
+                  const isCalling = incomingCall?.callerId === u.id
+                  return (
+                    <motion.button
+                      key={u.id}
+                      layout
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ delay: index * 0.02 }}
+                      onClick={() => onSelectUser(u)}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-200 text-left group ${
+                        isSelected
+                          ? 'shadow-sm'
+                          : 'hover:bg-white/40'
+                      } ${isCalling ? 'ring-2 ring-green-400/50' : ''}`}
+                      style={isSelected ? { background: 'color-mix(in srgb, var(--accent) 12%, transparent)' } : undefined}
+                    >
+                      <Avatar
+                        username={u.username}
+                        size="md"
+                        isOnline={u.is_online}
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className={`text-sm font-semibold truncate ${isSelected ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]'}`}>
+                            {u.username}
+                          </span>
+                          {unreadCounts[u.id] > 0 && !isSelected && (
+                            <Badge count={unreadCounts[u.id]} size="sm" />
+                          )}
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary)] truncate">
+                          {isCalling ? (
+                            <span className="text-emerald-500 font-medium animate-pulse">Incoming call...</span>
+                          ) : isTyping ? (
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              style={{ color: 'var(--accent)' }}
+                              className="font-medium"
+                            >
+                              typing...
+                            </motion.span>
+                          ) : (
+                            u.status_message || 'Hey there!'
+                          )}
+                        </p>
+                      </div>
+                    </motion.button>
+                  )
+                })}
+              </AnimatePresence>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-3xl mb-3">🏠</p>
+            <p className="text-[var(--text-secondary)] text-sm">Groups coming soon</p>
+          </div>
+        )}
+      </div>
+
+      {/* User profile footer */}
+      <div className="p-3 border-t border-white/20 relative" ref={profileMenuRef}>
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+          className="w-full flex items-center gap-3 p-2.5 rounded-2xl hover:bg-white/40 transition-all"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          <Avatar username={profile?.username} size="sm" isOnline={true} />
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{profile?.username || 'User'}</p>
+            <p className="text-[10px] text-[var(--text-secondary)] truncate">{profile?.status_message || 'Online'}</p>
+          </div>
+          <svg className="w-4 h-4 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
-          Sign Out
-        </button>
+        </motion.button>
+
+        <AnimatePresence>
+          {showProfileMenu && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+              className="absolute bottom-full left-3 right-3 mb-2 glass-strong rounded-2xl p-2 shadow-xl z-10"
+            >
+              <button
+                onClick={() => { toast.info('Profile settings coming soon'); setShowProfileMenu(false) }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Profile
+              </button>
+              <button
+                onClick={() => { toast.info('Settings coming soon'); setShowProfileMenu(false) }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+              </button>
+              <div className="border-t border-white/10 my-1" />
+              <button
+                onClick={() => { signOut(); setShowProfileMenu(false) }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign Out
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

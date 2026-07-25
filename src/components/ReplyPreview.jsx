@@ -1,24 +1,35 @@
-export default function ReplyPreview({ replyMsg, onCancel }) {
+import { memo } from 'react'
+import { motion } from 'framer-motion'
+
+function ReplyPreview({ replyMsg, onCancel, label = 'Replying to' }) {
   if (!replyMsg) return null
 
   const preview = replyMsg.message_text || '📷 Image'
 
   return (
-    <div className="reply-preview">
+    <motion.div
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 5 }}
+      className="reply-preview"
+    >
       <div className="reply-preview-bar" />
       <div className="flex-1 min-w-0">
-        <p className="reply-preview-name">Replying to message</p>
+        <p className="reply-preview-name">{label}</p>
         <p className="reply-preview-text">{preview}</p>
       </div>
       {onCancel && (
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={onCancel}
           className="reply-preview-close"
-          title="Cancel reply"
+          title="Cancel"
         >
           &times;
-        </button>
+        </motion.button>
       )}
-    </div>
+    </motion.div>
   )
 }
+
+export default memo(ReplyPreview)

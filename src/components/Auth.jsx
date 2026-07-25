@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from './Toast'
 import ThemeSelector from './ThemeSelector'
-import heroImg from '../assets/hero.png'
 
 export default function Auth() {
   const { signIn, signUp } = useAuth()
@@ -38,66 +38,122 @@ export default function Auth() {
       <div className="fixed top-5 right-5 z-50">
         <ThemeSelector />
       </div>
-      <div className="w-full max-w-lg glass-card flex flex-col items-center justify-center p-10">
-        <img src={heroImg} alt="NodeTalk" className="w-24 h-24 mb-4 object-contain" />
-        <form onSubmit={handleSubmit} className="flex flex-col w-full">
-          <h1 className="text-3xl font-bold text-center mb-2" style={{ color: 'var(--accent)' }}>
-            {isLogin ? 'Login' : 'Sign Up'}
-          </h1>
-          <p className="text-sm font-semibold text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
-            {isLogin ? 'Please fill the details to login your account' : 'Create your account to get started'}
-          </p>
 
-          {!isLogin && (
-            <input
-              type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="glass-input w-full mb-3"
-            />
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="glass-input w-full mb-3"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="glass-input w-full mb-3"
-            minLength={6}
-            required
-          />
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+        className="w-full max-w-md"
+      >
+        <div className="glass-card p-8 flex flex-col items-center">
+          {/* Logo */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.2 }}
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-lg mb-6"
+            style={{ background: 'var(--accent)' }}
+          >
+            N
+          </motion.div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center mb-3">{error}</p>
-          )}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-2xl font-bold text-center mb-1"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            {isLogin ? 'Welcome back' : 'Create account'}
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-sm text-center mb-6"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {isLogin ? 'Sign in to continue to NodeTalk' : 'Join NodeTalk to start messaging'}
+          </motion.p>
 
-          <div className="flex items-center justify-center gap-4 mt-1">
-            <button
+          <form onSubmit={handleSubmit} className="w-full">
+            <div className="space-y-3">
+              {!isLogin && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="glass-input w-full"
+                  />
+                </motion.div>
+              )}
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="glass-input w-full"
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="glass-input w-full"
+                minLength={6}
+                required
+              />
+            </div>
+
+            {error && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-red-500 text-sm text-center mt-3"
+              >
+                {error}
+              </motion.p>
+            )}
+
+            <motion.button
               type="submit"
               disabled={busy}
-              className="glass-btn-primary w-28 disabled:opacity-50"
+              whileHover={{ scale: busy ? 1 : 1.02 }}
+              whileTap={{ scale: busy ? 1 : 0.98 }}
+              className="glass-btn-primary w-full mt-5 disabled:opacity-50"
             >
-              {busy ? '⏳' : isLogin ? 'Login' : 'Sign Up'}
-            </button>
+              {busy ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                  {isLogin ? 'Signing in...' : 'Creating account...'}
+                </span>
+              ) : (
+                isLogin ? 'Sign In' : 'Create Account'
+              )}
+            </motion.button>
+          </form>
 
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-sm mt-5 text-center"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
-              type="button"
               onClick={() => { setIsLogin(!isLogin); setError('') }}
-              className="glass-btn w-28"
+              className="font-semibold hover:underline"
+              style={{ color: 'var(--accent)' }}
             >
-              {isLogin ? 'Sign Up' : 'Login'}
+              {isLogin ? 'Sign Up' : 'Sign In'}
             </button>
-          </div>
-        </form>
-      </div>
+          </motion.p>
+        </div>
+      </motion.div>
     </div>
   )
 }
