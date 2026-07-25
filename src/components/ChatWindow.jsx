@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import MessageBubble from './MessageBubble'
 import MessageInput from './MessageInput'
+import { initEncryption, encryptMessage, decryptMessage } from '../utils/crypto'
 
 export default function ChatWindow({ selectedUser, onStartCall }) {
   const { user, profile } = useAuth()
@@ -11,14 +12,23 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const [loading, setLoading] = useState(true)
   const [receiverTyping, setReceiverTyping] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
+  const [reactions, setReactions] = useState([])
+  const [replyTo, setReplyTo] = useState(null)
+  const [sharedKey, setSharedKey] = useState(null)
+  const [decryptedTexts, setDecryptedTexts] = useState({})
   const bottomRef = useRef(null)
   const messagesContainerRef = useRef(null)
   const typingTimeoutRef = useRef(null)
   const isTypingRef = useRef(false)
   const inputRef = useRef(null)
+  const messagesRef = useRef(messages)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
 
-  const fetchMessages = async () => {
+  useEffect(() => {
+    messagesRef.current = messages
+  })
+
+  const fetchMessages = useCallback(async () => {
     if (!selectedUser) return
     setLoading(true)
     const { data, error } = await supabase
@@ -33,7 +43,20 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       setMessages(data)
     }
     setLoading(false)
-  }
+  }, [user?.id, selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchReactions = useCallback(async () => {
+    if (!selectedUser) return
+    const messageIds = messagesRef.current.map((m) => m.id)
+    if (messageIds.length === 0) return
+
+    const { data } = await supabase
+      .from('reactions')
+      .select('*')
+      .in('message_id', messageIds)
+
+    if (data) setReactions(data)
+  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!selectedUser) return
@@ -70,6 +93,26 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
     return () => { supabase.removeChannel(channel) }
   }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (messages.length === 0) return
+    fetchReactions()
+  }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!selectedUser) return
+
+    const channel = supabase
+      .channel(`reactions-${user.id}-${selectedUser.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'reactions' },
+        () => { fetchReactions() }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [selectedUser?.id, messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -110,6 +153,43 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     }
   }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!selectedUser) return
+
+    const setupEncryption = async () => {
+      try {
+        const key = await initEncryption(selectedUser.id)
+        setSharedKey(key)
+      } catch (err) {
+        console.error('E2EE setup failed:', err)
+      }
+    }
+
+    setupEncryption()
+  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!sharedKey || messages.length === 0) return
+
+    const decryptAll = async () => {
+      const newDecrypted = {}
+      for (const msg of messages) {
+        if (msg.encrypted && msg.encrypted_text && !decryptedTexts[msg.id]) {
+          try {
+            newDecrypted[msg.id] = await decryptMessage(msg.encrypted_text, sharedKey)
+          } catch {
+            newDecrypted[msg.id] = '[decryption failed]'
+          }
+        }
+      }
+      if (Object.keys(newDecrypted).length > 0) {
+        setDecryptedTexts((prev) => ({ ...prev, ...newDecrypted }))
+      }
+    }
+
+    decryptAll()
+  }, [sharedKey, messages]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const broadcastTyping = () => {
     if (isTypingRef.current) return
     isTypingRef.current = true
@@ -136,18 +216,34 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       sender_id: user.id,
       receiver_id: selectedUser.id,
     }
+
+    if (replyTo) {
+      payload.reply_to = replyTo.id
+    }
+
     if (imageUrl) {
       payload.image_url = imageUrl
       payload.message_text = msgText || '📷 Image'
     } else {
       if (!msgText?.trim()) return
-      payload.message_text = msgText.trim()
+      if (sharedKey) {
+        try {
+          payload.encrypted_text = await encryptMessage(msgText.trim(), sharedKey)
+          payload.encrypted = true
+          payload.message_text = '🔒 Encrypted message'
+        } catch {
+          payload.message_text = msgText.trim()
+        }
+      } else {
+        payload.message_text = msgText.trim()
+      }
     }
 
     const { error } = await supabase.from('messages').insert(payload)
 
     if (!error) {
       setText('')
+      setReplyTo(null)
     } else {
       console.error('Failed to send message:', error.message)
     }
@@ -166,6 +262,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   const handleImageUpload = (url) => {
     sendMessage('', url)
+  }
+
+  const handleReply = (msg) => {
+    setReplyTo(msg)
+    inputRef.current?.focus()
   }
 
   if (!selectedUser) {
@@ -201,6 +302,14 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {sharedKey && (
+            <div className="flex items-center gap-1 glass !px-2 !py-1 !rounded-lg" title="End-to-end encrypted">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-[10px] font-medium" style={{ color: 'var(--accent)' }}>E2EE</span>
+            </div>
+          )}
           <button
             onClick={() => onStartCall?.('audio')}
             className="glass !p-2.5 !rounded-xl transition-all hover:bg-[var(--accent)]/10"
@@ -245,7 +354,15 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         )}
 
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} msg={msg} isOwn={msg.sender_id === user.id} />
+          <MessageBubble
+            key={msg.id}
+            msg={msg}
+            isOwn={msg.sender_id === user.id}
+            reactions={reactions.filter((r) => r.message_id === msg.id)}
+            allMessages={messages}
+            onReply={handleReply}
+            decryptedText={decryptedTexts[msg.id]}
+          />
         ))}
 
         {receiverTyping && (
@@ -286,6 +403,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         onSubmit={handleSubmit}
         selectedUser={selectedUser}
         onTyping={broadcastTyping}
+        replyTo={replyTo}
+        onCancelReply={() => setReplyTo(null)}
       />
     </div>
   )

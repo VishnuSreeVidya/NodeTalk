@@ -1,9 +1,10 @@
 import { forwardRef } from 'react'
 import EmojiPicker from './EmojiPicker'
 import ImageUpload from './ImageUpload'
+import ReplyPreview from './ReplyPreview'
 
 const MessageInput = forwardRef(function MessageInput(
-  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onImageUpload, onSubmit, selectedUser, onTyping },
+  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onImageUpload, onSubmit, selectedUser, onTyping, replyTo, onCancelReply },
   inputRef
 ) {
   const handleChange = (e) => {
@@ -13,6 +14,9 @@ const MessageInput = forwardRef(function MessageInput(
 
   return (
     <form onSubmit={onSubmit} className="p-4 border-t border-gray-200 glass rounded-none">
+      {replyTo && (
+        <ReplyPreview replyMsg={replyTo} onCancel={onCancelReply} />
+      )}
       <div className="flex items-center gap-2">
         <div className="relative">
           <button

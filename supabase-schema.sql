@@ -17,12 +17,15 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 -- 2. MESSAGES TABLE
 CREATE TABLE IF NOT EXISTS public.messages (
-  id          BIGSERIAL PRIMARY KEY,
-  sender_id   UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  receiver_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  message_text TEXT,
-  image_url   TEXT,
-  created_at  TIMESTAMPTZ DEFAULT now()
+  id            BIGSERIAL PRIMARY KEY,
+  sender_id     UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  receiver_id   UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  message_text  TEXT,
+  image_url     TEXT,
+  encrypted     BOOLEAN DEFAULT false,
+  encrypted_text TEXT,
+  reply_to      BIGINT REFERENCES public.messages(id) ON DELETE SET NULL,
+  created_at    TIMESTAMPTZ DEFAULT now()
 );
 
 -- 3. INDEXES for performance
@@ -30,6 +33,28 @@ CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver
   ON public.messages(sender_id, receiver_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created_at
   ON public.messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_reply_to
+  ON public.messages(reply_to);
+
+-- 4. USER KEYS TABLE (E2EE public keys)
+CREATE TABLE IF NOT EXISTS public.user_keys (
+  id          UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  public_key  TEXT NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- 5. REACTIONS TABLE
+CREATE TABLE IF NOT EXISTS public.reactions (
+  id          BIGSERIAL PRIMARY KEY,
+  message_id  BIGINT NOT NULL REFERENCES public.messages(id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  emoji       TEXT NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(message_id, user_id, emoji)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reactions_message
+  ON public.reactions(message_id);
 
 -- 4. AUTO-CREATE PROFILE ON SIGNUP
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -55,6 +80,8 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 -- 5. ROW LEVEL SECURITY
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reactions ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: authenticated users can read all profiles, update only their own
 CREATE POLICY "Users can view all profiles"
@@ -78,8 +105,41 @@ CREATE POLICY "Users can insert their own messages"
   TO authenticated
   WITH CHECK (sender_id = auth.uid());
 
+-- User Keys: users can read all public keys, insert/update only their own
+CREATE POLICY "Users can view all public keys"
+  ON public.user_keys FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Users can insert own public key"
+  ON public.user_keys FOR INSERT
+  TO authenticated
+  WITH CHECK (id = auth.uid());
+
+CREATE POLICY "Users can update own public key"
+  ON public.user_keys FOR UPDATE
+  TO authenticated
+  USING (id = auth.uid());
+
+-- Reactions: users can read all reactions, insert/delete their own
+CREATE POLICY "Users can view all reactions"
+  ON public.reactions FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Users can insert own reactions"
+  ON public.reactions FOR INSERT
+  TO authenticated
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Users can delete own reactions"
+  ON public.reactions FOR DELETE
+  TO authenticated
+  USING (user_id = auth.uid());
+
 -- 6. ENABLE REALTIME (run in Supabase SQL editor)
 -- ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE public.reactions;
 
 -- 8. CLEANUP STALE ONLINE USERS (run periodically or on connect)
 CREATE OR REPLACE FUNCTION public.cleanup_stale_users()
