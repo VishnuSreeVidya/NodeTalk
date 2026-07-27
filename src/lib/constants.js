@@ -32,3 +32,37 @@ export const STATUS_OPTIONS = [
   'In a meeting',
   'On a call',
 ]
+
+export const KEYBOARD_SHORTCUTS = {
+  SEARCH: { key: 'k', ctrl: true, label: 'Search conversations' },
+  NEW_CHAT: { key: 'n', ctrl: true, label: 'New chat' },
+  ESCAPE: { key: 'Escape', label: 'Close/Cancel' },
+}
+
+export const API_TIMEOUT = 10000
+export const RETRY_ATTEMPTS = 3
+export const RETRY_DELAY = 1000
+
+export const FILE_CATEGORIES = {
+  image: { label: 'Images', icon: '🖼️', accept: 'image/*' },
+  video: { label: 'Videos', icon: '🎬', accept: 'video/*' },
+  audio: { label: 'Audio', icon: '🎵', accept: 'audio/*' },
+  document: { label: 'Documents', icon: '📄', accept: '.pdf,.doc,.docx,.txt' },
+  archive: { label: 'Archives', icon: '📦', accept: '.zip,.rar,.7z' },
+}
+
+export const MESSAGE_TYPES = {
+  TEXT: 'text',
+  IMAGE: 'image',
+  FILE: 'file',
+  VOICE: 'voice',
+  SYSTEM: 'system',
+}
+
+export const CALL_STATES = {
+  IDLE: 'idle',
+  CALLING: 'calling',
+  RINGING: 'ringing',
+  CONNECTING: 'connecting',
+  CONNECTED: 'connected',
+}

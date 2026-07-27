@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
@@ -6,15 +6,14 @@ import ThemeSelector from './ThemeSelector'
 import Avatar from '../ui/Avatar'
 import Badge from '../ui/Badge'
 import { useClickOutside } from '../hooks/useClickOutside'
-import { useToast } from './Toast'
+
 import CreateGroupModal from '../features/groups/CreateGroupModal'
 import ProfileModal from './ProfileModal'
 import SettingsModal from './SettingsModal'
 import NotificationBell from './NotificationBell'
 
-export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, incomingCall }) {
+function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, incomingCall }) {
   const { user, profile, signOut, updateOnlineStatus } = useAuth()
-  const toast = useToast()
   const [users, setUsers] = useState([])
   const [groups, setGroups] = useState([])
   const [typingUsers, setTypingUsers] = useState({})
@@ -28,7 +27,7 @@ export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, sel
   const typingRef = useRef(null)
   const profileMenuRef = useClickOutside(() => setShowProfileMenu(false), showProfileMenu)
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -40,9 +39,9 @@ export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, sel
     } else if (data) {
       setUsers(data)
     }
-  }
+  }, [user])
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     if (!user) return
     const { data, error } = await supabase
       .from('group_members')
@@ -53,7 +52,7 @@ export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, sel
       const groupList = data.map((gm) => gm.groups).filter(Boolean)
       setGroups(groupList)
     }
-  }
+  }, [user])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -417,3 +416,5 @@ export default function Sidebar({ selectedUser, onSelectUser, onSelectGroup, sel
     </div>
   )
 }
+
+export default memo(Sidebar)

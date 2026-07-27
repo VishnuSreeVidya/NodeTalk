@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Modal from '../../ui/Modal'
 import Avatar from '../../ui/Avatar'
@@ -14,14 +14,13 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (!open) {
-      setName('')
-      setDescription('')
-      setSelectedMembers([])
-      setSearch('')
-    }
-  }, [open])
+  const handleClose = () => {
+    setName('')
+    setDescription('')
+    setSelectedMembers([])
+    setSearch('')
+    onClose()
+  }
 
   const filteredUsers = users?.filter((u) =>
     u.id !== user.id &&
@@ -75,7 +74,7 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Create Group" maxWidth="max-w-lg">
+    <Modal open={open} onClose={handleClose} title="Create Group" maxWidth="max-w-lg">
       <div className="space-y-4">
         {/* Group name */}
         <div>

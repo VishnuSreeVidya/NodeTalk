@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 
 const QUICK_REACTIONS = ['❤️', '👍', '😂', '😮', '😢', '🔥']
 
-export default function ReactionBar({ messageId, reactions, isOwn }) {
+function ReactionBar({ messageId, reactions, isOwn }) {
   const { user } = useAuth()
   const [showPicker, setShowPicker] = useState(false)
 
@@ -76,3 +76,5 @@ export default function ReactionBar({ messageId, reactions, isOwn }) {
     </div>
   )
 }
+
+export default memo(ReactionBar)

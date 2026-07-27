@@ -45,6 +45,8 @@ export default function useWebRTC(selectedUser, onCallChange) {
         event: 'call-end',
         payload: { senderId: user.id },
       })
+      supabase.removeChannel(channelRef.current)
+      channelRef.current = null
     }
     setState('idle')
     setCallDuration(0)

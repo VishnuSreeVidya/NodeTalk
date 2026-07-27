@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+
 import { formatFileSize, getFileType } from '../lib/utils'
 
 const FILE_ICONS = {

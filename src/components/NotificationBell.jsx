@@ -1,34 +1,34 @@
-import { useState, useEffect, useCallback } from 'react'
+import { memo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useClickOutside } from '../hooks/useClickOutside'
 
-export default function NotificationBell() {
+function NotificationBell() {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
   const ref = useClickOutside(() => setOpen(false), open)
 
-  const fetchNotifications = useCallback(async () => {
-    if (!user) return
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
-
-    if (data) {
-      setNotifications(data)
-      setUnreadCount(data.filter((n) => !n.is_read).length)
-    }
-  }, [user?.id])
-
   useEffect(() => {
-    fetchNotifications()
-  }, [fetchNotifications])
+    if (!user) return
+    let cancelled = false
+    async function load() {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (!cancelled && data) {
+        setNotifications(data)
+        setUnreadCount(data.filter((n) => !n.is_read).length)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -44,7 +44,7 @@ export default function NotificationBell() {
       )
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [user?.id])
+  }, [user])
 
   const markAllRead = async () => {
     if (!user || unreadCount === 0) return
@@ -136,3 +136,5 @@ export default function NotificationBell() {
     </div>
   )
 }
+
+export default memo(NotificationBell)

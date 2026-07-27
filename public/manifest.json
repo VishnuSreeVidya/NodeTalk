@@ -1,0 +1,21 @@
+{
+  "name": "NodeTalk",
+  "short_name": "NodeTalk",
+  "description": "Secure, real-time messaging platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E0F2FE",
+  "theme_color": "#0EA5E9",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["communication", "social"],
+  "lang": "en",
+  "dir": "ltr"
+}

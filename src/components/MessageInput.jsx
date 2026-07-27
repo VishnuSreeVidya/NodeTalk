@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react'
+import { forwardRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import EmojiPicker from './EmojiPicker'
 import FileUpload from './FileUpload'
@@ -7,18 +7,28 @@ import ReplyPreview from './ReplyPreview'
 import { formatFileSize } from '../lib/utils'
 
 const MessageInput = forwardRef(function MessageInput(
-  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onFileUpload, onSubmit, selectedUser, onTyping, replyTo, editMessage, onCancelReply, onCancelEdit },
+  { text, setText, showEmoji, setShowEmoji, onEmojiSelect, onFileUpload, onImageUpload, onSubmit, selectedUser, onTyping, replyTo, editMessage, onCancelReply, onCancelEdit },
   inputRef
 ) {
   const [dragOver, setDragOver] = useState(false)
   const [pendingFiles, setPendingFiles] = useState([])
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     setText(e.target.value)
     if (selectedUser) onTyping?.()
-  }
+  }, [setText, selectedUser, onTyping])
 
-  const handleKeyDown = (e) => {
+  const submitFiles = useCallback(async () => {
+    for (const f of pendingFiles) {
+      await onFileUpload?.(f.url, f.meta)
+    }
+    if (text.trim()) {
+      onSubmit({ preventDefault: () => {} })
+    }
+    setPendingFiles([])
+  }, [pendingFiles, text, onFileUpload, onSubmit])
+
+  const handleKeyDown = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       if (pendingFiles.length > 0) {
@@ -32,36 +42,25 @@ const MessageInput = forwardRef(function MessageInput(
       else if (replyTo) onCancelReply?.()
       else if (pendingFiles.length > 0) setPendingFiles([])
     }
-  }
+  }, [pendingFiles, editMessage, replyTo, submitFiles, onSubmit, onCancelEdit, onCancelReply])
 
-  const submitFiles = async () => {
-    for (const f of pendingFiles) {
-      await onFileUpload?.(f.url, f.meta)
-    }
-    if (text.trim()) {
-      onSubmit({ preventDefault: () => {} })
-    }
-    setPendingFiles([])
-  }
-
-  const handleFileUploaded = (url, meta) => {
+  const handleFileUploaded = useCallback((url, meta) => {
     setPendingFiles((prev) => [...prev, { url, meta }])
-  }
+  }, [])
 
-  const removePendingFile = (index) => {
+  const removePendingFile = useCallback((index) => {
     setPendingFiles((prev) => prev.filter((_, i) => i !== index))
-  }
+  }, [])
 
-  const handleDrop = (e) => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault()
     setDragOver(false)
     const file = e.dataTransfer.files[0]
     if (file) {
-      const ext = file.name.split('.').pop()
       const url = URL.createObjectURL(file)
       handleFileUploaded(url, { name: file.name, type: getFileType(file.name), mimeType: file.type, size: file.size })
     }
-  }
+  }, [handleFileUploaded])
 
   return (
     <form

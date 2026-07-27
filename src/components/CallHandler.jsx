@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import useWebRTC from '../hooks/useWebRTC'
 
@@ -8,7 +8,7 @@ function formatDuration(s) {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
 }
 
-function CallControls({ muted, videoOff, isAudioOnly, callDuration, onToggleMute, onToggleVideo, onEndCall, onToggleScreenShare }) {
+const CallControls = memo(function CallControls({ muted, videoOff, isAudioOnly, callDuration, onToggleMute, onToggleVideo, onEndCall, onToggleScreenShare }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -57,7 +57,7 @@ function CallControls({ muted, videoOff, isAudioOnly, callDuration, onToggleMute
       </div>
     </motion.div>
   )
-}
+})
 
 export default function CallHandler({ selectedUser, onCallChange, callRequest }) {
   const {
@@ -86,7 +86,7 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
     }
   }, [callRequest, selectedUser, startCall])
 
-  const handleToggleScreenShare = async () => {
+  const handleToggleScreenShare = useCallback(async () => {
     try {
       if (!isScreenSharing) {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true })
@@ -99,7 +99,7 @@ export default function CallHandler({ selectedUser, onCallChange, callRequest })
     } catch {
       // User cancelled screen share
     }
-  }
+  }, [isScreenSharing])
 
   const isAudioOnly = callType === 'audio'
 

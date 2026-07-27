@@ -6,25 +6,23 @@ import MessageBubble from './MessageBubble'
 import MessageInput from './MessageInput'
 import EmptyState from '../ui/EmptyState'
 import Skeleton from '../ui/Skeleton'
-import Avatar from '../ui/Avatar'
 import { initEncryption, encryptMessage, decryptMessage } from '../utils/crypto'
-import { shouldShowDateSeparator, formatDateSeparator } from '../lib/utils'
+import { shouldShowDateSeparator } from '../lib/utils'
 import { MESSAGE_PAGE_SIZE } from '../lib/constants'
-import { formatLastSeen } from '../lib/utils'
-
-function DateSeparator({ date }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex items-center justify-center my-4"
-    >
-      <div className="glass-strong rounded-full px-4 py-1.5">
-        <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{formatDateSeparator(date)}</span>
-      </div>
-    </motion.div>
-  )
-}
+import { DateSeparator, SingleTypingIndicator } from './shared'
+import MessageContextMenu from './shared/MessageContextMenu'
+import ChatHeader from './shared/ChatHeader'
+import {
+  fetchDMMessages,
+  sendDMMessage,
+  editDMMessage,
+  deleteDMMessage,
+  markMessagesRead,
+  markMessagesDelivered,
+  togglePinMessage,
+  fetchReactions as fetchReactionsApi,
+} from '../services/messageService'
+import { createNotification } from '../services/notificationService'
 
 export default function ChatWindow({ selectedUser, onStartCall }) {
   const { user, profile } = useAuth()
@@ -66,13 +64,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .map((m) => m.id)
 
     if (unreadIds.length === 0) return
-
-    await supabase
-      .from('messages')
-      .update({ message_status: 'read', read_at: new Date().toISOString() })
-      .in('id', unreadIds)
-      .eq('message_status', 'delivered')
-  }, [selectedUser?.id, user?.id])
+    await markMessagesRead(unreadIds)
+  }, [selectedUser, user])
 
   const markAsDelivered = useCallback(async () => {
     if (!selectedUser || !user) return
@@ -81,12 +74,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .map((m) => m.id)
 
     if (undeliveredIds.length === 0) return
-
-    await supabase
-      .from('messages')
-      .update({ message_status: 'delivered' })
-      .in('id', undeliveredIds)
-  }, [selectedUser?.id, user?.id])
+    await markMessagesDelivered(undeliveredIds)
+  }, [selectedUser, user])
 
   useEffect(() => {
     if (!selectedUser) return
@@ -102,12 +91,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const fetchMessages = useCallback(async () => {
     if (!selectedUser) return
     setLoading(true)
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},receiver_id.eq.${user.id})`)
-      .order('created_at', { ascending: true })
-      .limit(MESSAGE_PAGE_SIZE)
+    const { data, error } = await fetchDMMessages(user.id, selectedUser.id, MESSAGE_PAGE_SIZE)
 
     if (error) {
       console.error('Failed to fetch messages:', error.message)
@@ -115,20 +99,16 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       setMessages(data)
     }
     setLoading(false)
-  }, [user?.id, selectedUser?.id])
+  }, [user, selectedUser])
 
-  const fetchReactions = useCallback(async () => {
+  const loadReactions = useCallback(async () => {
     if (!selectedUser) return
     const messageIds = messagesRef.current.map((m) => m.id)
     if (messageIds.length === 0) return
 
-    const { data } = await supabase
-      .from('reactions')
-      .select('*')
-      .in('message_id', messageIds)
-
+    const { data } = await fetchReactionsApi(messageIds)
     if (data) setReactions(data)
-  }, [selectedUser?.id])
+  }, [selectedUser])
 
   useEffect(() => {
     if (!selectedUser) return
@@ -155,8 +135,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
             return [...prev, payload.new]
           })
           if (document.hidden) {
-            supabase.from('notifications').insert({
-              user_id: user.id,
+            createNotification({
+              userId: user.id,
               type: 'message',
               title: selectedUser.username,
               body: payload.new.message_text || '📷 Image',
@@ -198,7 +178,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   useEffect(() => {
     if (messages.length === 0) return
-    fetchReactions()
+    loadReactions()
   }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -209,7 +189,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'reactions' },
-        () => { fetchReactions() }
+        () => { loadReactions() }
       )
       .subscribe()
 
@@ -336,11 +316,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         payload.is_edited = true
       }
 
-      const { error } = await supabase
-        .from('messages')
-        .update(payload)
-        .eq('id', editMessage.id)
-
+      const { error } = await editDMMessage(editMessage.id, payload)
       if (!error) {
         setText('')
         setEditMessage(null)
@@ -376,8 +352,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       }
     }
 
-    const { error } = await supabase.from('messages').insert(payload)
-
+    const { error } = await sendDMMessage(payload)
     if (!error) {
       setText('')
       setReplyTo(null)
@@ -388,10 +363,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   const handleDeleteMessage = async (msg, deleteForAll = false) => {
     if (deleteForAll && msg.sender_id === user.id) {
-      await supabase
-        .from('messages')
-        .update({ deleted_for_all: true, message_text: '🗑️ This message was deleted' })
-        .eq('id', msg.id)
+      await deleteDMMessage(msg.id, true)
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== msg.id))
     }
@@ -400,21 +372,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   const handlePinMessage = async (msg) => {
     const isPinned = !msg.is_pinned
-    await supabase
-      .from('messages')
-      .update({ is_pinned: isPinned })
-      .eq('id', msg.id)
-
-    if (isPinned) {
-      await supabase
-        .from('pinned_messages')
-        .insert({ message_id: msg.id, pinned_by: user.id })
-    } else {
-      await supabase
-        .from('pinned_messages')
-        .delete()
-        .eq('message_id', msg.id)
-    }
+    await togglePinMessage(msg.id, isPinned, user.id)
     setContextMenu(null)
   }
 
@@ -459,8 +417,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     if (!searchQuery.trim()) return messages
     const q = searchQuery.toLowerCase()
     return messages.filter((m) => {
-      const text = decryptedTexts[m.id] || m.message_text || ''
-      return text.toLowerCase().includes(q)
+      const t = decryptedTexts[m.id] || m.message_text || ''
+      return t.toLowerCase().includes(q)
     })
   }, [messages, searchQuery, decryptedTexts])
 
@@ -478,72 +436,15 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   return (
     <div className="flex-1 flex flex-col h-full app-container relative" style={{ background: 'var(--chat-bg)' }}>
-      {/* Chat header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4 border-b border-white/20 glass flex items-center gap-3 rounded-none backdrop-blur-xl"
-      >
-        <Avatar
-          username={selectedUser.username}
-          size="md"
-          isOnline={selectedUser.is_online}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[var(--text-primary)] truncate">{selectedUser.username}</p>
-          <p className="text-[11px] text-[var(--text-secondary)]">
-            {receiverTyping
-              ? <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: 'var(--accent)' }} className="font-medium">typing...</motion.span>
-              : selectedUser.is_online ? 'Online' : formatLastSeen(selectedUser.last_seen)}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          {sharedKey && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-1 glass !px-2 !py-1 !rounded-lg" title="End-to-end encrypted"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span className="text-[10px] font-bold" style={{ color: 'var(--accent)' }}>E2EE</span>
-            </motion.div>
-          )}
-
-          <button
-            onClick={() => { setShowSearch(!showSearch) }}
-            className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Search messages"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => onStartCall?.('audio')}
-            className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Voice call"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-          </button>
-          <button
-            onClick={() => onStartCall?.('video')}
-            className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Video call"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </button>
-        </div>
-      </motion.div>
+      <ChatHeader
+        user={selectedUser}
+        isGroup={false}
+        receiverTyping={receiverTyping}
+        sharedKey={sharedKey}
+        onSearchToggle={() => setShowSearch(!showSearch)}
+        onStartAudioCall={() => onStartCall?.('audio')}
+        onStartVideoCall={() => onStartCall?.('video')}
+      />
 
       {/* Search bar */}
       <AnimatePresence>
@@ -637,19 +538,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           </AnimatePresence>
         )}
 
-        {receiverTyping && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-start"
-          >
-            <div className="glass-card px-4 py-3 flex items-center gap-1.5">
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-            </div>
-          </motion.div>
-        )}
+        {receiverTyping && <SingleTypingIndicator />}
 
         <div ref={bottomRef} />
       </div>
@@ -676,57 +565,15 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       {/* Context menu */}
       <AnimatePresence>
         {contextMenu && (
-          <>
-            <div className="fixed inset-0 z-50" onClick={() => setContextMenu(null)} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed z-[60] glass-strong rounded-2xl p-2 shadow-xl min-w-[180px]"
-              style={{ left: Math.min(contextMenu.x, window.innerWidth - 200), top: Math.min(contextMenu.y, window.innerHeight - 250) }}
-            >
-              <button
-                onClick={() => { navigator.clipboard.writeText(contextMenu.message.message_text || ''); setContextMenu(null) }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-              >
-                📋 Copy
-              </button>
-              <button
-                onClick={() => { handleReply(contextMenu.message); setContextMenu(null) }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-              >
-                ↩️ Reply
-              </button>
-              {contextMenu.message.sender_id === user.id && (
-                <>
-                  <button
-                    onClick={() => { handleEdit(contextMenu.message); setContextMenu(null) }}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteMessage(contextMenu.message, false)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-                  >
-                    🗑️ Delete
-                  </button>
-                  <button
-                    onClick={() => handleDeleteMessage(contextMenu.message, true)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors"
-                  >
-                    🗑️ Delete for everyone
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => handlePinMessage(contextMenu.message)}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-              >
-                📌 {contextMenu.message.is_pinned ? 'Unpin' : 'Pin'}
-              </button>
-            </motion.div>
-          </>
+          <MessageContextMenu
+            contextMenu={contextMenu}
+            user={user}
+            onReply={handleReply}
+            onEdit={handleEdit}
+            onDelete={handleDeleteMessage}
+            onPin={handlePinMessage}
+            onClose={() => setContextMenu(null)}
+          />
         )}
       </AnimatePresence>
 

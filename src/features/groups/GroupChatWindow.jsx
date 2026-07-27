@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
@@ -6,30 +6,17 @@ import MessageBubble from '../../components/MessageBubble'
 import MessageInput from '../../components/MessageInput'
 import EmptyState from '../../ui/EmptyState'
 import Skeleton from '../../ui/Skeleton'
-import Avatar from '../../ui/Avatar'
-import { parseMarkdown, formatMessageTime, shouldShowDateSeparator, formatDateSeparator } from '../../lib/utils'
+import { DateSeparator, MessageContextMenu, TypingIndicator, ChatHeader } from '../../components/shared'
+import { fetchGroupMessages, sendGroupMessage, editGroupMessage, deleteGroupMessage } from '../../services/messageService'
+import { fetchGroupMembers } from '../../services/groupService'
+import { shouldShowDateSeparator } from '../../lib/utils'
 import { MESSAGE_PAGE_SIZE, TYPING_TIMEOUT } from '../../lib/constants'
 
-function DateSeparator({ date }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="flex items-center justify-center my-4"
-    >
-      <div className="glass-strong rounded-full px-4 py-1.5">
-        <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{formatDateSeparator(date)}</span>
-      </div>
-    </motion.div>
-  )
-}
-
-export default function GroupChatWindow({ group, onBack }) {
+export default function GroupChatWindow({ group }) {
   const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
-  const [reactions, setReactions] = useState([])
   const [replyTo, setReplyTo] = useState(null)
   const [editMessage, setEditMessage] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
@@ -46,33 +33,24 @@ export default function GroupChatWindow({ group, onBack }) {
   const fetchMessages = useCallback(async () => {
     if (!group) return
     setLoading(true)
-    const { data, error } = await supabase
-      .from('group_messages')
-      .select('*')
-      .eq('group_id', group.id)
-      .order('created_at', { ascending: true })
-      .limit(MESSAGE_PAGE_SIZE)
-
+    const { data, error } = await fetchGroupMessages(group.id, MESSAGE_PAGE_SIZE)
     if (!error && data) setMessages(data)
     setLoading(false)
-  }, [group?.id])
+  }, [group])
 
   const fetchMembers = useCallback(async () => {
     if (!group) return
-    const { data } = await supabase
-      .from('group_members')
-      .select('*, profiles:user_id(id, username, avatar_url, is_online)')
-      .eq('group_id', group.id)
-
+    const { data } = await fetchGroupMembers(group.id)
     if (data) setMembers(data)
-  }, [group?.id])
+  }, [group])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMessages()
     fetchMembers()
     setReplyTo(null)
     setEditMessage(null)
-  }, [group?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [group?.id, fetchMessages, fetchMembers])
 
   useEffect(() => {
     if (!group) return
@@ -156,7 +134,7 @@ export default function GroupChatWindow({ group, onBack }) {
       isTypingRef.current = false
       supabase.removeChannel(channel)
     }, 2000)
-  }, [group?.id, user?.id, profile?.username])
+  }, [group, user, profile])
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -177,9 +155,7 @@ export default function GroupChatWindow({ group, onBack }) {
     }
 
     if (editMessage) {
-      payload.message_text = msgText.trim()
-      payload.is_edited = true
-      await supabase.from('group_messages').update(payload).eq('id', editMessage.id)
+      await editGroupMessage(editMessage.id, { message_text: msgText.trim(), is_edited: true })
       setText('')
       setEditMessage(null)
       return
@@ -203,7 +179,7 @@ export default function GroupChatWindow({ group, onBack }) {
       payload.message_text = msgText.trim()
     }
 
-    const { error } = await supabase.from('group_messages').insert(payload)
+    const { error } = await sendGroupMessage(payload)
     if (!error) {
       setText('')
       setReplyTo(null)
@@ -212,10 +188,7 @@ export default function GroupChatWindow({ group, onBack }) {
 
   const handleDeleteMessage = async (msg, deleteForAll = false) => {
     if (deleteForAll && msg.sender_id === user.id) {
-      await supabase
-        .from('group_messages')
-        .update({ deleted_for_all: true, message_text: '🗑️ This message was deleted' })
-        .eq('id', msg.id)
+      await deleteGroupMessage(msg.id, true)
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== msg.id))
     }
@@ -255,30 +228,13 @@ export default function GroupChatWindow({ group, onBack }) {
 
   return (
     <div className="flex-1 flex flex-col h-full app-container relative" style={{ background: 'var(--chat-bg)' }}>
-      {/* Group header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4 border-b border-white/20 glass flex items-center gap-3 rounded-none backdrop-blur-xl"
-      >
-        <Avatar username={group.name} size="md" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[var(--text-primary)] truncate">{group.name}</p>
-          <p className="text-[11px] text-[var(--text-secondary)]">{members.length} members</p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setShowInfo(!showInfo)}
-            className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-            style={{ color: 'var(--text-secondary)' }}
-            title="Group info"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
-        </div>
-      </motion.div>
+      <ChatHeader
+        user={group}
+        isGroup={true}
+        memberCount={members.length}
+        showInfo={showInfo}
+        onToggleInfo={() => setShowInfo(!showInfo)}
+      />
 
       {/* Messages */}
       <div
@@ -317,7 +273,7 @@ export default function GroupChatWindow({ group, onBack }) {
                   <MessageBubble
                     msg={msg}
                     isOwn={msg.sender_id === user.id}
-                    reactions={reactions.filter((r) => r.message_id === msg.id)}
+                    reactions={[]}
                     allMessages={messages}
                     onReply={handleReply}
                     onEdit={handleEdit}
@@ -331,22 +287,7 @@ export default function GroupChatWindow({ group, onBack }) {
           </AnimatePresence>
         )}
 
-        {Object.keys(typingUsers).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-start"
-          >
-            <div className="glass-card px-4 py-3 flex items-center gap-2">
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-              <span className="text-[11px] text-[var(--text-secondary)] ml-1">
-                {Object.values(typingUsers).join(', ')} {Object.keys(typingUsers).length === 1 ? 'is' : 'are'} typing...
-              </span>
-            </div>
-          </motion.div>
-        )}
+        <TypingIndicator names={typingUsers} />
 
         <div ref={bottomRef} />
       </div>
@@ -369,50 +310,15 @@ export default function GroupChatWindow({ group, onBack }) {
         )}
       </AnimatePresence>
 
-      {/* Context menu */}
-      <AnimatePresence>
-        {contextMenu && (
-          <>
-            <div className="fixed inset-0 z-50" onClick={() => setContextMenu(null)} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="fixed z-[60] glass-strong rounded-2xl p-2 shadow-xl min-w-[180px]"
-              style={{ left: Math.min(contextMenu.x, window.innerWidth - 200), top: Math.min(contextMenu.y, window.innerHeight - 200) }}
-            >
-              <button
-                onClick={() => { navigator.clipboard.writeText(contextMenu.message.message_text || ''); setContextMenu(null) }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-              >
-                📋 Copy
-              </button>
-              <button
-                onClick={() => { handleReply(contextMenu.message); setContextMenu(null) }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-              >
-                ↩️ Reply
-              </button>
-              {contextMenu.message.sender_id === user.id && (
-                <>
-                  <button
-                    onClick={() => { handleEdit(contextMenu.message); setContextMenu(null) }}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[var(--text-primary)] hover:bg-white/10 transition-colors"
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteMessage(contextMenu.message, true)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors"
-                  >
-                    🗑️ Delete
-                  </button>
-                </>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <MessageContextMenu
+        contextMenu={contextMenu}
+        user={user}
+        onReply={handleReply}
+        onEdit={handleEdit}
+        onDelete={handleDeleteMessage}
+        onPin={async (m) => { await supabase.from('group_messages').update({ is_pinned: !m.is_pinned }).eq('id', m.id); setContextMenu(null) }}
+        onClose={() => setContextMenu(null)}
+      />
 
       {/* Input */}
       <MessageInput

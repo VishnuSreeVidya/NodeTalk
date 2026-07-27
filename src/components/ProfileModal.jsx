@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
 import Modal from '../ui/Modal'
 import Avatar from '../ui/Avatar'
 import Button from '../ui/Button'

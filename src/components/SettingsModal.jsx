@@ -6,8 +6,31 @@ import { supabase } from '../supabaseClient'
 import { useToast } from '../components/Toast'
 import ThemeSelector from './ThemeSelector'
 
+function SettingToggle({ label, description, enabled, onToggle }) {
+  return (
+    <div className="flex items-center justify-between py-3">
+      <div className="flex-1 min-w-0 mr-4">
+        <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+        {description && <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">{description}</p>}
+      </div>
+      <button
+        onClick={onToggle}
+        className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${enabled ? '' : 'bg-gray-300'}`}
+        style={enabled ? { background: 'var(--accent)' } : undefined}
+      >
+        <motion.div
+          layout
+          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+          className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm"
+          style={{ left: enabled ? '22px' : '2px' }}
+        />
+      </button>
+    </div>
+  )
+}
+
 export default function SettingsModal({ open, onClose }) {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
   const toast = useToast()
   const [settings, setSettings] = useState({
     notification_sound: true,
@@ -20,24 +43,26 @@ export default function SettingsModal({ open, onClose }) {
 
   useEffect(() => {
     if (!open || !user) return
-    setLoading(true)
-    supabase
-      .from('user_settings')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-      .then(({ data, error }) => {
-        if (data) {
-          setSettings({
-            notification_sound: data.notification_sound ?? true,
-            notification_browser: data.notification_browser ?? true,
-            show_online_status: data.show_online_status ?? true,
-            read_receipts: data.read_receipts ?? true,
-            enter_to_send: data.enter_to_send ?? true,
-          })
-        }
-        setLoading(false)
-      })
+    let cancelled = false
+    async function load() {
+      const { data } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      if (!cancelled && data) {
+        setSettings({
+          notification_sound: data.notification_sound ?? true,
+          notification_browser: data.notification_browser ?? true,
+          show_online_status: data.show_online_status ?? true,
+          read_receipts: data.read_receipts ?? true,
+          enter_to_send: data.enter_to_send ?? true,
+        })
+      }
+      if (!cancelled) setLoading(false)
+    }
+    load()
+    return () => { cancelled = true }
   }, [open, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = async (key) => {
@@ -51,27 +76,6 @@ export default function SettingsModal({ open, onClose }) {
       setSettings((prev) => ({ ...prev, [key]: !newValue }))
     }
   }
-
-  const SettingToggle = ({ label, description, settingKey }) => (
-    <div className="flex items-center justify-between py-3">
-      <div className="flex-1 min-w-0 mr-4">
-        <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
-        {description && <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">{description}</p>}
-      </div>
-      <button
-        onClick={() => toggle(settingKey)}
-        className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${settings[settingKey] ? '' : 'bg-gray-300'}`}
-        style={settings[settingKey] ? { background: 'var(--accent)' } : undefined}
-      >
-        <motion.div
-          layout
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm"
-          style={{ left: settings[settingKey] ? '22px' : '2px' }}
-        />
-      </button>
-    </div>
-  )
 
   return (
     <Modal open={open} onClose={onClose} title="Settings" maxWidth="max-w-md">
@@ -91,19 +95,19 @@ export default function SettingsModal({ open, onClose }) {
 
           <div className="pt-3 pb-2">
             <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Notifications</p>
-            <SettingToggle label="Notification sounds" description="Play sounds for new messages" settingKey="notification_sound" />
-            <SettingToggle label="Browser notifications" description="Show desktop notifications" settingKey="notification_browser" />
+            <SettingToggle label="Notification sounds" description="Play sounds for new messages" enabled={settings.notification_sound} onToggle={() => toggle('notification_sound')} />
+            <SettingToggle label="Browser notifications" description="Show desktop notifications" enabled={settings.notification_browser} onToggle={() => toggle('notification_browser')} />
           </div>
 
           <div className="pt-3 pb-2">
             <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Privacy</p>
-            <SettingToggle label="Show online status" description="Let others see when you're online" settingKey="show_online_status" />
-            <SettingToggle label="Read receipts" description="Show when you've read messages" settingKey="read_receipts" />
+            <SettingToggle label="Show online status" description="Let others see when you're online" enabled={settings.show_online_status} onToggle={() => toggle('show_online_status')} />
+            <SettingToggle label="Read receipts" description="Show when you've read messages" enabled={settings.read_receipts} onToggle={() => toggle('read_receipts')} />
           </div>
 
           <div className="pt-3 pb-2">
             <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Chat</p>
-            <SettingToggle label="Enter to send" description="Press Enter to send messages" settingKey="enter_to_send" />
+            <SettingToggle label="Enter to send" description="Press Enter to send messages" enabled={settings.enter_to_send} onToggle={() => toggle('enter_to_send')} />
           </div>
         </div>
       )}
