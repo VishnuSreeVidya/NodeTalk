@@ -132,6 +132,83 @@ NodeTalk is a feature-rich messaging application with end-to-end encryption, rea
 
 ---
 
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph Client["Client (React + Vite)"]
+        direction TB
+        UI["UI Layer<br/>Components · Hooks · Context"]
+        Services["Service Layer<br/>messageService · groupService · userService · notificationService"]
+        Lib["Lib Layer<br/>utils · constants · logger · env · validation · crypto"]
+        Shared["Shared UI<br/>Avatar · Button · Modal · Skeleton · LiveRegion"]
+    end
+
+    subgraph Features["Feature Modules"]
+        Search["search/<br/>SearchPanel · useSearch"]
+        Chat["chat/<br/>MediaGallery · ChatSearchBar · useStarMessages"]
+        Groups["groups/<br/>GroupChatWindow · CreateGroupModal"]
+        Calls["calls/<br/>useCallEnhancements"]
+        Settings["settings/<br/>SessionManager"]
+    end
+
+    subgraph Supabase["Supabase Backend"]
+        Auth["Auth<br/>Authentication · Session"]
+        DB["PostgreSQL<br/>RLS Policies · Indexes · Functions"]
+        Storage["Storage<br/>chat-images bucket"]
+        Realtime["Realtime<br/>postgres_changes · broadcast"]
+    end
+
+    subgraph External["External APIs"]
+        WebRTC["WebRTC<br/>Audio · Video · Screen Share"]
+        WebCrypto["Web Crypto API<br/>ECDH + AES-256-GCM"]
+        MediaRec["MediaRecorder<br/>Voice Messages"]
+    end
+
+    UI --> Services
+    UI --> Features
+    Features --> Services
+    Services --> Auth
+    Services --> DB
+    Services --> Storage
+    Services --> Realtime
+    UI --> WebRTC
+    UI --> WebCrypto
+    UI --> MediaRec
+    Lib --> Services
+    Shared --> UI
+
+    style Client fill:#1a1a2e,stroke:#e94560,stroke-width:2px,color:#fff
+    style Features fill:#16213e,stroke:#0f3460,stroke-width:2px,color:#fff
+    style Supabase fill:#0a3d62,stroke:#38ada9,stroke-width:2px,color:#fff
+    style External fill:#2c2c54,stroke:#706fd3,stroke-width:2px,color:#fff
+```
+
+```mermaid
+graph LR
+    subgraph Flow["Message Flow"]
+        A["User types message"] --> B["MessageInput"]
+        B --> C["E2EE encrypt<br/>(Web Crypto)"]
+        C --> D["messageService<br/>.sendDMMessage()"]
+        D --> E["Supabase DB<br/>(INSERT)"]
+        E --> F["Realtime broadcast"]
+        F --> G["Receiver gets message<br/>(postgres_changes)"]
+        G --> H["Decrypt + render"]
+    end
+
+    subgraph CallFlow["Call Flow"]
+        I["User initiates call"] --> J["WebRTC setup<br/>(RTCPeerConnection)"]
+        J --> K["Signaling via<br/>Supabase broadcast"]
+        K --> L["ICE candidates<br/>SDP exchange"]
+        L --> M["P2P audio/video<br/>established"]
+    end
+
+    style Flow fill:#1a1a2e,stroke:#e94560,stroke-width:2px,color:#fff
+    style CallFlow fill:#16213e,stroke:#0f3460,stroke-width:2px,color:#fff
+```
+
+---
+
 ## Tech Stack
 
 <div align="center">
