@@ -473,7 +473,7 @@ This project is licensed under the MIT License.
 
 <div align="center">
 
-**Built by [Vishnu Sree Vidya](https://github.com/VishnuSreeVidya)**
+**Built by [Vishnu Sree Vidya Kotturu](https://github.com/VishnuSreeVidya)**
 
 If this project helped you, consider giving it a ⭐
 
