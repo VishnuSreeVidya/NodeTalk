@@ -1,405 +1,300 @@
-# NodeTalk - Real-time Messenger
+<div align="center">
 
-**Live Demo:** https://nodetalk-sli6.onrender.com/
+# NodeTalk
 
-NodeTalk is a production-grade real-time messaging application built with **React**, **Vite 8**, and **Supabase**. It delivers instant messaging, end-to-end encryption, online presence, file sharing, group chats, peer-to-peer audio/video calling through WebRTC, and a fully responsive, customizable interface.
+**A production-grade real-time messaging platform**
+
+[![CI](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml/badge.svg)](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+
+[Live Demo](https://nodetalk-sli6.onrender.com/) · [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues) · [Request Feature](https://github.com/VishnuSreeVidya/NodeTalk/issues)
+
+</div>
 
 ---
 
+NodeTalk is a feature-rich messaging application with end-to-end encryption, real-time messaging, audio/video calls, group chats, and a fully responsive glassmorphism UI. Built with React, Vite 8, Supabase, and WebRTC.
+
 ## Features
 
-### Messaging
-- **Real-time Messaging** - Instant delivery via Supabase Realtime
-- **End-to-End Encryption** - AES-256-GCM with ECDH P-256 key exchange via Web Crypto API. Server never sees plaintext
-- **Edit & Delete** - Edit your messages or delete for yourself or everyone
-- **Pin Messages** - Pin important messages for quick access
-- **Star Messages** - Star/unstar messages for personal bookmarks
-- **Search** - Full-text search across all users and messages, plus in-conversation search
-- **Date Separators** - Visual date dividers between message groups
-- **Markdown Support** - Bold, italic, inline code, and code blocks
-- **Threaded Replies** - Quote-reply to any message with preview block
-- **Message Reactions** - React to messages with emoji
+<details>
+<summary><strong>Messaging</strong></summary>
 
-### Read Receipts (WhatsApp-style)
-- Single tick (gray) - Message sent
-- Double tick (gray) - Message delivered
-- Double tick (accent color) - Message read
-- Realtime status updates via Supabase Realtime
+- **Real-time delivery** via Supabase Realtime with postgres_changes subscriptions
+- **End-to-end encryption** using AES-256-GCM with ECDH P-256 key exchange (Web Crypto API)
+- **Edit & delete** messages for yourself or everyone
+- **Pin messages** for quick access in DMs and groups
+- **Star messages** for personal bookmarks
+- **Threaded replies** with quote-preview blocks
+- **Message reactions** with emoji
+- **Date separators** between message groups
+- **Markdown rendering** (bold, italic, inline code, code blocks)
 
-### Group Chats
-- **Create Groups** - Create group chats with any members
-- **Real-time Group Messaging** - Instant group conversations with member management
-- **Group Typing Indicators** - See who is typing
-- **Group Pinning** - Pin messages within groups
+</details>
 
-### File Sharing & Media
-- **File Sharing** - Upload and share any file type (documents, archives, audio, video)
-- **Image Sharing** - Upload and share images with preview
-- **Voice Messages** - Record and send voice messages with live duration indicator
-- **Media Gallery** - Browse shared media, files, links, and voice messages with fullscreen preview
+<details>
+<summary><strong>Search</strong></summary>
 
-### Calls
-- **Audio & Video Calls** - Peer-to-peer via WebRTC
-- **Screen Sharing** - Share your screen during video calls
-- **Call Duration Timer** - Live call duration display
-- **Noise Suppression** - Audio noise suppression via AudioContext
-- **Network Quality Indicator** - Real-time network quality display
-- **Camera Switch** - Switch between front/rear camera during video calls
+- **Global search** across all users and messages with debounced input
+- **In-conversation search** to find messages within a specific chat
 
-### User Experience
-- **Online Presence** - View online users with last seen timestamps
-- **Typing Indicators** - Know when someone is typing (DM and group)
-- **Emoji Picker** - Built-in emoji selector
-- **Profile Editor** - Change username, status message, and avatar
-- **Settings Panel** - Notification sounds, privacy toggles, read receipts, enter-to-send
-- **In-app Notifications** - Notification bell with unread count and mark-all-read
-- **Multiple Themes** - Glass Dark, Vibrant Amethyst, Retro Cyberpunk
-- **Responsive Design** - Optimized for desktop, tablet, and mobile
-- **Skeleton Loading** - Smooth loading states throughout
+</details>
 
-### Accessibility
-- **Focus Trap** - Keyboard focus trapped in modals and dropdowns
-- **Screen Reader Support** - Live regions and ARIA alerts for dynamic content
-- **Keyboard Shortcuts** - Ctrl+K (search), Ctrl+N (new chat), Escape (close)
-- **ARIA Labels** - Full ARIA labeling on interactive elements
+<details>
+<summary><strong>Read Receipts</strong></summary>
 
-### Progressive Web App
-- **Installable** - Add to home screen on mobile and desktop
-- **Offline Support** - Service worker caches static assets for offline access
-- **App Manifest** - Full PWA manifest with icons and theme color
+- ✓ Single tick (gray) — message sent
+- ✓✓ Double tick (gray) — message delivered
+- ✓✓ Double tick (accent) — message read
+- Realtime updates via Supabase Realtime
+
+</details>
+
+<details>
+<summary><strong>Group Chats</strong></summary>
+
+- Create groups with multiple members
+- Real-time group messaging with member management
+- Typing indicators for groups
+- Pin messages within groups
+
+</details>
+
+<details>
+<summary><strong>File Sharing & Media</strong></summary>
+
+- Share any file type (documents, archives, audio, video)
+- Image sharing with preview
+- Voice messages with live duration indicator
+- Media gallery with 4 tabs (media, files, links, voice) and fullscreen preview
+
+</details>
+
+<details>
+<summary><strong>Calls</strong></summary>
+
+- Audio and video calls via WebRTC (peer-to-peer)
+- Screen sharing during video calls
+- Call duration timer
+- Noise suppression via AudioContext
+- Real-time network quality indicator
+- Camera switch (front/rear)
+
+</details>
+
+<details>
+<summary><strong>User Experience</strong></summary>
+
+- Online presence with last seen timestamps
+- Typing indicators (DM and group)
+- Built-in emoji picker
+- Profile editor (username, status, avatar)
+- Settings panel (notifications, privacy, read receipts, enter-to-send)
+- In-app notification bell with unread count
+- Skeleton loading states
+- Responsive design (desktop, tablet, mobile)
+
+</details>
+
+<details>
+<summary><strong>Themes</strong></summary>
+
+| Theme | Description |
+|-------|-------------|
+| Glass Dark | Elegant frosted-glass interface |
+| Vibrant Amethyst | Purple gradient with glowing effects |
+| Retro Cyberpunk | Neon-inspired cyberpunk aesthetic |
+
+</details>
+
+<details>
+<summary><strong>Accessibility</strong></summary>
+
+- Keyboard focus trapping in modals and dropdowns
+- Screen reader support with live regions and ARIA alerts
+- Keyboard shortcuts (`Ctrl+K` search, `Ctrl+N` new chat, `Escape` close)
+- Full ARIA labeling on interactive elements
+
+</details>
+
+<details>
+<summary><strong>Progressive Web App</strong></summary>
+
+- Installable on mobile and desktop
+- Service worker with offline caching for static assets
+- Full PWA manifest with icons and theme color
+
+</details>
 
 ---
 
 ## Tech Stack
 
-| Layer          | Technology                                              |
-| -------------- | ------------------------------------------------------- |
-| Frontend       | React 19, Vite 8, Tailwind CSS 3, Framer Motion        |
-| Backend        | Supabase (PostgreSQL, Auth, Storage, Realtime)          |
-| Database       | PostgreSQL with optimized indexes and DB functions      |
-| Real-time      | Supabase Realtime (postgres_changes + broadcast)        |
-| Authentication | Supabase Auth                                           |
-| Storage        | Supabase Storage (images, files, voice, avatars)        |
-| Encryption     | Web Crypto API (ECDH P-256 + AES-256-GCM)              |
-| Audio & Video  | WebRTC (RTCPeerConnection)                              |
-| Voice Recording| MediaRecorder API                                       |
-| Animations     | Framer Motion                                           |
-| Styling        | Tailwind CSS                                            |
-| Testing        | Vitest, Testing Library, jsdom                          |
-| CI/CD          | GitHub Actions (lint, build, test pipeline)             |
+<div align="center">
+
+| Layer | Technology |
+|:------|:-----------|
+| **Frontend** | React 19 · Vite 8 · Tailwind CSS 3 · Framer Motion |
+| **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime) |
+| **Realtime** | Supabase Realtime (postgres_changes + broadcast channels) |
+| **Encryption** | Web Crypto API (ECDH P-256 + AES-256-GCM) |
+| **Calls** | WebRTC (RTCPeerConnection) |
+| **Recording** | MediaRecorder API |
+| **Testing** | Vitest · Testing Library · jsdom |
+| **CI/CD** | GitHub Actions (lint → build → test) |
+
+</div>
 
 ---
 
-## Prerequisites
+## Getting Started
 
-- Node.js 24 or later
+### Prerequisites
+
+- Node.js 24+
 - npm
-- A Supabase project (Free Tier supported)
+- A [Supabase](https://supabase.com) project (Free Tier supported)
 
----
-
-## Installation
-
-### 1. Clone the Repository
+### Installation
 
 ```bash
+# Clone the repository
 git clone https://github.com/VishnuSreeVidya/NodeTalk.git
 cd NodeTalk
-```
 
-### 2. Install Dependencies
-
-```bash
+# Install dependencies
 npm install
+
+# Create environment file
+cp .env.example .env
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file from `.env.example`.
+Edit `.env` with your Supabase credentials:
 
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
----
+### Database Setup
 
-## Database Setup
+Open the Supabase SQL Editor and run these files **in order**:
 
-Open the Supabase SQL Editor and execute the SQL files **in order**:
+| Order | File | What it creates |
+|:-----:|:-----|:----------------|
+| 1 | `supabase-schema.sql` | Profiles, Messages, User Keys, Reactions, RLS Policies, Triggers |
+| 2 | `supabase-migration-v2.sql` | Groups, Group Members, Notifications, Call History, Settings |
+| 3 | `supabase-migration-v3.sql` | File sharing columns (file_url, file_name, file_type, file_size) |
+| 4 | `supabase-migration-v4.sql` | Read receipts (read_at column + index) |
+| 5 | `supabase-migration-v5.sql` | 9 indexes, 5 DB functions, new columns, conversation_summary view |
 
-### Step 1: Base Schema
+### Storage Setup
 
-```
-supabase-schema.sql
-```
+Create a public storage bucket named `chat-images` in Supabase Storage, or run the Storage SQL at the bottom of `supabase-schema.sql`.
 
-Creates: Profiles, Messages, User Keys (E2EE), Reactions, RLS Policies, Triggers, Indexes.
-
-### Step 2: Migration v2 - Groups, Notifications, Settings
-
-```
-supabase-migration-v2.sql
-```
-
-Creates: Groups, Group Members, Group Messages, Attachments, Notifications, Call History, User Settings, Pinned Messages.
-
-### Step 3: Migration v3 - File Sharing
-
-```
-supabase-migration-v3.sql
-```
-
-Adds: `file_url`, `file_name`, `file_type`, `file_size` columns.
-
-### Step 4: Migration v4 - Read Receipts
-
-```
-supabase-migration-v4.sql
-```
-
-Adds: `read_at` column. Creates index for efficient unread queries.
-
-### Step 5: Migration v5 - Performance & Security
-
-```
-supabase-migration-v5.sql
-```
-
-Adds: 9 optimized indexes, 5 DB functions (`get_unread_counts`, `cleanup_stale_users`, `get_dm_participants`, `cleanup_expired_messages`, `update_last_seen_trigger`), new columns (`is_starred`, `scheduled_at`, `expires_in`, `archived_chats`, `blocked_users`, `poll_data`), and a `conversation_summary` view.
-
----
-
-## Storage Setup
-
-Create a public storage bucket named:
-
-```
-chat-images
-```
-
-This bucket is used for images, files, voice messages, and avatars. Or execute the Storage SQL at the bottom of `supabase-schema.sql`.
-
----
-
-## Run the Application
+### Run
 
 ```bash
 npm run dev
 ```
 
-Available at `http://localhost:5173`.
+Open [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## Available Scripts
+## Scripts
 
-| Command           | Description                          |
-| ----------------- | ------------------------------------ |
-| `npm run dev`     | Start the development server         |
-| `npm run build`   | Build for production                 |
-| `npm run preview` | Preview the production build         |
-| `npm run lint`    | Run ESLint                           |
-| `npm run test`    | Run unit and integration tests       |
+| Command | Description |
+|:--------|:------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build with code splitting |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run test suite |
 
 ---
 
 ## Project Structure
 
-```text
+```
 NodeTalk/
 ├── public/
-│   ├── favicon.svg
-│   ├── icons.svg
 │   ├── manifest.json              # PWA manifest
 │   └── sw.js                      # Service worker
 │
 ├── src/
 │   ├── components/
-│   │   ├── shared/                # Shared reusable components
-│   │   │   ├── ChatHeader.jsx     # Chat header with actions
-│   │   │   ├── DateSeparator.jsx  # Date dividers
-│   │   │   ├── MessageContextMenu.jsx  # Right-click menu
-│   │   │   ├── TypingIndicator.jsx     # Typing dots
-│   │   │   └── index.js
+│   │   ├── shared/                # Reusable components
+│   │   │   ├── ChatHeader.jsx
+│   │   │   ├── DateSeparator.jsx
+│   │   │   ├── MessageContextMenu.jsx
+│   │   │   └── TypingIndicator.jsx
 │   │   ├── Auth.jsx
-│   │   ├── CallHandler.jsx
+│   │   ├── CallHandler.jsx        # WebRTC call management
 │   │   ├── ChatWindow.jsx         # DM chat (lazy-loaded)
-│   │   ├── EmojiPicker.jsx
 │   │   ├── ErrorBoundary.jsx      # Error boundary with logging
-│   │   ├── FileUpload.jsx
 │   │   ├── MessageBubble.jsx
 │   │   ├── MessageInput.jsx
 │   │   ├── NotificationBell.jsx
-│   │   ├── ProfileModal.jsx
-│   │   ├── ReactionBar.jsx
-│   │   ├── ReplyPreview.jsx
-│   │   ├── SettingsModal.jsx
 │   │   ├── Sidebar.jsx            # User list + groups (lazy-loaded)
-│   │   ├── ThemeSelector.jsx
-│   │   ├── Toast.jsx
 │   │   └── VoiceRecorder.jsx
 │   │
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   └── ThemeContext.jsx
-│   │
 │   ├── features/
-│   │   ├── calls/
-│   │   │   ├── hooks/
-│   │   │   │   └── useCallEnhancements.js  # Noise suppression, PiP, network quality
-│   │   │   └── index.js
-│   │   ├── chat/
-│   │   │   ├── components/
-│   │   │   │   ├── ChatSearchBar.jsx       # In-conversation search
-│   │   │   │   ├── MediaGallery.jsx        # Shared media browser
-│   │   │   │   └── index.js
-│   │   │   ├── hooks/
-│   │   │   │   ├── useChatSearch.js
-│   │   │   │   ├── useStarMessages.js
-│   │   │   │   └── index.js
-│   │   ├── groups/
-│   │   │   ├── CreateGroupModal.jsx
-│   │   │   └── GroupChatWindow.jsx  # Group chat (lazy-loaded)
-│   │   ├── search/
-│   │   │   ├── components/
-│   │   │   │   └── SearchPanel.jsx  # Global search UI
-│   │   │   ├── hooks/
-│   │   │   │   └── useSearch.js     # Debounced full-text search
-│   │   │   └── index.js
-│   │   └── settings/
-│   │       ├── components/
-│   │       │   ├── SessionManager.jsx  # Multi-device session mgmt
-│   │       │   └── index.js
+│   │   ├── calls/hooks/           # Noise suppression, PiP, network quality
+│   │   ├── chat/                  # Search, media gallery, star messages
+│   │   ├── groups/                # Group chat + create modal
+│   │   ├── search/                # Global search panel
+│   │   └── settings/              # Multi-device session manager
 │   │
 │   ├── hooks/
-│   │   ├── __tests__/
-│   │   │   └── useDebounce.test.js
-│   │   ├── useClickOutside.js
-│   │   ├── useDebounce.js
-│   │   ├── useFocusTrap.js          # Modal focus trapping
-│   │   ├── useKeyboardShortcuts.js  # Global keyboard shortcuts
-│   │   ├── useMediaQuery.js
-│   │   ├── useRealtimeSubscription.js  # postgres_changes subscription
-│   │   ├── useSupabaseChannel.js    # Channel management
-│   │   └── useWebRTC.js
+│   │   ├── useFocusTrap.js        # Modal focus trapping
+│   │   ├── useKeyboardShortcuts.js
+│   │   ├── useRealtimeSubscription.js
+│   │   └── useSupabaseChannel.js
 │   │
 │   ├── lib/
-│   │   ├── __tests__/
-│   │   │   └── utils.test.js
-│   │   ├── constants.js             # App-wide constants
-│   │   ├── env.js                   # Env validation + config
-│   │   ├── logger.js                # Structured logging
-│   │   ├── supabase.js              # Re-export from supabaseClient
+│   │   ├── constants.js           # App-wide constants
+│   │   ├── env.js                 # Env validation + config
+│   │   ├── logger.js              # Structured logging
 │   │   └── utils.js
 │   │
-│   ├── services/                    # Service layer (API/DB logic)
-│   │   ├── groupService.js
-│   │   ├── index.js
+│   ├── services/                  # Service layer (API/DB logic)
 │   │   ├── messageService.js
+│   │   ├── groupService.js
 │   │   ├── notificationService.js
-│   │   ├── userService.js
+│   │   └── userService.js
 │   │
-│   ├── test/
-│   │   └── setup.js                 # Test setup with mocks
-│   │
-│   ├── ui/                          # Shared UI primitives
-│   │   ├── __tests__/
-│   │   │   └── Button.test.jsx
+│   ├── test/setup.js              # Test mocks
+│   ├── ui/                        # Shared UI primitives
 │   │   ├── Avatar.jsx
-│   │   ├── Badge.jsx
 │   │   ├── Button.jsx
-│   │   ├── EmptyState.jsx
-│   │   ├── FileAttachment.jsx
-│   │   ├── LiveRegion.jsx           # Screen reader announcements
+│   │   ├── LiveRegion.jsx         # Screen reader announcements
 │   │   ├── Modal.jsx
 │   │   └── Skeleton.jsx
 │   │
 │   ├── utils/
-│   │   ├── crypto.js                # E2EE encryption/decryption
-│   │   └── validation.js            # Input sanitization + validation
+│   │   ├── crypto.js              # E2EE encryption/decryption
+│   │   └── validation.js          # Input sanitization
 │   │
-│   ├── App.jsx                      # Root with lazy loading + Suspense
-│   ├── main.jsx                     # Entry with env validation
-│   ├── index.css
-│   └── supabaseClient.js
+│   ├── App.jsx                    # Root with lazy loading + Suspense
+│   ├── main.jsx                   # Entry with env validation
+│   └── index.css
 │
-├── .github/
-│   └── workflows/
-│       └── ci.yml                   # GitHub Actions CI pipeline
-│
+├── .github/workflows/ci.yml       # CI pipeline
 ├── supabase-schema.sql
 ├── supabase-migration-v2.sql
 ├── supabase-migration-v3.sql
 ├── supabase-migration-v4.sql
-├── supabase-migration-v5.sql        # Performance indexes + DB functions
-├── vitest.config.js                 # Test configuration
+├── supabase-migration-v5.sql
+├── vitest.config.js
 ├── eslint.config.js
-├── vite.config.js                   # Build config + path aliases
-├── tailwind.config.js
-├── postcss.config.js
-├── .env.example
-├── package.json
-└── index.html
+├── vite.config.js
+└── package.json
 ```
-
----
-
-## Keyboard Shortcuts
-
-| Shortcut       | Action                |
-| -------------- | --------------------- |
-| `Ctrl + K`     | Open search           |
-| `Ctrl + N`     | New chat              |
-| `Escape`       | Close modal/panel     |
-| `Enter`        | Send message          |
-| `Shift + Enter`| New line in message   |
-
----
-
-## Available Themes
-
-| Theme               | Description                          |
-| ------------------- | ------------------------------------ |
-| Glass Dark          | Elegant frosted-glass interface      |
-| Vibrant Amethyst    | Purple gradient with glowing effects |
-| Retro Cyberpunk     | Neon-inspired cyberpunk aesthetic    |
-
----
-
-## Security Features
-
-- Supabase Authentication with protected routes
-- Row Level Security (RLS) on all database tables
-- End-to-End Encryption (AES-256-GCM + ECDH P-256)
-- Input sanitization and validation (`sanitizeInput`, `validateMessage`, etc.)
-- Secure file storage with access policies
-- Environment variable validation on startup
-- Structured error logging (no secrets exposed)
-
----
-
-## Testing
-
-36 tests across 3 test suites:
-
-```bash
-npm run test
-```
-
-- `src/lib/__tests__/utils.test.js` - 29 utility function tests
-- `src/ui/__tests__/Button.test.jsx` - 5 component tests
-- `src/hooks/__tests__/useDebounce.test.js` - 2 hook tests
-
----
-
-## CI/CD
-
-GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on every push/PR to `master`/`main`:
-
-1. **Lint** - ESLint with 0 errors, 0 warnings
-2. **Build** - Vite production build with code splitting
-3. **Test** - Vitest test suite
 
 ---
 
@@ -407,19 +302,73 @@ GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on every push/PR to `m
 
 The production build is split into 16 optimized chunks:
 
-| Chunk               | Size (gzip)  | Description                    |
-| ------------------- | ------------ | ------------------------------ |
-| `react-vendor`      | 57 KB        | React + ReactDOM                |
-| `supabase`          | 51 KB        | Supabase client                |
-| `framer`            | 43 KB        | Framer Motion                  |
-| `index`             | 5 KB         | App entry                      |
-| `Sidebar`           | 8 KB         | Sidebar component              |
-| `ChatWindow`        | 4 KB         | DM chat window                 |
-| `GroupChatWindow`   | 3 KB         | Group chat window              |
-| `messageService`    | 9 KB         | Message service layer          |
-| `CallHandler`       | 3 KB         | Call handling                   |
-| `date-fns`          | 6 KB         | Date utilities                 |
-| + 6 more lazy chunks|              | Auth, ThemeSelector, Avatar    |
+| Chunk | Size (gzip) | Contents |
+|:------|:------------|:---------|
+| `react-vendor` | 57 KB | React + ReactDOM |
+| `supabase` | 51 KB | Supabase client |
+| `framer` | 43 KB | Framer Motion |
+| `messageService` | 9 KB | Message service layer |
+| `Sidebar` | 8 KB | Sidebar component |
+| `date-fns` | 6 KB | Date utilities |
+| `index` | 5 KB | App entry |
+| `ChatWindow` | 4 KB | DM chat window |
+| `CallHandler` | 3 KB | Call handling |
+| `GroupChatWindow` | 3 KB | Group chat window |
+| + 6 more | — | Auth, ThemeSelector, Avatar, Search, etc. |
+
+---
+
+## Testing
+
+```bash
+npm run test
+```
+
+36 tests across 3 suites:
+
+| Suite | Tests | Description |
+|:------|:------|:------------|
+| `src/lib/__tests__/utils.test.js` | 29 | Utility functions |
+| `src/ui/__tests__/Button.test.jsx` | 5 | Button component |
+| `src/hooks/__tests__/useDebounce.test.js` | 2 | Debounce hook |
+
+---
+
+## CI/CD
+
+GitHub Actions pipeline runs on every push and pull request to `master`/`main`:
+
+```
+Lint → Build → Test
+```
+
+- **Lint** — ESLint with zero errors
+- **Build** — Vite production build with code splitting
+- **Test** — Vitest test suite
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|:---------|:-------|
+| `Ctrl + K` | Open search |
+| `Ctrl + N` | New chat |
+| `Escape` | Close modal/panel |
+| `Enter` | Send message |
+| `Shift + Enter` | New line |
+
+---
+
+## Security
+
+- **Authentication** — Supabase Auth with protected routes
+- **RLS** — Row Level Security on all database tables
+- **E2EE** — AES-256-GCM + ECDH P-256 (server never sees plaintext)
+- **Validation** — Input sanitization on all user inputs
+- **Storage** — Secured file storage with access policies
+- **Env** — Environment variable validation on startup
+- **Logging** — Structured error logging (no secrets exposed)
 
 ---
 
@@ -429,13 +378,13 @@ Contributions are welcome!
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Run lint and tests before committing:
+3. Make your changes
+4. Run checks before committing:
    ```bash
    npm run lint && npm run test && npm run build
    ```
-4. Commit your changes
-5. Push to your branch
-6. Open a Pull Request
+5. Commit with a descriptive message
+6. Push to your branch and open a Pull Request
 
 ---
 
@@ -445,10 +394,10 @@ This project is licensed under the MIT License.
 
 ---
 
-## Author
+<div align="center">
 
-**Vishnu Sree Vidya**
+**Built by [Vishnu Sree Vidya](https://github.com/VishnuSreeVidya)**
 
-GitHub: https://github.com/VishnuSreeVidya
+If this project helped you, consider giving it a ⭐
 
-If you found this project helpful, consider giving it a star on GitHub.
+</div>
