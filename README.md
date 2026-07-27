@@ -92,7 +92,7 @@ NodeTalk is a production-grade real-time messaging application built with **Reac
 
 ## Prerequisites
 
-- Node.js 20 or later
+- Node.js 24 or later
 - npm
 - A Supabase project (Free Tier supported)
 
