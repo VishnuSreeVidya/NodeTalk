@@ -2,147 +2,205 @@
 
 # NodeTalk
 
-**A production-grade real-time messaging platform**
+**A real-time end-to-end encrypted messaging platform**
 
 [![CI](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml/badge.svg)](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![WebRTC](https://img.shields.io/badge/WebRTC-333333?logo=webrtc&logoColor=white)](https://webrtc.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![PWA](https://img.shields.io/badge/PWA-5A0FC8?logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
+[![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?logo=framer&logoColor=white)](https://framer.com/motion)
 
-[Live Demo](https://nodetalk-sli6.onrender.com/) · [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues) · [Request Feature](https://github.com/VishnuSreeVidya/NodeTalk/issues)
+[Live Demo](https://nodetalk-sli6.onrender.com/) &middot; [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues)
 
 </div>
 
 ---
 
-NodeTalk is a feature-rich messaging application with end-to-end encryption, real-time messaging, audio/video calls, group chats, and 6 professionally crafted themes. Built with React, Vite 8, Supabase, and WebRTC.
+NodeTalk is a secure real-time messaging platform with end-to-end encryption, audio/video calls, group chats, and file sharing. Built with React, Supabase, and WebRTC, it demonstrates modern full-stack engineering practices including real-time data synchronization, cryptographic key exchange, and responsive UI design.
 
-## Features
+## Highlights
 
-<details>
-<summary><strong>Messaging</strong></summary>
+- **End-to-end encryption** &mdash; AES-256-GCM with ECDH P-256 key exchange
+- **Real-time messaging** &mdash; Sub-second delivery via Supabase Realtime
+- **Audio & video calls** &mdash; Peer-to-peer WebRTC with screen sharing
+- **Group chats** &mdash; Multi-member rooms with role management
+- **File sharing** &mdash; Images, documents, voice messages with inline preview
+- **6 themes** &mdash; Midnight, Graphite, Ocean, Forest, Light Pro, AMOLED
+- **Read receipts** &mdash; Sent, delivered, and read status
+- **Progressive Web App** &mdash; Installable with offline caching
+- **Responsive design** &mdash; Desktop, tablet, and mobile layouts
+- **Accessibility** &mdash; ARIA labels, focus trapping, keyboard shortcuts
 
-- **Real-time delivery** via Supabase Realtime with postgres_changes subscriptions
-- **End-to-end encryption** using AES-256-GCM with ECDH P-256 key exchange (Web Crypto API)
-- **Edit & delete** messages for yourself or everyone
-- **Pin messages** for quick access in DMs and groups
-- **Star messages** for personal bookmarks
-- **Threaded replies** with quote-preview blocks
-- **Message reactions** with emoji
-- **Date separators** between message groups
-- **Markdown rendering** (bold, italic, inline code, code blocks)
+---
 
-</details>
+## Table of Contents
 
-<details>
-<summary><strong>Search</strong></summary>
+- [Screenshots](#screenshots)
+- [Demo](#demo)
+- [Messaging](#messaging)
+- [Calls](#calls)
+- [Media](#media)
+- [Security](#security)
+- [User Experience](#user-experience)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Scripts](#scripts)
+- [Testing](#testing)
+- [Code Splitting](#code-splitting)
+- [Why I Built NodeTalk](#why-i-built-nodetalk)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
-- **Global search** across all users and messages with debounced input
-- **In-conversation search** to find messages within a specific chat
+---
 
-</details>
+## Screenshots
 
-<details>
-<summary><strong>Read Receipts</strong></summary>
+| Login | Home | Chat |
+|:-----:|:----:|:----:|
+| ![Login](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Login) | ![Home](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Home) | ![Chat](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Chat) |
 
-- ✓ Single tick (gray) — message sent
-- ✓✓ Double tick (gray) — message delivered
-- ✓✓ Double tick (accent) — message read
-- Realtime updates via Supabase Realtime
+| Group Chat | Settings | Profile |
+|:----------:|:--------:|:-------:|
+| ![Group Chat](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Group+Chat) | ![Settings](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Settings) | ![Profile](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Profile) |
 
-</details>
+| Video Call | Mobile View |
+|:----------:|:-----------:|
+| ![Video Call](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Video+Call) | ![Mobile](https://via.placeholder.com/200x400/1a1a2e/ffffff?text=Mobile) |
 
-<details>
-<summary><strong>Group Chats</strong></summary>
+---
 
-- Create groups with multiple members
-- Real-time group messaging with member management
-- Typing indicators for groups
+## Demo
+
+- **Live instance** &mdash; [nodetalk-sli6.onrender.com](https://nodetalk-sli6.onrender.com/)
+- **Demo GIF** &mdash; *coming soon*
+- **Demo video** &mdash; *coming soon*
+
+---
+
+## Messaging
+
+| Feature | Details |
+|---------|---------|
+| Real-time delivery | Supabase Realtime with `postgres_changes` subscriptions |
+| End-to-end encryption | AES-256-GCM with ECDH P-256 key exchange (Web Crypto API) |
+| Edit & delete | Modify or remove messages for yourself or everyone |
+| Pin messages | Persistent pins in DMs and groups |
+| Star messages | Personal bookmarks per user |
+| Threaded replies | Quote-preview blocks with context |
+| Reactions | Emoji reactions with real-time sync |
+| Read receipts | Sent (single tick), delivered (double tick gray), read (double tick accent) |
+| Date separators | Automated dividers between message groups |
+| Markdown rendering | Bold, italic, inline code, and fenced code blocks |
+
+### Search
+
+- **Global search** &mdash; Across all users and messages with debounced input
+- **In-conversation search** &mdash; Filter within a specific chat
+- **Filter by type** &mdash; Messages, images, files, and voice notes
+
+### Groups
+
+- Create groups with multiple members and role-based permissions (admin, moderator, member)
+- Real-time group messaging with independent message channels
+- Typing indicators per group member
 - Pin messages within groups
+- Mute individual groups
 
-</details>
+---
 
-<details>
-<summary><strong>File Sharing & Media</strong></summary>
+## Calls
 
-- Share any file type (documents, archives, audio, video)
-- Image sharing with preview
-- Voice messages with live duration indicator
-- Media gallery with 4 tabs (media, files, links, voice) and fullscreen preview
+| Feature | Details |
+|---------|---------|
+| Audio calls | Peer-to-peer via WebRTC |
+| Video calls | Peer-to-peer with front/rear camera switch |
+| Screen sharing | Share entire screen or application window |
+| Noise suppression | Real-time filtering via AudioContext |
+| Network quality | Live indicator during active calls |
+| Call timer | Duration display during calls |
+| Call history | Persistent log of missed, answered, and declined calls |
 
-</details>
+---
 
-<details>
-<summary><strong>Calls</strong></summary>
+## Media
 
-- Audio and video calls via WebRTC (peer-to-peer)
-- Screen sharing during video calls
-- Call duration timer
-- Noise suppression via AudioContext
-- Real-time network quality indicator
-- Camera switch (front/rear)
+| Feature | Details |
+|---------|---------|
+| File upload | Any file type with type and size validation |
+| Image sharing | Upload with lazy-loaded preview and fullscreen view |
+| Voice messages | Record via MediaRecorder API with live duration indicator |
+| Media gallery | Four tabs (media, files, links, voice) with fullscreen preview |
+| Inline playback | Audio and video players within chat bubbles |
 
-</details>
+---
 
-<details>
-<summary><strong>User Experience</strong></summary>
+## Security
 
-- Online presence with last seen timestamps
-- Typing indicators (DM and group)
-- Built-in emoji picker
-- Profile editor (username, status, avatar)
-- Settings panel (notifications, privacy, read receipts, enter-to-send)
-- In-app notification bell with unread count
-- Skeleton loading states
-- Responsive design (desktop, tablet, mobile)
-- Animated transitions with Framer Motion
+- **Authentication** &mdash; Supabase Auth with JWT sessions and auto-refresh
+- **Row Level Security** &mdash; RLS policies on all tables (profiles, messages, groups, notifications, settings)
+- **End-to-end encryption** &mdash; Private keys stored in IndexedDB; server never sees plaintext
+- **Input validation** &mdash; Sanitization on all user inputs
+- **XSS prevention** &mdash; No `innerHTML` usage; safe React rendering patterns
+- **Environment validation** &mdash; Required variables checked at startup
+- **Structured logging** &mdash; No secrets or sensitive data exposed in logs
 
-</details>
+---
 
-<details>
-<summary><strong>Themes</strong></summary>
+## User Experience
 
-| Theme | Description |
-|-------|-------------|
-| Midnight | Deep charcoal & blue — balanced dark |
-| Graphite | Neutral enterprise grey |
-| Ocean | Navy & cyan — cool aquatic |
-| Forest | Dark green & emerald — natural |
-| Light Pro | Apple-inspired light mode |
-| AMOLED | Pure black for OLED screens |
+| Feature | Details |
+|---------|---------|
+| Themes | 6 professionally crafted themes (Midnight, Graphite, Ocean, Forest, Light Pro, AMOLED) |
+| Animations | Page transitions, hover effects, and micro-interactions via Framer Motion |
+| Online presence | Real-time status with last seen timestamps |
+| Typing indicators | Per-user and per-group typing status |
+| Emoji picker | Built-in grid for message reactions and composition |
+| Profile editor | Username, bio, status message, avatar upload |
+| Settings panel | Notifications, privacy, read receipts, enter-to-send toggle |
+| Notification bell | In-app dropdown with unread count and mark-as-read |
+| Skeleton loading | Placeholder states during data fetches |
+| Responsive layout | Adaptive sidebar collapse, mobile hamburger menu, overlay panels |
+| Keyboard shortcuts | `Ctrl+K` search, `Ctrl+N` new chat, `Escape` close |
 
-</details>
+### Accessibility
 
-<details>
-<summary><strong>Accessibility</strong></summary>
+- ARIA labels on all interactive elements
+- Focus trapping in modals, dropdowns, and dialogs
+- Live regions for screen reader announcements
+- Keyboard-navigable with visible focus indicators
 
-- Keyboard focus trapping in modals and dropdowns
-- Screen reader support with live regions and ARIA alerts
-- Keyboard shortcuts (`Ctrl+K` search, `Ctrl+N` new chat, `Escape` close)
-- Full ARIA labeling on interactive elements
+---
 
-</details>
+## Tech Stack
 
-<details>
-<summary><strong>Progressive Web App</strong></summary>
-
-- Installable on mobile and desktop
-- Service worker with offline caching for static assets
-- Full PWA manifest with icons and theme color
-
-</details>
+| Layer | Technology |
+|:------|:-----------|
+| **Frontend** | React 19, Vite 8, Tailwind CSS 3, Framer Motion |
+| **Backend** | Supabase (PostgreSQL, Auth, Storage, Realtime) |
+| **Real-time** | Supabase Realtime (postgres_changes, broadcast channels) |
+| **Encryption** | Web Crypto API (ECDH P-256, AES-256-GCM) |
+| **Calls** | WebRTC (RTCPeerConnection, getDisplayMedia) |
+| **Recording** | MediaRecorder API (audio/webm; codecs=opus) |
+| **Testing** | Vitest, Testing Library, jsdom |
+| **CI/CD** | GitHub Actions (lint, build, test) |
 
 ---
 
 ## Architecture
 
-### 1. Overall System Architecture
+### Overall System Architecture
 
 ```mermaid
 graph TB
-    subgraph Browser["🌐 User Browser"]
+    subgraph Browser["User Browser"]
         direction TB
 
         subgraph ReactApp["React Application (Vite 8 + Rolldown)"]
@@ -150,20 +208,20 @@ graph TB
 
             subgraph Presentation["Presentation Layer"]
                 direction LR
-                App["App.jsx<br/>Lazy Loading · Suspense"]
-                Sidebar["Sidebar<br/>User List · Groups · Tabs"]
+                App["App.jsx<br/>Lazy Loading &middot; Suspense"]
+                Sidebar["Sidebar<br/>User List &middot; Groups &middot; Tabs"]
                 ChatWindow["ChatWindow<br/>DM Messages"]
                 GroupChat["GroupChatWindow<br/>Group Messages"]
                 CallHandler["CallHandler<br/>WebRTC Calls"]
-                Auth["Auth<br/>Login · Signup"]
+                Auth["Auth<br/>Login &middot; Signup"]
             end
 
             subgraph Components["Component Layer"]
                 direction LR
-                MsgInput["MessageInput<br/>Text · Emoji · Files"]
-                MsgBubble["MessageBubble<br/>Messages · Reactions"]
+                MsgInput["MessageInput<br/>Text &middot; Emoji &middot; Files"]
+                MsgBubble["MessageBubble<br/>Messages &middot; Reactions"]
                 MsgCtx["MessageContextMenu<br/>Right-Click Actions"]
-                ChatHeader["ChatHeader<br/>Info · Actions"]
+                ChatHeader["ChatHeader<br/>Info &middot; Actions"]
                 NotifBell["NotificationBell<br/>Unread Badge"]
                 SettingsModal["SettingsModal<br/>User Preferences"]
                 ProfileModal["ProfileModal<br/>Profile Editor"]
@@ -173,10 +231,10 @@ graph TB
 
             subgraph Features["Feature Modules"]
                 direction LR
-                SearchFeat["search/<br/>SearchPanel · useSearch"]
-                ChatFeat["chat/<br/>MediaGallery · ChatSearchBar · useStarMessages"]
+                SearchFeat["search/<br/>SearchPanel &middot; useSearch"]
+                ChatFeat["chat/<br/>MediaGallery &middot; ChatSearchBar &middot; useStarMessages"]
                 CallsFeat["calls/<br/>useCallEnhancements"]
-                GroupsFeat["groups/<br/>GroupChatWindow · CreateGroupModal"]
+                GroupsFeat["groups/<br/>GroupChatWindow &middot; CreateGroupModal"]
                 SettingsFeat["settings/<br/>SessionManager"]
             end
 
@@ -185,7 +243,7 @@ graph TB
                 WebRTC["useWebRTC<br/>Peer Connection"]
                 SupabaseCh["useSupabaseChannel<br/>Channel Mgmt"]
                 RealtimeSub["useRealtimeSubscription<br/>postgres_changes"]
-                Keyboard["useKeyboardShortcuts<br/>Ctrl+K · Ctrl+N"]
+                Keyboard["useKeyboardShortcuts<br/>Ctrl+K &middot; Ctrl+N"]
                 FocusTrap["useFocusTrap<br/>Modal Focus"]
                 Debounce["useDebounce<br/>Input Debounce"]
                 ClickOut["useClickOutside<br/>Click Detection"]
@@ -194,26 +252,26 @@ graph TB
 
             subgraph ContextProviders["Context Providers"]
                 direction LR
-                AuthCtx["AuthContext<br/>User · Session · Profile"]
+                AuthCtx["AuthContext<br/>User &middot; Session &middot; Profile"]
                 ThemeCtx["ThemeContext<br/>Theme State"]
             end
 
             subgraph ServiceLayer["Service Layer"]
                 direction LR
-                MsgSvc["messageService<br/>CRUD · Pin · React · Read"]
-                GroupSvc["groupService<br/>Create · Fetch · Members"]
-                UserSvc["userService<br/>Profile · Online · Cleanup"]
-                NotifSvc["notificationService<br/>Fetch · Read · Create"]
+                MsgSvc["messageService<br/>CRUD &middot; Pin &middot; React &middot; Read"]
+                GroupSvc["groupService<br/>Create &middot; Fetch &middot; Members"]
+                UserSvc["userService<br/>Profile &middot; Online &middot; Cleanup"]
+                NotifSvc["notificationService<br/>Fetch &middot; Read &middot; Create"]
             end
 
             subgraph Utilities["Utility Layer"]
                 direction LR
-                Crypto["crypto.js<br/>ECDH · AES-256-GCM"]
-                Validation["validation.js<br/>Sanitize · Validate"]
+                Crypto["crypto.js<br/>ECDH &middot; AES-256-GCM"]
+                Validation["validation.js<br/>Sanitize &middot; Validate"]
                 Logger["logger.js<br/>Structured Logging"]
                 Env["env.js<br/>Env Validation"]
                 Constants["constants.js<br/>App Constants"]
-                Utils["utils.js<br/>Format · Helpers"]
+                Utils["utils.js<br/>Format &middot; Helpers"]
             end
 
             subgraph SharedUI["Shared UI Primitives"]
@@ -230,20 +288,20 @@ graph TB
         end
     end
 
-    subgraph Backend["☁️ Supabase Backend"]
+    subgraph Backend["Supabase Backend"]
         direction TB
-        SBAuth["Supabase Auth<br/>JWT · Session · RLS"]
-        SBDB["PostgreSQL<br/>10 Tables · Indexes · Functions"]
-        SBRealtime["Supabase Realtime<br/>postgres_changes · broadcast"]
+        SBAuth["Supabase Auth<br/>JWT &middot; Session &middot; RLS"]
+        SBDB["PostgreSQL<br/>10 Tables &middot; Indexes &middot; Functions"]
+        SBRealtime["Supabase Realtime<br/>postgres_changes &middot; broadcast"]
         SBStorage["Supabase Storage<br/>chat-images Bucket"]
     end
 
-    subgraph External["🔌 External APIs"]
+    subgraph External["External APIs"]
         direction LR
-        WebRTCExt["WebRTC<br/>Audio · Video · Screen"]
+        WebRTCExt["WebRTC<br/>Audio &middot; Video &middot; Screen"]
         WebCryptoExt["Web Crypto API<br/>ECDH P-256 + AES-256-GCM"]
         MediaRecExt["MediaRecorder API<br/>Voice Messages"]
-        BrowserAPIs["Browser APIs<br/>Notifications · Clipboard"]
+        BrowserAPIs["Browser APIs<br/>Notifications &middot; Clipboard"]
     end
 
     App --> Presentation
@@ -264,13 +322,11 @@ graph TB
     NotifBell --> BrowserAPIs
 ```
 
----
-
-### 2. Message Flow
+### Message Flow
 
 ```mermaid
 flowchart TD
-    A["👤 User Types Message"] --> B["MessageInput Component"]
+    A["User Types Message"] --> B["MessageInput Component"]
     B --> C{"Reply or Edit?"}
     C -->|Reply| D["Attach reply_to ID"]
     C -->|Edit| E["Attach edit payload"]
@@ -280,10 +336,10 @@ flowchart TD
     F --> G
 
     G --> H{"Has Shared Key?<br/>(E2EE)"}
-    H -->|Yes| I["🔐 encryptMessage()<br/>AES-256-GCM"]
+    H -->|Yes| I["encryptMessage()<br/>AES-256-GCM"]
     H -->|No| J["Plaintext message"]
 
-    I --> K["messageService<br/>.sendDMMessage()"]
+    I --> K["messageService.sendDMMessage()"]
     J --> K
 
     K --> L["Supabase DB INSERT<br/>messages table"]
@@ -297,18 +353,18 @@ flowchart TD
     P --> Q
 
     Q --> R{"Has Shared Key?"}
-    R -->|Yes| S["🔐 decryptMessage()<br/>Plaintext Recovery"]
+    R -->|Yes| S["decryptMessage()<br/>Plaintext Recovery"]
     R -->|No| T["Display plaintext"]
 
-    S --> U["🎨 Render in MessageBubble"]
+    S --> U["Render in MessageBubble"]
     T --> U
 
     U --> V["Scroll to Bottom"]
-    U --> W["markMessagesDelivered()<br/>Double tick gray"]
-    W --> X["markMessagesRead()<br/>Double tick accent"]
+    U --> W["markMessagesDelivered()"]
+    W --> X["markMessagesRead()"]
     X --> Y["Update message_status<br/>in database"]
 
-    U --> Z["🔔 createNotification()<br/>If tab is hidden"]
+    U --> Z["createNotification()<br/>If tab is hidden"]
     Z --> AA["NotificationBell<br/>Receives INSERT event"]
 
     U --> AB["Reaction Subscription<br/>(postgres_changes)"]
@@ -321,20 +377,18 @@ flowchart TD
     style U fill:#38ada9,color:#fff
 ```
 
----
-
-### 3. End-to-End Encryption Flow
+### End-to-End Encryption Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant A as 👤 User A (Sender)
-    participant WC as 🔐 Web Crypto API
-    participant DB as 🗄️ Supabase DB
-    participant RT as ⚡ Supabase Realtime
-    participant B as 👤 User B (Receiver)
+    participant A as User A (Sender)
+    participant WC as Web Crypto API
+    participant DB as Supabase DB
+    participant RT as Supabase Realtime
+    participant B as User B (Receiver)
 
-    Note over A,B: === Key Generation & Exchange ===
+    Note over A,B: Key Generation & Exchange
 
     A->>WC: generateKeyPair()
     WC-->>A: ECDH P-256 Key Pair
@@ -345,7 +399,7 @@ sequenceDiagram
     WC-->>B: ECDH P-256 Key Pair
     B->>DB: savePublicKey(publicKeyJwk)
 
-    Note over A,B: === Shared Secret Derivation ===
+    Note over A,B: Shared Secret Derivation
 
     A->>DB: fetchPublicKey(B's userId)
     DB-->>A: B's public key JWK
@@ -353,18 +407,18 @@ sequenceDiagram
     WC-->>A: 256-bit Shared Secret
     Note over A: Shared secret exists<br/>ONLY in browser memory
 
-    Note over A,B: === Message Encryption & Sending ===
+    Note over A,B: Message Encryption & Sending
 
     A->>A: User types message
     A->>WC: encryptMessage(plaintext, sharedKey)
     WC-->>A: {ciphertext, iv, tag} (AES-256-GCM)
-    A->>DB: INSERT INTO messages<br/>(encrypted: true,<br/>encrypted_text: JSON)
-    Note right of DB: Server stores<br/>ONLY ciphertext<br/>⚠️ NO plaintext
+    A->>DB: INSERT INTO messages<br/>(encrypted: true, encrypted_text: JSON)
+    Note right of DB: Server stores ONLY ciphertext<br/>NO plaintext
 
     DB-->>RT: postgres_changes (INSERT)
     RT-->>B: New message event
 
-    Note over A,B: === Receiver Decryption ===
+    Note over A,B: Receiver Decryption
 
     B->>DB: fetchPublicKey(A's userId)
     DB-->>B: A's public key JWK
@@ -374,30 +428,28 @@ sequenceDiagram
     WC-->>B: Plaintext message
     B->>B: Render decrypted text
 
-    Note over A,B: ✅ Server never sees plaintext
+    Note over A,B: Server never sees plaintext
 ```
 
----
-
-### 4. WebRTC Call Flow
+### WebRTC Call Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant A as 👤 Caller
-    participant BR as 🎤 MediaDevices
-    participant PC as 🔗 RTCPeerConnection
-    participant SB as 📡 Supabase Broadcast
-    participant B as 👤 Callee
+    participant A as Caller
+    participant BR as MediaDevices
+    participant PC as RTCPeerConnection
+    participant SB as Supabase Broadcast
+    participant B as Callee
 
-    Note over A,B: === Call Initiation ===
+    Note over A,B: Call Initiation
 
     A->>BR: navigator.mediaDevices.getUserMedia()
     BR-->>A: MediaStream (audio/video)
     A->>PC: new RTCPeerConnection(config)
     A->>PC: addTrack(audio + video)
 
-    Note over A,B: === Signaling via Supabase ===
+    Note over A,B: Signaling via Supabase
 
     A->>PC: createOffer()
     PC-->>A: SDP Offer
@@ -416,7 +468,7 @@ sequenceDiagram
 
     A->>PC: setRemoteDescription(answer)
 
-    Note over A,B: === ICE Candidate Exchange ===
+    Note over A,B: ICE Candidate Exchange
 
     loop ICE Candidate Exchange
         A->>PC: onicecandidate
@@ -432,19 +484,19 @@ sequenceDiagram
         A->>PC: addIceCandidate(candidate)
     end
 
-    Note over A,B: === P2P Connection Established ===
+    Note over A,B: P2P Connection Established
 
     PC-->>A: ontrack (remote stream)
     PC-->>B: ontrack (remote stream)
     A->>A: Attach remote stream to video element
     B->>B: Attach remote stream to video element
 
-    Note over A,B: === During Call ===
+    Note over A,B: During Call
 
-    A->>A: useCallEnhancements<br/>• Noise suppression (AudioContext)<br/>• Network quality monitoring<br/>• Camera switch (facingMode)
+    A->>A: useCallEnhancements<br/>Noise suppression &middot; Network quality &middot; Camera switch
     B->>B: Screen sharing toggle<br/>getDisplayMedia()
 
-    Note over A,B: === Call End ===
+    Note over A,B: Call End
 
     A->>PC: close()
     A->>SB: broadcast: {type: 'call-ended'}
@@ -453,112 +505,7 @@ sequenceDiagram
     A->>DB: INSERT INTO call_history<br/>(caller_id, callee_id, duration, status)
 ```
 
----
-
-### 5. Group Chat Flow
-
-```mermaid
-flowchart TD
-    subgraph Creation["Group Creation"]
-        A1["👤 User Opens<br/>CreateGroupModal"] --> A2["Type Group Name<br/>+ Description"]
-        A2 --> A3["Search & Select<br/>Members"]
-        A3 --> A4["groupService<br/>.createGroup()"]
-        A4 --> A5["INSERT INTO groups"]
-        A4 --> A6["INSERT INTO group_members<br/>admin + members"]
-        A5 --> A7["Sidebar refreshes<br/>groups list"]
-    end
-
-    subgraph Messaging["Group Messaging"]
-        B1["User Opens<br/>GroupChatWindow"] --> B2["fetchGroupMessages()<br/>fetchGroupMembers()"]
-        B2 --> B3["Subscribe to<br/>group-messages-{id}<br/>(postgres_changes)"]
-        B3 --> B4["Realtime INSERT<br/>events arrive"]
-        B4 --> B5["Add to messages state"]
-        B5 --> B6["🎨 Render with<br/>MessageBubble"]
-    end
-
-    subgraph Sending["Send Message"]
-        C1["User Types Message"] --> C2["sendGroupMessage(payload)"]
-        C2 --> C3["INSERT INTO<br/>group_messages"]
-        C3 --> C4["Realtime Broadcast<br/>to all members"]
-        C4 --> C5["Each member's<br/>subscription fires"]
-        C5 --> C6["Messages update<br/>in real-time"]
-    end
-
-    subgraph Typing["Typing Indicators"]
-        D1["User Types"] --> D2["broadcastTyping()<br/>Supabase channel"]
-        D2 --> D3["broadcast: typing event"]
-        D3 --> D4["Other members<br/>receive broadcast"]
-        D4 --> D5["TypingIndicator<br/>shows name"]
-        D5 --> D6["Timeout 2-3s<br/>clears indicator"]
-    end
-
-    subgraph Reactions["Reactions & Pins"]
-        E1["User Right-Clicks<br/>Message"] --> E2["MessageContextMenu"]
-        E2 --> E3{"Action"}
-        E3 -->|React| E4["toggleReaction()"]
-        E3 -->|Pin| E5["UPDATE is_pinned<br/>on group_messages"]
-        E3 -->|Reply| E6["Set replyTo state"]
-        E3 -->|Delete| E7["deleteGroupMessage()"]
-    end
-
-    style Creation fill:#0f3460,color:#fff
-    style Messaging fill:#1a1a2e,color:#fff
-    style Sending fill:#16213e,color:#fff
-    style Typing fill:#2c2c54,color:#fff
-    style Reactions fill:#533483,color:#fff
-```
-
----
-
-### 6. File Sharing Flow
-
-```mermaid
-flowchart TD
-    A["📎 User Clicks<br/>FileUpload / VoiceRecorder"] --> B{"File Type?"}
-
-    B -->|Image| C["FileUpload<br/>accept: image/*"]
-    B -->|Any File| D["FileUpload<br/>accept: */*"]
-    B -->|Voice| E["VoiceRecorder<br/>MediaRecorder API"]
-
-    C --> F["validateFileUpload()<br/>Size · Type · Sanitize"]
-    D --> F
-    E --> G["Record audio stream<br/>audio/webm;codecs=opus"]
-
-    F --> H["Upload to Supabase Storage<br/>chat-images bucket"]
-    G --> H
-
-    H --> I{"Upload Success?"}
-    I -->|No| J["❌ Toast Error<br/>'Upload failed'"]
-    I -->|Yes| K["getPublicUrl()<br/>Get file URL"]
-
-    K --> L["Create file metadata<br/>name · type · mimeType · size"]
-    L --> M{"Message Type?"}
-
-    M -->|DM| N["sendDMMessage({<br/>file_url, file_name,<br/>file_type, file_size })"]
-    M -->|Group| O["sendGroupMessage({<br/>file_url, file_name,<br/>file_type, file_size })"]
-
-    N --> P["INSERT INTO<br/>messages table"]
-    O --> Q["INSERT INTO<br/>group_messages table"]
-
-    P --> R["Realtime Broadcast"]
-    Q --> R
-
-    R --> S["Receiver Gets Message"]
-    S --> T["FileAttachment Component"]
-    T --> U{"File Type?"}
-
-    U -->|Image| V["<img> with lazy loading<br/>Click to open fullscreen"]
-    U -->|Document| W["Download link<br/>with file icon + size"]
-    U -->|Audio/Video| X["Inline player"]
-
-    style A fill:#e94560,color:#fff
-    style H fill:#0f3460,color:#fff
-    style T fill:#38ada9,color:#fff
-```
-
----
-
-### 7. Database Schema
+### Database Schema
 
 ```mermaid
 erDiagram
@@ -704,132 +651,7 @@ erDiagram
     messages ||--o{ reactions : "has"
 ```
 
----
-
-### 8. Frontend Component Architecture
-
-```mermaid
-graph TB
-    subgraph Entry["Entry Point"]
-        Main["main.jsx<br/>validateEnv() · mount"]
-        IndexCSS["index.css<br/>Themes · Global Styles"]
-    end
-
-    subgraph Root["Application Root"]
-        App["App.jsx<br/>Lazy Loading · Suspense · Routes"]
-    end
-
-    subgraph Providers["Context Providers"]
-        AuthProvider["AuthProvider<br/>user · profile · signIn · signOut"]
-        ThemeProvider["ThemeProvider<br/>currentTheme · setTheme"]
-    end
-
-    subgraph Layout["Layout Components"]
-        SidebarComp["Sidebar<br/>Tabs · Users · Groups · Search"]
-        ChatWin["ChatWindow<br/>DM Messages"]
-        GroupWin["GroupChatWindow<br/>Group Messages"]
-        CallHand["CallHandler<br/>WebRTC Management"]
-        AuthPage["Auth<br/>Login · Signup"]
-    end
-
-    subgraph ChatComponents["Chat Components"]
-        MsgInput["MessageInput<br/>Text · Emoji · Files · Reply"]
-        MsgBubble["MessageBubble<br/>Content · Reactions · Reply"]
-        MsgCtxMenu["MessageContextMenu<br/>Copy · Reply · Edit · Delete · Pin"]
-        ReplyPrev["ReplyPreview<br/>Quote Block"]
-        ReactionBarComp["ReactionBar<br/>Emoji Toggle"]
-        EmojiP["EmojiPicker<br/>Emoji Grid"]
-        FileUp["FileUpload<br/>File Input · Validation"]
-        VoiceRec["VoiceRecorder<br/>MediaRecorder"]
-        ImageUp["ImageUpload<br/>Image Input"]
-    end
-
-    subgraph SharedComponents["Shared Components"]
-        ChatHdr["ChatHeader<br/>Avatar · Status · Actions"]
-        DateSepComp["DateSeparator<br/>Date Labels"]
-        TypingIndComp["TypingIndicator<br/>Dots Animation"]
-    end
-
-    subgraph ModalComponents["Modals"]
-        ProfileMod["ProfileModal<br/>Edit Profile"]
-        SettingsMod["SettingsModal<br/>Preferences"]
-        CreateGrpMod["CreateGroupModal<br/>Group Setup"]
-        SearchPanelComp["SearchPanel<br/>Global Search"]
-        MediaGal["MediaGallery<br/>Files · Media · Links"]
-        SessionMgr["SessionManager<br/>Active Sessions"]
-    end
-
-    subgraph UIComponents["UI Primitives"]
-        AvatarUI["Avatar"]
-        ButtonUI["Button"]
-        ModalUI["Modal"]
-        SkeletonUI["Skeleton"]
-        BadgeUI["Badge"]
-        EmptyStateUI["EmptyState"]
-        FileAttachUI["FileAttachment"]
-        LiveRegUI["LiveRegion"]
-        ToastUI["Toast"]
-    end
-
-    subgraph HooksLayer["Custom Hooks"]
-        UseWebRTC["useWebRTC<br/>RTCPeerConnection"]
-        UseCallEnh["useCallEnhancements<br/>Noise · Quality · Switch"]
-        UseSupaCh["useSupabaseChannel<br/>Channel Lifecycle"]
-        UseRealtime["useRealtimeSubscription<br/>postgres_changes"]
-        UseKeybd["useKeyboardShortcuts<br/>Global Shortcuts"]
-        UseFocusTrap["useFocusTrap<br/>Focus Management"]
-        UseDebounce["useDebounce<br/>Input Throttle"]
-        UseClickOut["useClickOutside<br/>Dismiss Detection"]
-        UseMediaQ["useMediaQuery<br/>Responsive Breakpoints"]
-    end
-
-    subgraph ServicesLayer["Service Layer"]
-        MsgService["messageService<br/>15 functions"]
-        GroupService["groupService<br/>3 functions"]
-        UserService["userService<br/>5 functions"]
-        NotifService["notificationService<br/>4 functions"]
-    end
-
-    subgraph UtilitiesLayer["Utilities"]
-        CryptoUtil["crypto.js<br/>9 functions"]
-        ValidationUtil["validation.js<br/>7 functions"]
-        LoggerUtil["logger.js<br/>Structured logging"]
-        EnvUtil["env.js<br/>Env validation"]
-        ConstUtil["constants.js<br/>App constants"]
-        UtilsUtil["utils.js<br/>Formatters"]
-    end
-
-    Main --> App
-    App --> Providers
-    Providers --> Layout
-    Layout --> ChatComponents
-    Layout --> ModalComponents
-    ChatComponents --> SharedComponents
-    ChatComponents --> UIComponents
-    ModalComponents --> UIComponents
-    Layout --> UIComponents
-    ChatComponents --> HooksLayer
-    Layout --> HooksLayer
-    HooksLayer --> ServicesLayer
-    HooksLayer --> Providers
-    ServicesLayer --> UtilitiesLayer
-
-    style Entry fill:#0a0a23,color:#fff
-    style Root fill:#1a1a2e,color:#fff
-    style Providers fill:#16213e,color:#fff
-    style Layout fill:#0f3460,color:#fff
-    style ChatComponents fill:#533483,color:#fff
-    style SharedComponents fill:#2c2c54,color:#fff
-    style ModalComponents fill:#2c2c54,color:#fff
-    style UIComponents fill:#1e1e3f,color:#aaa
-    style HooksLayer fill:#e94560,color:#fff
-    style ServicesLayer fill:#38ada9,color:#fff
-    style UtilitiesLayer fill:#2d4059,color:#fff
-```
-
----
-
-### 9. Security Architecture
+### Security Architecture
 
 ```mermaid
 flowchart TB
@@ -837,7 +659,7 @@ flowchart TB
         A1["Supabase Auth<br/>Email + Password"]
         A2["JWT Token<br/>Auto-refreshed"]
         A3["AuthContext<br/>Session State"]
-        A4["Protected Routes<br/>if !user → Auth"]
+        A4["Protected Routes<br/>if !user to Auth"]
     end
 
     subgraph DBSecurity["Database Security"]
@@ -895,14 +717,12 @@ flowchart TB
     style NetworkSecurity fill:#2d4059,color:#fff
 ```
 
----
-
-### 10. Deployment Architecture
+### Deployment Architecture
 
 ```mermaid
 flowchart LR
-    subgraph UserDevice["📱 User Device"]
-        Browser["Browser<br/>Chrome · Firefox · Safari"]
+    subgraph UserDevice["User Device"]
+        Browser["Browser<br/>Chrome &middot; Firefox &middot; Safari"]
     end
 
     subgraph CDN["CDN Layer"]
@@ -911,19 +731,18 @@ flowchart LR
 
     subgraph ClientApp["React Application"]
         direction TB
-        ViteBuild["Vite 8 Build<br/>16 Code-Split Chunks"]
+        ViteBuild["Vite 8 Build<br/>Code-Split Chunks"]
         LazyLoad["Lazy Loading<br/>React.lazy() + Suspense"]
         SW["Service Worker<br/>Offline Caching"]
         Manifest["PWA Manifest<br/>Installable"]
     end
 
-    subgraph SupabaseCloud["☁️ Supabase Cloud"]
+    subgraph SupabaseCloud["Supabase Cloud"]
         direction TB
-        SAuth["Supabase Auth<br/>JWT · Sessions"]
-        SDB["PostgreSQL<br/>10 Tables · RLS"]
+        SAuth["Supabase Auth<br/>JWT &middot; Sessions"]
+        SDB["PostgreSQL<br/>10 Tables &middot; RLS"]
         SRealtime["Realtime<br/>WebSocket Channels"]
         SStorage["Storage<br/>chat-images Bucket"]
-        SEdge["Edge Functions<br/>DB Functions"]
     end
 
     subgraph P2P["Peer-to-Peer"]
@@ -956,25 +775,6 @@ flowchart LR
 
 ---
 
-## Tech Stack
-
-<div align="center">
-
-| Layer | Technology |
-|:------|:-----------|
-| **Frontend** | React 19 · Vite 8 · Tailwind CSS 3 · Framer Motion · CSS Custom Properties |
-| **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime) |
-| **Realtime** | Supabase Realtime (postgres_changes + broadcast channels) |
-| **Encryption** | Web Crypto API (ECDH P-256 + AES-256-GCM) |
-| **Calls** | WebRTC (RTCPeerConnection) |
-| **Recording** | MediaRecorder API |
-| **Testing** | Vitest · Testing Library · jsdom |
-| **CI/CD** | GitHub Actions (lint → build → test) |
-
-</div>
-
----
-
 ## Getting Started
 
 ### Prerequisites
@@ -986,14 +786,9 @@ flowchart LR
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/VishnuSreeVidya/NodeTalk.git
 cd NodeTalk
-
-# Install dependencies
 npm install
-
-# Create environment file
 cp .env.example .env
 ```
 
@@ -1014,7 +809,7 @@ Open the Supabase SQL Editor and run these files **in order**:
 | 2 | `supabase-migration-v2.sql` | Groups, Group Members, Notifications, Call History, Settings |
 | 3 | `supabase-migration-v3.sql` | File sharing columns (file_url, file_name, file_type, file_size) |
 | 4 | `supabase-migration-v4.sql` | Read receipts (read_at column + index) |
-| 5 | `supabase-migration-v5.sql` | 9 indexes, 5 DB functions, new columns, conversation_summary view |
+| 5 | `supabase-migration-v5.sql` | Indexes, DB functions, new columns, conversation_summary view |
 
 ### Storage Setup
 
@@ -1027,18 +822,6 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
-
----
-
-## Scripts
-
-| Command | Description |
-|:--------|:------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Production build with code splitting |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run test suite |
 
 ---
 
@@ -1056,76 +839,91 @@ NodeTalk/
 │   │   │   ├── ChatHeader.jsx
 │   │   │   ├── DateSeparator.jsx
 │   │   │   ├── MessageContextMenu.jsx
-│   │   │   └── TypingIndicator.jsx
-    │   ├── components/
-    │   │   ├── shared/                # Reusable components
-    │   │   │   ├── ChatHeader.jsx
-    │   │   │   ├── DateSeparator.jsx
-    │   │   │   ├── MessageContextMenu.jsx
-    │   │   │   └── TypingIndicator.jsx
-    │   │   ├── Auth.jsx
-    │   │   ├── CallHandler.jsx        # WebRTC call management
-    │   │   ├── ChatWindow.jsx         # DM chat (lazy-loaded)
-    │   │   ├── EmojiPicker.jsx
-    │   │   ├── ErrorBoundary.jsx      # Error boundary with logging
-    │   │   ├── FileUpload.jsx
-    │   │   ├── MessageBubble.jsx
-    │   │   ├── MessageInput.jsx
-    │   │   ├── NotificationBell.jsx
-    │   │   ├── ProfileModal.jsx
-    │   │   ├── SettingsModal.jsx
-    │   │   ├── Sidebar.jsx            # User list + groups (lazy-loaded)
-    │   │   ├── ThemeSelector.jsx      # Theme picker with visual swatches
-    │   │   ├── Toast.jsx
-    │   │   └── VoiceRecorder.jsx
-    │   │
-    │   ├── features/
-    │   │   ├── calls/hooks/           # Noise suppression, PiP, network quality
-    │   │   ├── chat/                  # Search, media gallery, star messages
-    │   │   ├── groups/                # Group chat + create modal
-    │   │   ├── search/                # Global search panel
-    │   │   └── settings/              # Multi-device session manager
-    │   │
-    │   ├── hooks/
-    │   │   ├── useFocusTrap.js        # Modal focus trapping
-    │   │   ├── useKeyboardShortcuts.js
-    │   │   ├── useMediaQuery.js
-    │   │   ├── useRealtimeSubscription.js
-    │   │   └── useSupabaseChannel.js
-    │   │
-    │   ├── lib/
-    │   │   ├── constants.js           # App-wide constants
-    │   │   ├── env.js                 # Env validation + config
-    │   │   ├── logger.js              # Structured logging
-    │   │   └── utils.js
-    │   │
-    │   ├── services/                  # Service layer (API/DB logic)
-    │   │   ├── messageService.js
-    │   │   ├── groupService.js
-    │   │   ├── notificationService.js
-    │   │   └── userService.js
-    │   │
-    │   ├── test/setup.js              # Test mocks
-    │   ├── ui/                        # Shared UI primitives
-    │   │   ├── Avatar.jsx
-    │   │   ├── Badge.jsx
-    │   │   ├── Button.jsx
-    │   │   ├── EmptyState.jsx
-    │   │   ├── FileAttachment.jsx
-    │   │   ├── LiveRegion.jsx         # Screen reader announcements
-    │   │   ├── Modal.jsx
-    │   │   ├── Skeleton.jsx
-    │   │   └── __tests__/             # Component tests
-    │   │
-    │   ├── utils/
-    │   │   ├── crypto.js              # E2EE encryption/decryption
-    │   │   └── validation.js          # Input sanitization
-    │   │
-    │   ├── App.jsx                    # Root with lazy loading + Suspense
-    │   ├── main.jsx                   # Entry with env validation
-    │   └── index.css                  # Design system + 6 themes
+│   │   │   ├── TypingIndicator.jsx
+│   │   │   └── index.js
+│   │   ├── Auth.jsx
+│   │   ├── CallHandler.jsx        # WebRTC call management
+│   │   ├── ChatWindow.jsx         # DM chat (lazy-loaded)
+│   │   ├── EmojiPicker.jsx
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── FileUpload.jsx
+│   │   ├── ImageUpload.jsx
+│   │   ├── MessageBubble.jsx
+│   │   ├── MessageInput.jsx
+│   │   ├── NotificationBell.jsx
+│   │   ├── ProfileModal.jsx
+│   │   ├── ReactionBar.jsx
+│   │   ├── ReplyPreview.jsx
+│   │   ├── SettingsModal.jsx
+│   │   ├── Sidebar.jsx            # User list + groups (lazy-loaded)
+│   │   ├── ThemeSelector.jsx
+│   │   ├── Toast.jsx
+│   │   └── VoiceRecorder.jsx
+│   │
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   └── ThemeContext.jsx
+│   │
+│   ├── features/
+│   │   ├── calls/hooks/
+│   │   │   └── useCallEnhancements.js
+│   │   ├── chat/
+│   │   │   ├── components/        # ChatSearchBar, MediaGallery
+│   │   │   └── hooks/             # useChatSearch, useStarMessages
+│   │   ├── groups/                # GroupChatWindow, CreateGroupModal
+│   │   ├── search/                # SearchPanel, useSearch
+│   │   └── settings/              # SessionManager
+│   │
+│   ├── hooks/
+│   │   ├── useClickOutside.js
+│   │   ├── useDebounce.js
+│   │   ├── useFocusTrap.js
+│   │   ├── useKeyboardShortcuts.js
+│   │   ├── useMediaQuery.js
+│   │   ├── useRealtimeSubscription.js
+│   │   ├── useSupabaseChannel.js
+│   │   └── useWebRTC.js
+│   │
+│   ├── lib/
+│   │   ├── constants.js
+│   │   ├── env.js                 # Environment validation
+│   │   ├── logger.js              # Structured logging
+│   │   ├── supabase.js            # Re-exports supabaseClient
+│   │   └── utils.js               # Formatters, sanitizers
+│   │
+│   ├── services/
+│   │   ├── index.js               # Barrel exports
+│   │   ├── messageService.js
+│   │   ├── groupService.js
+│   │   ├── notificationService.js
+│   │   └── userService.js
+│   │
+│   ├── test/
+│   │   └── setup.js               # Test mocks
+│   │
+│   ├── ui/                        # Shared UI primitives
+│   │   ├── __tests__/
+│   │   │   └── Button.test.jsx
+│   │   ├── Avatar.jsx
+│   │   ├── Badge.jsx
+│   │   ├── Button.jsx
+│   │   ├── EmptyState.jsx
+│   │   ├── FileAttachment.jsx
+│   │   ├── LiveRegion.jsx
+│   │   ├── Modal.jsx
+│   │   └── Skeleton.jsx
+│   │
+│   ├── utils/
+│   │   ├── crypto.js              # E2EE encryption/decryption
+│   │   └── validation.js
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   ├── index.css                  # Design system + 6 themes
+│   └── supabaseClient.js
 │
-├── .github/workflows/ci.yml       # CI pipeline
+├── .env.example
+├── .github/workflows/ci.yml
 ├── supabase-schema.sql
 ├── supabase-migration-v2.sql
 ├── supabase-migration-v3.sql
@@ -1139,23 +937,15 @@ NodeTalk/
 
 ---
 
-## Code Splitting
+## Scripts
 
-The production build is split into 16 optimized chunks:
-
-| Chunk | Size (gzip) | Contents |
-|:------|:------------|:---------|
-| `react-vendor` | 57 KB | React + ReactDOM |
-| `supabase` | 53 KB | Supabase client |
-| `framer` | 43 KB | Framer Motion |
-| `messageService` | 9 KB | Message service layer |
-| `Sidebar` | 8 KB | Sidebar component |
-| `date-fns` | 6 KB | Date utilities |
-| `index` | 5 KB | App entry + CSS design system |
-| `ChatWindow` | 4 KB | DM chat window |
-| `CallHandler` | 4 KB | Call handling |
-| `GroupChatWindow` | 3 KB | Group chat window |
-| + 6 more | — | Auth, ThemeSelector, Avatar, Search, etc. |
+| Command | Description |
+|:--------|:------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run test suite |
 
 ---
 
@@ -1165,27 +955,70 @@ The production build is split into 16 optimized chunks:
 npm run test
 ```
 
-TBD tests across 3 suites:
+**35 tests** across 3 suites &mdash; all passing.
 
-| Suite | Tests | Description |
-|:------|:------|:------------|
-| `src/lib/__tests__/utils.test.js` | 29 | Utility functions |
-| `src/ui/__tests__/Button.test.jsx` | 4 | Button component |
-| `src/hooks/__tests__/useDebounce.test.js` | 2 | Debounce hook |
+| Suite | Tests | What is tested |
+|:------|:-----:|:---------------|
+| `src/lib/__tests__/utils.test.js` | 29 | `formatMessageTime`, `formatDateSeparator`, `shouldShowDateSeparator`, `truncate`, `getInitials`, `cn`, `formatFileSize`, `getFileType`, `escapeHtml`, `parseMarkdown` |
+| `src/ui/__tests__/Button.test.jsx` | 4 | Rendering, loading spinner, disabled state, click handler |
+| `src/hooks/__tests__/useDebounce.test.js` | 2 | Initial value, debounced value updates |
+
+### Testing approach
+
+- **Unit tests** &mdash; Pure utility functions tested in isolation
+- **Component tests** &mdash; React Testing Library for interaction and rendering
+- **Hook tests** &mdash; Custom hooks tested with `renderHook`
+
+---
+
+## Code Splitting
+
+The production build uses Vite's code-splitting with `React.lazy()` and `Suspense` to split the bundle into multiple chunks:
+
+- **Vendor separation** &mdash; React, Supabase, and Framer Motion in dedicated chunks
+- **Route-level splitting** &mdash; ChatWindow, GroupChatWindow, and CallHandler load on demand
+- **Tree shaking** &mdash; Unused exports removed during build
+- **Asset optimization** &mdash; CSS minified, JS compressed with gzip
+
+---
+
+## Why I Built NodeTalk
+
+I built NodeTalk to explore modern full-stack engineering patterns in a practical, feature-rich application. The project allowed me to work deeply with real-time data synchronization, cryptographic protocols (ECDH key exchange and AES-256-GCM encryption), peer-to-peer media streaming via WebRTC, and responsive UI design with a CSS custom property-based theming system. Every component was an opportunity to apply production-quality patterns: lazy loading, error boundaries, accessibility, and comprehensive state management through React contexts and hooks.
+
+---
+
+## Roadmap
+
+- [x] End-to-end encryption
+- [x] Real-time messaging
+- [x] Audio & video calls
+- [x] Group chats
+- [x] File sharing
+- [x] Voice messages
+- [x] Read receipts
+- [x] Progressive Web App
+- [x] 6 themes
+- [ ] Native mobile app
+- [ ] Push notifications
+- [ ] Chat backup & restore
+- [ ] AI assistant integration
+- [ ] Message search across encrypted content
+- [ ] End-to-end encryption for group messages
 
 ---
 
 ## CI/CD
 
-GitHub Actions pipeline runs on every push and pull request to `master`/`main`:
+GitHub Actions pipeline runs on every push and pull request to `master`:
 
 ```
 Lint → Build → Test
 ```
 
-- **Lint** — ESLint with zero errors
-- **Build** — Vite production build with code splitting
-- **Test** — Vitest test suite
+- **Lint** &mdash; ESLint with zero errors
+- **Build** &mdash; Vite production build
+- **Test** &mdash; Vitest test suite
 
 ---
 
@@ -1201,21 +1034,7 @@ Lint → Build → Test
 
 ---
 
-## Security
-
-- **Authentication** — Supabase Auth with protected routes
-- **RLS** — Row Level Security on all database tables
-- **E2EE** — AES-256-GCM + ECDH P-256 (server never sees plaintext)
-- **Validation** — Input sanitization on all user inputs
-- **Storage** — Secured file storage with access policies
-- **Env** — Environment variable validation on startup
-- **Logging** — Structured error logging (no secrets exposed)
-
----
-
 ## Contributing
-
-Contributions are welcome!
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
@@ -1239,6 +1058,6 @@ This project is licensed under the MIT License.
 
 **Built by [Vishnu Sree Vidya Kotturu](https://github.com/VishnuSreeVidya)**
 
-If this project helped you, consider giving it a ⭐
+If this project helped you, consider giving it a star.
 
 </div>
