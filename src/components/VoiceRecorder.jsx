@@ -93,9 +93,9 @@ export default function VoiceRecorder({ onUpload, disabled }) {
 
   if (sending) {
     return (
-      <div className="flex items-center gap-2 glass !px-3 !py-1.5 !rounded-xl">
-        <span className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)', borderTopColor: 'transparent' }} />
-        <span className="text-xs text-[var(--text-secondary)]">Sending...</span>
+      <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-[8px]" style={{ background: 'var(--surface-tertiary)' }}>
+        <span className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 25%, transparent)', borderTopColor: 'transparent' }} />
+        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Sending...</span>
       </div>
     )
   }
@@ -103,38 +103,40 @@ export default function VoiceRecorder({ onUpload, disabled }) {
   if (recording) {
     return (
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="flex items-center gap-2"
+        className="flex items-center gap-1.5"
       >
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={cancelRecording}
-          className="glass !p-2 !rounded-xl transition-all hover:bg-red-500/10"
-          style={{ color: '#ef4444' }}
+          className="surface-icon-btn"
           title="Cancel"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--danger)' }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
-        </button>
-        <div className="glass !px-3 !py-1.5 !rounded-full flex items-center gap-2">
+        </motion.button>
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full" style={{ background: 'var(--surface-tertiary)' }}>
           <motion.div
-            animate={{ scale: [1, 1.3, 1] }}
+            animate={{ scale: [1, 1.25, 1] }}
             transition={{ repeat: Infinity, duration: 1 }}
-            className="w-2.5 h-2.5 rounded-full bg-red-500"
+            className="w-2 h-2 rounded-full"
+            style={{ background: 'var(--danger)' }}
           />
-          <span className="text-sm font-mono font-medium text-[var(--text-primary)]">{formatDuration(duration)}</span>
+          <span className="text-xs font-mono font-medium" style={{ color: 'var(--text-primary)' }}>{formatDuration(duration)}</span>
         </div>
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={stopRecording}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg"
+          className="rounded-full w-8 h-8 flex items-center justify-center"
           style={{ background: 'var(--accent)' }}
           title="Send"
         >
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
           </svg>
-        </button>
+        </motion.button>
       </motion.div>
     )
   }
@@ -145,11 +147,10 @@ export default function VoiceRecorder({ onUpload, disabled }) {
       whileTap={{ scale: 0.9 }}
       onClick={startRecording}
       disabled={disabled}
-      className="glass !p-2.5 !rounded-xl disabled:opacity-30 transition-all"
-      style={{ color: 'var(--accent)' }}
+      className="surface-icon-btn disabled:opacity-30"
       title="Record voice message"
     >
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
       </svg>
     </motion.button>

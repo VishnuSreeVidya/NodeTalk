@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 const EMOJIS = [
   ['😊', '😂', '🥰', '😍', '🤔', '😎'],
@@ -25,9 +26,19 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
   if (!open) return null
 
   return (
-    <div
+    <motion.div
       ref={ref}
-      className="absolute bottom-full left-0 mb-2 glass-strong rounded-2xl p-2 animate-fade-in z-30"
+      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 6, scale: 0.96 }}
+      transition={{ duration: 0.12 }}
+      className="absolute bottom-full left-0 mb-2 z-30 p-1.5"
+      style={{
+        background: 'var(--surface-elevated)',
+        border: '1px solid var(--border-secondary)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-popover)',
+      }}
     >
       {EMOJIS.map((row, i) => (
         <div key={i} className="emoji-grid" style={{ gridTemplateColumns: `repeat(${row.length}, 1fr)` }}>
@@ -42,6 +53,6 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
           ))}
         </div>
       ))}
-    </div>
+    </motion.div>
   )
 }

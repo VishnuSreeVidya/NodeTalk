@@ -40,79 +40,73 @@ export default function Auth() {
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', damping: 20, stiffness: 200 }}
-        className="w-full max-w-md"
+        transition={{ type: 'spring', damping: 22, stiffness: 250 }}
+        className="w-full max-w-sm"
       >
-        <div className="glass-card p-8 flex flex-col items-center">
+        <div
+          className="p-8 flex flex-col items-center rounded-xl"
+          style={{
+            background: 'var(--surface-secondary)',
+            border: '1px solid var(--border-secondary)',
+            boxShadow: 'var(--shadow-modal)',
+          }}
+        >
           {/* Logo */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', delay: 0.2 }}
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-lg mb-6"
+            transition={{ type: 'spring', delay: 0.15 }}
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white mb-5"
             style={{ background: 'var(--accent)' }}
           >
             N
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-2xl font-bold text-center mb-1"
-            style={{ color: 'var(--text-primary)' }}
-          >
+          <h1 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
             {isLogin ? 'Welcome back' : 'Create account'}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-sm text-center mb-6"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          </h1>
+          <p className="text-sm mb-6" style={{ color: 'var(--text-tertiary)' }}>
             {isLogin ? 'Sign in to continue to NodeTalk' : 'Join NodeTalk to start messaging'}
-          </motion.p>
+          </p>
 
-          <form onSubmit={handleSubmit} className="w-full">
-            <div className="space-y-3">
-              {!isLogin && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                  <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="glass-input w-full"
-                  />
-                </motion.div>
-              )}
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="glass-input w-full"
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="glass-input w-full"
-                minLength={6}
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="w-full space-y-3">
+            {!isLogin && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="surface-input"
+                />
+              </motion.div>
+            )}
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="surface-input"
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="surface-input"
+              minLength={6}
+              required
+            />
 
             {error && (
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-red-500 text-sm text-center mt-3"
+                className="text-xs text-center"
+                style={{ color: 'var(--danger)' }}
               >
                 {error}
               </motion.p>
@@ -121,13 +115,14 @@ export default function Auth() {
             <motion.button
               type="submit"
               disabled={busy}
-              whileHover={{ scale: busy ? 1 : 1.02 }}
+              whileHover={{ scale: busy ? 1 : 1.01 }}
               whileTap={{ scale: busy ? 1 : 0.98 }}
-              className="glass-btn-primary w-full mt-5 disabled:opacity-50"
+              className="w-full py-2.5 rounded-[8px] text-sm font-medium text-white transition-all disabled:opacity-50"
+              style={{ background: 'var(--accent)' }}
             >
               {busy ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                    <span className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, currentColor 25%, transparent)', borderTopColor: 'currentColor' }} />
                   {isLogin ? 'Signing in...' : 'Creating account...'}
                 </span>
               ) : (
@@ -136,22 +131,16 @@ export default function Auth() {
             </motion.button>
           </form>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-sm mt-5 text-center"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          <p className="text-sm mt-6" style={{ color: 'var(--text-tertiary)' }}>
             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button
               onClick={() => { setIsLogin(!isLogin); setError('') }}
-              className="font-semibold hover:underline"
+              className="font-medium hover:underline"
               style={{ color: 'var(--accent)' }}
             >
               {isLogin ? 'Sign Up' : 'Sign In'}
             </button>
-          </motion.p>
+          </p>
         </div>
       </motion.div>
     </div>

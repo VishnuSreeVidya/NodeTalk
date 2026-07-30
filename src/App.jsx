@@ -14,20 +14,21 @@ function LoadingSpinner() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center app-container">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
         className="flex flex-col items-center gap-4"
       >
         <div
-          className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-lg"
+          className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold text-white"
           style={{ background: 'var(--accent)' }}
         >
           N
         </div>
         <div
-          className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+          className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
           style={{
-            borderColor: 'color-mix(in srgb, var(--accent) 40%, transparent)',
+            borderColor: 'color-mix(in srgb, var(--accent) 25%, transparent)',
             borderTopColor: 'transparent',
           }}
         />
@@ -91,11 +92,16 @@ export default function App() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <div className="h-screen w-full flex app-container overflow-hidden">
+        {/* Mobile hamburger */}
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 glass !p-2.5 !rounded-xl"
-          style={{ color: 'var(--accent)' }}
+          className="lg:hidden fixed top-3 left-3 z-50 rounded-lg p-1.5"
+          style={{
+            background: 'var(--surface-elevated)',
+            border: '1px solid var(--border-secondary)',
+            color: 'var(--text-secondary)',
+          }}
           aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
           aria-expanded={sidebarOpen}
         >
@@ -108,21 +114,29 @@ export default function App() {
           </svg>
         </motion.button>
 
+        {/* Mobile overlay */}
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-30"
+              transition={{ duration: 0.15 }}
+              className="lg:hidden fixed inset-0 z-30"
+              style={{ background: 'rgba(0,0,0,0.5)' }}
               onClick={() => setSidebarOpen(false)}
               aria-hidden="true"
             />
           )}
         </AnimatePresence>
 
+        {/* Sidebar */}
         <motion.div
-          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-40 h-full transition-transform duration-300 ease-out`}
+          animate={{
+            x: sidebarOpen ? 0 : 0,
+          }}
+          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-40 h-full transition-transform duration-250 ease-out`}
+          style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
         >
           <Sidebar
             selectedUser={selectedUser}
@@ -133,15 +147,24 @@ export default function App() {
           />
         </motion.div>
 
-        <div className="flex-1 min-w-0">
-          {selectedGroup ? (
-            <GroupChatWindow group={selectedGroup} />
-          ) : (
-            <ChatWindow
-              selectedUser={selectedUser}
-              onStartCall={handleStartCall}
-            />
-          )}
+        {/* Main content */}
+        <div className="flex-1 min-w-0 relative">
+          <motion.div
+            key={selectedGroup ? 'group' : selectedUser?.id || 'empty'}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            className="h-full"
+          >
+            {selectedGroup ? (
+              <GroupChatWindow group={selectedGroup} />
+            ) : (
+              <ChatWindow
+                selectedUser={selectedUser}
+                onStartCall={handleStartCall}
+              />
+            )}
+          </motion.div>
         </div>
 
         <CallHandler

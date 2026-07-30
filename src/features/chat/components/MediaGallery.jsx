@@ -80,7 +80,7 @@ function MediaGallery({ open, onClose, userId, otherUserId, groupId }) {
     <>
       <Modal open={open} onClose={onClose} title="Media Gallery" maxWidth="max-w-2xl">
         {/* Tabs */}
-        <div className="flex border-b border-white/10 mb-4">
+        <div className="flex border-b mb-4" style={{ borderColor: 'var(--border-primary)' }}>
           {TABS.map((tab) => (
             <button
               key={tab.id}

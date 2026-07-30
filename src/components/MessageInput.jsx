@@ -69,7 +69,11 @@ const MessageInput = forwardRef(function MessageInput(
         if (pendingFiles.length > 0) submitFiles()
         else onSubmit(e)
       }}
-      className="p-3 border-t border-white/20 glass rounded-none backdrop-blur-xl relative"
+      className="px-3 py-2.5 border-t"
+      style={{
+        background: 'var(--surface-secondary)',
+        borderColor: 'var(--border-primary)',
+      }}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
@@ -108,14 +112,18 @@ const MessageInput = forwardRef(function MessageInput(
             {pendingFiles.map((f, i) => (
               <motion.div
                 key={i}
-                initial={{ scale: 0.8, opacity: 0 }}
+                initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                className="glass rounded-xl px-3 py-2 flex items-center gap-2 text-sm max-w-[200px]"
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-[8px] text-sm max-w-[200px]"
+                style={{
+                  background: 'var(--surface-tertiary)',
+                  border: '1px solid var(--border-primary)',
+                }}
               >
-                <span className="truncate text-[var(--text-primary)] flex-1">{f.meta.name}</span>
-                {f.meta.size && <span className="text-[10px] text-[var(--text-secondary)]">{formatFileSize(f.meta.size)}</span>}
-                <button type="button" onClick={() => removePendingFile(i)} className="text-[var(--text-secondary)] hover:text-red-400 transition-colors">&times;</button>
+                <span className="truncate flex-1" style={{ color: 'var(--text-primary)' }}>{f.meta.name}</span>
+                {f.meta.size && <span className="text-2xs" style={{ color: 'var(--text-tertiary)' }}>{formatFileSize(f.meta.size)}</span>}
+                <button type="button" onClick={() => removePendingFile(i)} className="text-tertiary hover:text-danger transition-colors" style={{ color: 'var(--text-tertiary)' }}>&times;</button>
               </motion.div>
             ))}
           </motion.div>
@@ -129,23 +137,26 @@ const MessageInput = forwardRef(function MessageInput(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl border-2 border-dashed"
-            style={{ borderColor: 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 5%, transparent)' }}
+            className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed"
+            style={{
+              borderColor: 'var(--accent)',
+              background: 'var(--accent-soft)',
+            }}
           >
             <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>Drop file here</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <div className="relative">
           <motion.button
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowEmoji(!showEmoji)}
-            className="glass !p-2.5 !rounded-xl transition-all"
+            className="surface-icon-btn"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </motion.button>
@@ -170,16 +181,20 @@ const MessageInput = forwardRef(function MessageInput(
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="glass-input flex-1"
+          className="surface-input flex-1"
           autoFocus
         />
         <motion.button
           type="submit"
           disabled={!text.trim() && pendingFiles.length === 0}
-          whileTap={{ scale: 0.9 }}
-          className="glass-btn-primary !p-2.5 disabled:opacity-30"
+          whileTap={{ scale: 0.92 }}
+          className="rounded-[8px] p-2 flex items-center justify-center disabled:opacity-30"
+          style={{
+            background: 'var(--accent)',
+            color: 'white',
+          }}
         >
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
           </svg>
         </motion.button>

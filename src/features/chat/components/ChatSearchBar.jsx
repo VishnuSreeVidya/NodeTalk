@@ -25,11 +25,12 @@ function ChatSearchBar({ onSearch, onClose, resultCount }) {
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="overflow-hidden border-b border-white/20"
+      className="overflow-hidden border-b"
+      style={{ borderColor: 'var(--border-primary)' }}
     >
-      <div className="p-3 flex items-center gap-2">
+      <div className="p-2.5 flex items-center gap-2" style={{ background: 'var(--surface-primary)' }}>
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-tertiary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
@@ -37,22 +38,22 @@ function ChatSearchBar({ onSearch, onClose, resultCount }) {
             placeholder="Search in conversation..."
             value={query}
             onChange={handleChange}
-            className="glass-input w-full pl-10 text-sm"
+            className="surface-input w-full pl-8"
             autoFocus
             aria-label="Search in conversation"
           />
           {resultCount !== undefined && query && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-secondary)]">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-2xs" style={{ color: 'var(--text-tertiary)' }}>
               {resultCount} result{resultCount !== 1 ? 's' : ''}
             </span>
           )}
         </div>
         <button
           onClick={handleClear}
-          className="glass !p-2 !rounded-xl"
+          className="surface-icon-btn"
           aria-label="Close search"
         >
-          <svg className="w-4 h-4 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>

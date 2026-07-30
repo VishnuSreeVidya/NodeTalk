@@ -78,50 +78,54 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
       <div className="space-y-4">
         {/* Group name */}
         <div>
-          <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 block">Group Name</label>
+          <label className="text-2xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: 'var(--text-tertiary)' }}>Group Name</label>
           <input
             type="text"
             placeholder="e.g. Design Team"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="glass-input w-full"
+            className="surface-input"
             autoFocus
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 block">Description (optional)</label>
+          <label className="text-2xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: 'var(--text-tertiary)' }}>Description (optional)</label>
           <input
             type="text"
             placeholder="What's this group about?"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="glass-input w-full"
+            className="surface-input"
           />
         </div>
 
         {/* Selected members */}
         {selectedMembers.length > 0 && (
           <div>
-            <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 block">
+            <label className="text-2xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: 'var(--text-tertiary)' }}>
               Members ({selectedMembers.length})
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {selectedMembers.map((m) => (
                 <motion.button
                   key={m.id}
                   layout
-                  initial={{ scale: 0.8, opacity: 0 }}
+                  initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
                   onClick={() => toggleMember(m)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                  style={{ background: 'color-mix(in srgb, var(--accent) 20%, transparent)', color: 'var(--accent)' }}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-[6px] text-xs font-medium"
+                  style={{
+                    background: 'var(--accent-soft)',
+                    color: 'var(--accent)',
+                    border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)',
+                  }}
                 >
                   <Avatar username={m.username} size="xs" />
                   {m.username}
-                  <span className="opacity-60">&times;</span>
+                  <span className="opacity-50">&times;</span>
                 </motion.button>
               ))}
             </div>
@@ -130,9 +134,9 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
 
         {/* Search & add members */}
         <div>
-          <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5 block">Add Members</label>
+          <label className="text-2xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: 'var(--text-tertiary)' }}>Add Members</label>
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-tertiary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -140,21 +144,23 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
               placeholder="Search users..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="glass-input w-full pl-10 text-sm"
+              className="surface-input w-full pl-8"
             />
           </div>
           <div className="mt-2 max-h-40 overflow-y-auto space-y-0.5">
             {filteredUsers.length === 0 ? (
-              <p className="text-center text-[var(--text-secondary)] text-xs py-4">No users found</p>
+              <p className="text-center text-xs py-4" style={{ color: 'var(--text-tertiary)' }}>No users found</p>
             ) : (
               filteredUsers.map((u) => (
                 <button
                   key={u.id}
                   onClick={() => toggleMember(u)}
-                  className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-white/40 transition-all text-left"
+                  className="w-full flex items-center gap-2.5 p-2 rounded-lg transition-all text-left"
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   <Avatar username={u.username} size="sm" isOnline={u.is_online} />
-                  <span className="text-sm font-medium text-[var(--text-primary)]">{u.username}</span>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{u.username}</span>
                 </button>
               ))
             )}

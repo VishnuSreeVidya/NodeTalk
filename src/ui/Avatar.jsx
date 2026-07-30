@@ -1,15 +1,26 @@
 import { memo } from 'react'
 
 const SIZES = {
-  xs: 'w-6 h-6 text-[10px]',
-  sm: 'w-8 h-8 text-xs',
-  md: 'w-10 h-10 text-sm',
-  lg: 'w-12 h-12 text-base',
-  xl: 'w-16 h-16 text-lg',
+  xs: 'w-5 h-5 text-[9px]',
+  sm: 'w-7 h-7 text-[11px]',
+  md: 'w-9 h-9 text-sm',
+  lg: 'w-11 h-11 text-base',
+  xl: 'w-14 h-14 text-lg',
+  '2xl': 'w-20 h-20 text-2xl',
+}
+
+const RADIUS = {
+  xs: 'rounded-[4px]',
+  sm: 'rounded-[6px]',
+  md: 'rounded-[8px]',
+  lg: 'rounded-[10px]',
+  xl: 'rounded-[12px]',
+  '2xl': 'rounded-[14px]',
 }
 
 function Avatar({ src, username, size = 'md', isOnline, className = '' }) {
   const initial = username?.charAt(0).toUpperCase() || '?'
+  const sizeClass = RADIUS[size] || RADIUS.md
 
   return (
     <div className={`relative flex-shrink-0 ${className}`}>
@@ -17,18 +28,21 @@ function Avatar({ src, username, size = 'md', isOnline, className = '' }) {
         <img
           src={src}
           alt={username}
-          className={`${SIZES[size]} rounded-2xl object-cover shadow-sm`}
+          className={`${SIZES[size]} ${sizeClass} object-cover`}
+          style={{ boxShadow: 'var(--shadow-soft)' }}
         />
       ) : (
         <div
-          className={`${SIZES[size]} rounded-2xl flex items-center justify-center font-bold text-white shadow-sm`}
+          className={`${SIZES[size]} ${sizeClass} flex items-center justify-center font-semibold text-white`}
           style={{ background: 'var(--accent)' }}
         >
           {initial}
         </div>
       )}
       {typeof isOnline === 'boolean' && (
-        <span className={`presence-dot absolute -bottom-0.5 -right-0.5 ${isOnline ? 'online' : 'offline'}`} />
+        <span
+          className={`presence-dot absolute -bottom-0.5 -right-0.5 ${isOnline ? 'online' : 'offline'}`}
+        />
       )}
     </div>
   )

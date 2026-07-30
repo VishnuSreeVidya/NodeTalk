@@ -2,14 +2,12 @@ import { memo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
-import { useClickOutside } from '../hooks/useClickOutside'
 
 function NotificationBell() {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
-  const ref = useClickOutside(() => setOpen(false), open)
 
   useEffect(() => {
     if (!user) return
@@ -67,22 +65,23 @@ function NotificationBell() {
   }
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative">
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen(!open)}
-        className="glass !p-2 !rounded-xl transition-all relative"
-        style={{ color: 'var(--text-secondary)' }}
+        className="surface-icon-btn rounded-lg"
         title="Notifications"
+        aria-label="Notifications"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center"
+            className="surface-badge absolute -top-1.5 -right-1.5 !min-w-[16px] !h-4 text-[8px] px-1"
+            style={{ background: 'var(--danger)' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>
@@ -91,46 +90,77 @@ function NotificationBell() {
 
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-            className="absolute right-0 top-full mt-2 w-80 glass-strong rounded-2xl shadow-xl z-50 overflow-hidden"
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <p className="text-sm font-bold text-[var(--text-primary)]">Notifications</p>
-              {unreadCount > 0 && (
-                <button onClick={markAllRead} className="text-[10px] font-semibold uppercase" style={{ color: 'var(--accent)' }}>
-                  Mark all read
-                </button>
-              )}
-            </div>
-            <div className="max-h-80 overflow-y-auto">
-              {notifications.length === 0 ? (
-                <div className="py-8 text-center">
-                  <p className="text-2xl mb-2">🔔</p>
-                  <p className="text-xs text-[var(--text-secondary)]">No notifications yet</p>
-                </div>
-              ) : (
-                notifications.map((n) => (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: 6, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6, scale: 0.96 }}
+              transition={{ duration: 0.15 }}
+              className="absolute right-0 top-full mt-2 w-80 z-50 overflow-hidden"
+              style={{
+                background: 'var(--surface-elevated)',
+                border: '1px solid var(--border-secondary)',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-popover)',
+              }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+                <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Notifications</p>
+                {unreadCount > 0 && (
                   <button
-                    key={n.id}
-                    onClick={() => { markRead(n.id); if (n.link) setOpen(false) }}
-                    className={`w-full text-left px-4 py-3 transition-colors hover:bg-white/5 border-b border-white/5 last:border-0 ${!n.is_read ? 'bg-white/5' : ''}`}
+                    onClick={markAllRead}
+                    className="text-xs font-medium"
+                    style={{ color: 'var(--accent)' }}
                   >
-                    <div className="flex items-start gap-3">
-                      {!n.is_read && <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: 'var(--accent)' }} />}
-                      <div className="flex-1 min-w-0">
-                        {n.title && <p className="text-xs font-semibold text-[var(--text-primary)] truncate">{n.title}</p>}
-                        {n.body && <p className="text-[11px] text-[var(--text-secondary)] truncate mt-0.5">{n.body}</p>}
-                      </div>
-                    </div>
+                    Mark all read
                   </button>
-                ))
-              )}
-            </div>
-          </motion.div>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <svg className="w-8 h-8 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text-tertiary)' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>No notifications yet</p>
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <button
+                      key={n.id}
+                      onClick={() => { markRead(n.id); if (n.link) setOpen(false) }}
+                      className="w-full text-left px-4 py-3 transition-colors border-b last:border-0"
+                      style={{
+                        background: !n.is_read ? 'var(--accent-soft)' : 'transparent',
+                        borderColor: 'var(--border-primary)',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = !n.is_read ? 'var(--accent-soft)' : 'transparent'}
+                    >
+                      <div className="flex items-start gap-3">
+                        {!n.is_read && (
+                          <div className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: 'var(--accent)' }} />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          {n.title && (
+                            <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                              {n.title}
+                            </p>
+                          )}
+                          {n.body && (
+                            <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-secondary)' }}>
+                              {n.body}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

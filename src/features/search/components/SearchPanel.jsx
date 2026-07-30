@@ -34,12 +34,13 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="overflow-hidden border-b border-white/20"
+      className="overflow-hidden border-b"
+      style={{ borderColor: 'var(--border-primary)' }}
     >
-      <div className="p-3 space-y-3">
+      <div className="p-3 space-y-3" style={{ background: 'var(--surface-primary)' }}>
         <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--text-tertiary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -47,7 +48,7 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
               placeholder="Search messages, images, files..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="glass-input w-full pl-10 text-sm"
+              className="surface-input w-full pl-8"
               autoFocus
               aria-label="Search messages"
             />
@@ -55,10 +56,10 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
           <button
             type="button"
             onClick={() => { clearSearch(); onClose?.() }}
-            className="glass !p-2 !rounded-xl"
+            className="surface-icon-btn"
             aria-label="Close search"
           >
-            <svg className="w-4 h-4 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -70,12 +71,12 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
             <button
               key={type.id}
               onClick={() => handleTypeFilter(type.id)}
-              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                filters.type === type.id
-                  ? 'text-white shadow-sm'
-                  : 'glass text-[var(--text-secondary)] hover:bg-white/20'
-              }`}
-              style={filters.type === type.id ? { background: 'var(--accent)' } : undefined}
+              className="flex-shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={{
+                background: filters.type === type.id ? 'var(--accent)' : 'var(--surface-tertiary)',
+                color: filters.type === type.id ? 'white' : 'var(--text-secondary)',
+                border: '1px solid var(--border-primary)',
+              }}
               role="radio"
               aria-checked={filters.type === type.id}
             >
@@ -88,33 +89,35 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
         {/* Results */}
         {loading && (
           <div className="flex items-center justify-center py-4">
-            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)', borderTopColor: 'transparent' }} />
+            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 25%, transparent)', borderTopColor: 'transparent' }} />
           </div>
         )}
 
         {!loading && results.length > 0 && (
-          <div className="max-h-60 overflow-y-auto space-y-1">
-            <p className="text-[10px] text-[var(--text-secondary)] font-medium px-1">
+          <div className="max-h-60 overflow-y-auto space-y-0.5">
+            <p className="text-2xs font-medium px-1" style={{ color: 'var(--text-tertiary)' }}>
               {results.length} result{results.length !== 1 ? 's' : ''}
             </p>
             {results.slice(0, 20).map((msg) => (
               <button
                 key={msg.id}
                 onClick={() => onSelectResult?.(msg)}
-                className="w-full text-left p-2.5 rounded-xl hover:bg-white/10 transition-colors group"
+                className="w-full text-left p-2 rounded-lg transition-colors group"
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[var(--text-primary)] line-clamp-2 group-hover:text-[var(--accent)]">
+                    <p className="text-xs line-clamp-2" style={{ color: 'var(--text-primary)' }}>
                       {msg.message_text || (msg.image_url ? '📷 Image' : '📎 File')}
                     </p>
-                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
+                    <p className="text-2xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
                       {formatMessageTime(msg.created_at)}
                       {msg.is_edited && ' (edited)'}
                     </p>
                   </div>
                   {msg.image_url && (
-                    <img src={msg.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" loading="lazy" />
+                    <img src={msg.image_url} alt="" className="w-9 h-9 rounded-[6px] object-cover flex-shrink-0" loading="lazy" />
                   )}
                 </div>
               </button>
@@ -124,7 +127,7 @@ function SearchPanel({ userId, onSelectResult, onClose }) {
 
         {!loading && results.length === 0 && filters.query && (
           <div className="text-center py-4">
-            <p className="text-sm text-[var(--text-secondary)]">No results found</p>
+            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No results found</p>
           </div>
         )}
       </div>

@@ -45,7 +45,6 @@ export default function GroupChatWindow({ group }) {
   }, [group])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMessages()
     fetchMembers()
     setReplyTo(null)
@@ -220,14 +219,14 @@ export default function GroupChatWindow({ group }) {
 
   if (!group) {
     return (
-      <div className="flex-1 flex items-center justify-center h-full app-container" style={{ background: 'var(--chat-bg)' }}>
-        <EmptyState variant="groups" title="Select a group" description="Choose a group from the sidebar" />
+      <div className="flex-1 flex items-center justify-center h-full app-container">
+        <EmptyState variant="generic" title="Select a group" description="Choose a group from the sidebar" />
       </div>
     )
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full app-container relative" style={{ background: 'var(--chat-bg)' }}>
+    <div className="flex-1 flex flex-col h-full app-container relative">
       <ChatHeader
         user={group}
         isGroup={true}
@@ -240,7 +239,8 @@ export default function GroupChatWindow({ group }) {
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-4 space-y-1 relative"
+        className="flex-1 overflow-y-auto px-4 py-3 space-y-1 relative"
+        style={{ background: 'var(--surface-primary)' }}
       >
         {loading ? (
           <Skeleton pattern="message" className="py-4" />
@@ -262,7 +262,7 @@ export default function GroupChatWindow({ group }) {
                     animate={{ opacity: 1 }}
                     className="flex justify-start"
                   >
-                    <p className="text-xs text-[var(--text-secondary)] italic py-1 px-4">🗑️ This message was deleted</p>
+                    <p className="text-xs italic py-1 px-4" style={{ color: 'var(--text-tertiary)' }}>This message was deleted</p>
                   </motion.div>
                 )
               }
@@ -296,14 +296,20 @@ export default function GroupChatWindow({ group }) {
       <AnimatePresence>
         {showScrollBtn && (
           <motion.button
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            exit={{ opacity: 0, scale: 0.85, y: 16 }}
+            transition={{ duration: 0.15 }}
             onClick={scrollToBottom}
-            className="absolute bottom-24 left-1/2 -translate-x-1/2 glass-strong rounded-full p-3 shadow-lg z-10 hover:scale-110 transition-transform"
-            style={{ color: 'var(--accent)' }}
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 rounded-full p-2.5 transition-transform"
+            style={{
+              background: 'var(--surface-elevated)',
+              border: '1px solid var(--border-secondary)',
+              color: 'var(--accent)',
+              boxShadow: 'var(--shadow-popover)',
+            }}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
           </motion.button>

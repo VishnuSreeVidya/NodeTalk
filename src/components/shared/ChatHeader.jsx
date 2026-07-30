@@ -6,9 +6,14 @@ import { formatLastSeen } from '../../lib/utils'
 function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onSearchToggle, onStartAudioCall, onStartVideoCall, onToggleInfo }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 border-b border-white/20 glass flex items-center gap-3 rounded-none backdrop-blur-xl"
+      transition={{ duration: 0.2 }}
+      className="flex items-center gap-3 px-4 py-3 border-b"
+      style={{
+        background: 'var(--surface-secondary)',
+        borderColor: 'var(--border-primary)',
+      }}
     >
       <Avatar
         username={user?.username || user?.name}
@@ -16,16 +21,16 @@ function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onS
         isOnline={!isGroup ? user?.is_online : undefined}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-[var(--text-primary)] truncate">
+        <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
           {user?.username || user?.name}
         </p>
-        <p className="text-[11px] text-[var(--text-secondary)]">
+        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
           {receiverTyping ? (
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              style={{ color: 'var(--accent)' }}
               className="font-medium"
+              style={{ color: 'var(--accent)' }}
             >
               typing...
             </motion.span>
@@ -38,26 +43,26 @@ function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onS
           )}
         </p>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         {sharedKey && !isGroup && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="flex items-center gap-1 glass !px-2 !py-1 !rounded-lg"
+            className="flex items-center gap-1 px-1.5 py-1 rounded-[6px]"
+            style={{ background: 'var(--surface-tertiary)' }}
             title="End-to-end encrypted"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--accent)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <span className="text-[10px] font-bold" style={{ color: 'var(--accent)' }}>E2EE</span>
+            <span className="text-[10px] font-semibold" style={{ color: 'var(--accent)' }}>E2EE</span>
           </motion.div>
         )}
         {!isGroup && (
           <>
             <button
               onClick={onSearchToggle}
-              className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-              style={{ color: 'var(--text-secondary)' }}
+              className="surface-icon-btn rounded-[8px]"
               title="Search messages"
               aria-label="Search messages"
             >
@@ -67,8 +72,7 @@ function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onS
             </button>
             <button
               onClick={onStartAudioCall}
-              className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-              style={{ color: 'var(--text-secondary)' }}
+              className="surface-icon-btn rounded-[8px]"
               title="Voice call"
               aria-label="Start voice call"
             >
@@ -78,8 +82,7 @@ function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onS
             </button>
             <button
               onClick={onStartVideoCall}
-              className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-              style={{ color: 'var(--text-secondary)' }}
+              className="surface-icon-btn rounded-[8px]"
               title="Video call"
               aria-label="Start video call"
             >
@@ -92,8 +95,7 @@ function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onS
         {isGroup && (
           <button
             onClick={onToggleInfo}
-            className="glass !p-2 !rounded-xl transition-all hover:bg-white/20"
-            style={{ color: 'var(--text-secondary)' }}
+            className="surface-icon-btn rounded-[8px]"
             title="Group info"
             aria-label="Toggle group info"
           >

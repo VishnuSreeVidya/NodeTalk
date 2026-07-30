@@ -8,21 +8,21 @@ import ThemeSelector from './ThemeSelector'
 
 function SettingToggle({ label, description, enabled, onToggle }) {
   return (
-    <div className="flex items-center justify-between py-3">
+    <div className="flex items-center justify-between py-2.5">
       <div className="flex-1 min-w-0 mr-4">
-        <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
-        {description && <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">{description}</p>}
+        <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{label}</p>
+        {description && <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{description}</p>}
       </div>
       <button
         onClick={onToggle}
-        className={`relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${enabled ? '' : 'bg-gray-300'}`}
-        style={enabled ? { background: 'var(--accent)' } : undefined}
+        className="relative w-9 h-5 rounded-full transition-colors duration-200 flex-shrink-0"
+        style={{ background: enabled ? 'var(--accent)' : 'var(--surface-tertiary)' }}
       >
         <motion.div
           layout
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm"
-          style={{ left: enabled ? '22px' : '2px' }}
+          transition={{ type: 'spring', damping: 22, stiffness: 350 }}
+          className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+          style={{ left: enabled ? '17px' : '2px' }}
         />
       </button>
     </div>
@@ -81,32 +81,32 @@ export default function SettingsModal({ open, onClose }) {
     <Modal open={open} onClose={onClose} title="Settings" maxWidth="max-w-md">
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)', borderTopColor: 'transparent' }} />
+          <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'color-mix(in srgb, var(--accent) 25%, transparent)', borderTopColor: 'transparent' }} />
         </div>
       ) : (
-        <div className="space-y-1 divide-y divide-white/10">
-          <div className="pt-1 pb-2">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Appearance</p>
+        <div className="space-y-1">
+          <div className="pb-2">
+            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Appearance</p>
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-medium text-[var(--text-primary)]">Theme</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Theme</span>
               <ThemeSelector />
             </div>
           </div>
 
-          <div className="pt-3 pb-2">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Notifications</p>
+          <div className="border-t pt-3 pb-2" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Notifications</p>
             <SettingToggle label="Notification sounds" description="Play sounds for new messages" enabled={settings.notification_sound} onToggle={() => toggle('notification_sound')} />
             <SettingToggle label="Browser notifications" description="Show desktop notifications" enabled={settings.notification_browser} onToggle={() => toggle('notification_browser')} />
           </div>
 
-          <div className="pt-3 pb-2">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Privacy</p>
+          <div className="border-t pt-3 pb-2" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Privacy</p>
             <SettingToggle label="Show online status" description="Let others see when you're online" enabled={settings.show_online_status} onToggle={() => toggle('show_online_status')} />
             <SettingToggle label="Read receipts" description="Show when you've read messages" enabled={settings.read_receipts} onToggle={() => toggle('read_receipts')} />
           </div>
 
-          <div className="pt-3 pb-2">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Chat</p>
+          <div className="border-t pt-3 pb-2" style={{ borderColor: 'var(--border-primary)' }}>
+            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Chat</p>
             <SettingToggle label="Enter to send" description="Press Enter to send messages" enabled={settings.enter_to_send} onToggle={() => toggle('enter_to_send')} />
           </div>
         </div>

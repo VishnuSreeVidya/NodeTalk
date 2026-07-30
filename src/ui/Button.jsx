@@ -2,17 +2,18 @@ import { memo } from 'react'
 import { motion } from 'framer-motion'
 
 const VARIANTS = {
-  primary: 'glass-btn-primary',
-  secondary: 'glass-btn',
-  ghost: '',
-  danger: '',
+  primary: 'surface-btn-primary',
+  secondary: 'surface-btn-secondary',
+  ghost: 'surface-btn-ghost',
+  danger: 'surface-btn-danger',
 }
 
 const SIZES = {
-  sm: 'px-3 py-1.5 text-xs rounded-xl',
-  md: 'px-5 py-2.5 text-sm rounded-xl',
-  lg: 'px-6 py-3 text-base rounded-2xl',
-  icon: 'p-2.5 rounded-xl',
+  xs: 'px-2 py-1 text-2xs rounded-[6px]',
+  sm: 'px-2.5 py-1.5 text-xs rounded-[8px]',
+  md: 'px-4 py-2 text-sm rounded-[8px]',
+  lg: 'px-5 py-2.5 text-sm rounded-[10px]',
+  icon: 'p-2 rounded-[8px]',
 }
 
 function Button({
@@ -29,28 +30,17 @@ function Button({
   const sizeClass = SIZES[size] || SIZES.md
   const isIcon = size === 'icon'
 
-  const ghostStyles = variant === 'ghost' ? {
-    background: 'transparent',
-    color: 'var(--text-secondary)',
-    ...style,
-  } : variant === 'danger' ? {
-    background: 'rgba(239,68,68,0.1)',
-    color: '#ef4444',
-    border: '1px solid rgba(239,68,68,0.2)',
-    ...style,
-  } : style
-
   return (
     <motion.button
-      whileHover={{ scale: disabled ? 1 : 1.02 }}
-      whileTap={{ scale: disabled ? 1 : 0.98 }}
+      whileHover={{ scale: disabled ? 1 : 1.01 }}
+      whileTap={{ scale: disabled ? 1 : 0.97 }}
       disabled={disabled || loading}
-      className={`${baseClass} ${sizeClass} font-medium transition-all duration-200 inline-flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed ${isIcon ? '!p-2.5' : ''} ${className}`}
-      style={ghostStyles}
+      className={`surface-btn ${baseClass} ${sizeClass} ${isIcon ? '!p-2' : ''} ${className}`}
+      style={style}
       {...props}
     >
       {loading ? (
-        <span className="w-4 h-4 border-2 border-current/50 border-t-transparent rounded-full animate-spin" />
+        <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
       ) : children}
     </motion.button>
   )

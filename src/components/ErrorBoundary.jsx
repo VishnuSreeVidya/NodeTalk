@@ -33,22 +33,34 @@ export default class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen w-full flex items-center justify-center p-4 app-container">
-          <div className="glass-card p-10 text-center max-w-md">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center text-3xl" style={{ background: 'color-mix(in srgb, #ef4444 10%, transparent)' }}>
-              ⚠️
+          <div
+            className="p-8 text-center max-w-sm rounded-xl"
+            style={{
+              background: 'var(--surface-secondary)',
+              border: '1px solid var(--border-secondary)',
+              boxShadow: 'var(--shadow-modal)',
+            }}
+          >
+            <div
+              className="w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center"
+              style={{ background: 'var(--danger)', color: 'white' }}
+            >
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
             </div>
-            <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
               Something went wrong
             </h2>
-            <p className="text-[var(--text-secondary)] text-sm mb-2">
+            <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
               {this.state.error?.message || 'An unexpected error occurred.'}
             </p>
             {import.meta.env.DEV && this.state.errorInfo && (
               <details className="mt-4 text-left">
-                <summary className="text-xs text-[var(--text-secondary)] cursor-pointer mb-2">
+                <summary className="text-xs cursor-pointer mb-2" style={{ color: 'var(--text-secondary)' }}>
                   Error details
                 </summary>
-                <pre className="text-[10px] text-red-400 bg-black/20 rounded-xl p-3 overflow-auto max-h-40">
+                <pre className="text-[10px] rounded-lg p-3 overflow-auto max-h-40" style={{ background: 'var(--surface-primary)', color: 'var(--danger)' }}>
                   {this.state.error?.stack}
                 </pre>
               </details>
@@ -56,14 +68,13 @@ export default class ErrorBoundary extends Component {
             <div className="flex items-center justify-center gap-3 mt-6">
               <button
                 onClick={this.handleReset}
-                className="glass-btn text-sm"
-                style={{ color: 'var(--accent)' }}
+                className="surface-btn surface-btn-secondary"
               >
                 Try again
               </button>
               <button
                 onClick={this.handleReload}
-                className="glass-btn-primary text-sm"
+                className="surface-btn surface-btn-primary"
               >
                 Reload Page
               </button>
