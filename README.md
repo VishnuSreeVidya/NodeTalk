@@ -15,7 +15,7 @@
 [![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?logo=framer&logoColor=white)](https://framer.com/motion)
 
-[Live Demo](https://nodetalk-sli6.onrender.com/) &middot; [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues)
+[Live Demo](https://nodetalk-sli6.onrender.com/) · [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues)
 
 </div>
 
@@ -208,20 +208,20 @@ graph TB
 
             subgraph Presentation["Presentation Layer"]
                 direction LR
-                App["App.jsx<br/>Lazy Loading &middot; Suspense"]
-                Sidebar["Sidebar<br/>User List &middot; Groups &middot; Tabs"]
+                App["App.jsx<br/>Lazy Loading · Suspense"]
+                Sidebar["Sidebar<br/>User List · Groups · Tabs"]
                 ChatWindow["ChatWindow<br/>DM Messages"]
                 GroupChat["GroupChatWindow<br/>Group Messages"]
                 CallHandler["CallHandler<br/>WebRTC Calls"]
-                Auth["Auth<br/>Login &middot; Signup"]
+                Auth["Auth<br/>Login · Signup"]
             end
 
             subgraph Components["Component Layer"]
                 direction LR
-                MsgInput["MessageInput<br/>Text &middot; Emoji &middot; Files"]
-                MsgBubble["MessageBubble<br/>Messages &middot; Reactions"]
+                MsgInput["MessageInput<br/>Text · Emoji · Files"]
+                MsgBubble["MessageBubble<br/>Messages · Reactions"]
                 MsgCtx["MessageContextMenu<br/>Right-Click Actions"]
-                ChatHeader["ChatHeader<br/>Info &middot; Actions"]
+                ChatHeader["ChatHeader<br/>Info · Actions"]
                 NotifBell["NotificationBell<br/>Unread Badge"]
                 SettingsModal["SettingsModal<br/>User Preferences"]
                 ProfileModal["ProfileModal<br/>Profile Editor"]
@@ -231,10 +231,10 @@ graph TB
 
             subgraph Features["Feature Modules"]
                 direction LR
-                SearchFeat["search/<br/>SearchPanel &middot; useSearch"]
-                ChatFeat["chat/<br/>MediaGallery &middot; ChatSearchBar &middot; useStarMessages"]
+                SearchFeat["search/<br/>SearchPanel · useSearch"]
+                ChatFeat["chat/<br/>MediaGallery · ChatSearchBar · useStarMessages"]
                 CallsFeat["calls/<br/>useCallEnhancements"]
-                GroupsFeat["groups/<br/>GroupChatWindow &middot; CreateGroupModal"]
+                GroupsFeat["groups/<br/>GroupChatWindow · CreateGroupModal"]
                 SettingsFeat["settings/<br/>SessionManager"]
             end
 
@@ -243,7 +243,7 @@ graph TB
                 WebRTC["useWebRTC<br/>Peer Connection"]
                 SupabaseCh["useSupabaseChannel<br/>Channel Mgmt"]
                 RealtimeSub["useRealtimeSubscription<br/>postgres_changes"]
-                Keyboard["useKeyboardShortcuts<br/>Ctrl+K &middot; Ctrl+N"]
+                Keyboard["useKeyboardShortcuts<br/>Ctrl+K · Ctrl+N"]
                 FocusTrap["useFocusTrap<br/>Modal Focus"]
                 Debounce["useDebounce<br/>Input Debounce"]
                 ClickOut["useClickOutside<br/>Click Detection"]
@@ -252,26 +252,26 @@ graph TB
 
             subgraph ContextProviders["Context Providers"]
                 direction LR
-                AuthCtx["AuthContext<br/>User &middot; Session &middot; Profile"]
+                AuthCtx["AuthContext<br/>User · Session · Profile"]
                 ThemeCtx["ThemeContext<br/>Theme State"]
             end
 
             subgraph ServiceLayer["Service Layer"]
                 direction LR
-                MsgSvc["messageService<br/>CRUD &middot; Pin &middot; React &middot; Read"]
-                GroupSvc["groupService<br/>Create &middot; Fetch &middot; Members"]
-                UserSvc["userService<br/>Profile &middot; Online &middot; Cleanup"]
-                NotifSvc["notificationService<br/>Fetch &middot; Read &middot; Create"]
+                MsgSvc["messageService<br/>CRUD · Pin · React · Read"]
+                GroupSvc["groupService<br/>Create · Fetch · Members"]
+                UserSvc["userService<br/>Profile · Online · Cleanup"]
+                NotifSvc["notificationService<br/>Fetch · Read · Create"]
             end
 
             subgraph Utilities["Utility Layer"]
                 direction LR
-                Crypto["crypto.js<br/>ECDH &middot; AES-256-GCM"]
-                Validation["validation.js<br/>Sanitize &middot; Validate"]
+                Crypto["crypto.js<br/>ECDH · AES-256-GCM"]
+                Validation["validation.js<br/>Sanitize · Validate"]
                 Logger["logger.js<br/>Structured Logging"]
                 Env["env.js<br/>Env Validation"]
                 Constants["constants.js<br/>App Constants"]
-                Utils["utils.js<br/>Format &middot; Helpers"]
+                Utils["utils.js<br/>Format · Helpers"]
             end
 
             subgraph SharedUI["Shared UI Primitives"]
@@ -290,18 +290,18 @@ graph TB
 
     subgraph Backend["Supabase Backend"]
         direction TB
-        SBAuth["Supabase Auth<br/>JWT &middot; Session &middot; RLS"]
-        SBDB["PostgreSQL<br/>10 Tables &middot; Indexes &middot; Functions"]
-        SBRealtime["Supabase Realtime<br/>postgres_changes &middot; broadcast"]
+        SBAuth["Supabase Auth<br/>JWT · Session · RLS"]
+        SBDB["PostgreSQL<br/>10 Tables · Indexes · Functions"]
+        SBRealtime["Supabase Realtime<br/>postgres_changes · broadcast"]
         SBStorage["Supabase Storage<br/>chat-images Bucket"]
     end
 
     subgraph External["External APIs"]
         direction LR
-        WebRTCExt["WebRTC<br/>Audio &middot; Video &middot; Screen"]
+        WebRTCExt["WebRTC<br/>Audio · Video · Screen"]
         WebCryptoExt["Web Crypto API<br/>ECDH P-256 + AES-256-GCM"]
         MediaRecExt["MediaRecorder API<br/>Voice Messages"]
-        BrowserAPIs["Browser APIs<br/>Notifications &middot; Clipboard"]
+        BrowserAPIs["Browser APIs<br/>Notifications · Clipboard"]
     end
 
     App --> Presentation
@@ -393,7 +393,7 @@ sequenceDiagram
     A->>WC: generateKeyPair()
     WC-->>A: ECDH P-256 Key Pair
     A->>DB: savePublicKey(publicKeyJwk)
-    Note right of DB: user_keys table<br/>Server stores ONLY<br/>public key
+    Note right of DB: user_keys table (public key only)
 
     B->>WC: generateKeyPair()
     WC-->>B: ECDH P-256 Key Pair
@@ -405,15 +405,15 @@ sequenceDiagram
     DB-->>A: B's public key JWK
     A->>WC: deriveSharedKey(A's privateKey, B's publicKey)
     WC-->>A: 256-bit Shared Secret
-    Note over A: Shared secret exists<br/>ONLY in browser memory
+    Note over A: Shared secret exists only in browser memory
 
     Note over A,B: Message Encryption & Sending
 
     A->>A: User types message
     A->>WC: encryptMessage(plaintext, sharedKey)
     WC-->>A: {ciphertext, iv, tag} (AES-256-GCM)
-    A->>DB: INSERT INTO messages<br/>(encrypted: true, encrypted_text: JSON)
-    Note right of DB: Server stores ONLY ciphertext<br/>NO plaintext
+    A->>DB: INSERT INTO messages (encrypted, encrypted_text)
+    Note right of DB: Server stores ciphertext only, never plaintext
 
     DB-->>RT: postgres_changes (INSERT)
     RT-->>B: New message event
@@ -493,8 +493,8 @@ sequenceDiagram
 
     Note over A,B: During Call
 
-    A->>A: useCallEnhancements<br/>Noise suppression &middot; Network quality &middot; Camera switch
-    B->>B: Screen sharing toggle<br/>getDisplayMedia()
+    A->>A: useCallEnhancements (Noise suppression, Network quality, Camera switch)
+    B->>B: Screen sharing toggle (getDisplayMedia)
 
     Note over A,B: Call End
 
@@ -502,7 +502,7 @@ sequenceDiagram
     A->>SB: broadcast: {type: 'call-ended'}
     SB-->>B: Call ended event
     B->>PC: close()
-    A->>DB: INSERT INTO call_history<br/>(caller_id, callee_id, duration, status)
+    A->>DB: INSERT INTO call_history (caller_id, callee_id, duration, status)
 ```
 
 ### Database Schema
@@ -722,7 +722,7 @@ flowchart TB
 ```mermaid
 flowchart LR
     subgraph UserDevice["User Device"]
-        Browser["Browser<br/>Chrome &middot; Firefox &middot; Safari"]
+        Browser["Browser<br/>Chrome · Firefox · Safari"]
     end
 
     subgraph CDN["CDN Layer"]
@@ -739,8 +739,8 @@ flowchart LR
 
     subgraph SupabaseCloud["Supabase Cloud"]
         direction TB
-        SAuth["Supabase Auth<br/>JWT &middot; Sessions"]
-        SDB["PostgreSQL<br/>10 Tables &middot; RLS"]
+        SAuth["Supabase Auth<br/>JWT · Sessions"]
+        SDB["PostgreSQL<br/>10 Tables · RLS"]
         SRealtime["Realtime<br/>WebSocket Channels"]
         SStorage["Storage<br/>chat-images Bucket"]
     end
