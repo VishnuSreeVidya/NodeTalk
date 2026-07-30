@@ -123,7 +123,7 @@ const MessageInput = forwardRef(function MessageInput(
               >
                 <span className="truncate flex-1" style={{ color: 'var(--text-primary)' }}>{f.meta.name}</span>
                 {f.meta.size && <span className="text-2xs" style={{ color: 'var(--text-tertiary)' }}>{formatFileSize(f.meta.size)}</span>}
-                <button type="button" onClick={() => removePendingFile(i)} className="text-tertiary hover:text-danger transition-colors" style={{ color: 'var(--text-tertiary)' }}>&times;</button>
+                <button type="button" onClick={() => removePendingFile(i)} className="transition-colors" style={{ color: 'var(--text-tertiary)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--danger)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}>&times;</button>
               </motion.div>
             ))}
           </motion.div>
