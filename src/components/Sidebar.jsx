@@ -53,6 +53,7 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
   }, [user])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers()
     fetchGroups()
     supabase.rpc('cleanup_stale_users').then(() => fetchUsers())
@@ -75,6 +76,7 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUsers()
     }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps

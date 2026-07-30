@@ -15,8 +15,6 @@ export default function ThemeSelector() {
   const { theme, setTheme, themes } = useTheme()
   const [open, setOpen] = useState(false)
 
-  const current = THEME_PREVIEW[theme]
-
   return (
     <div className="relative">
       <motion.button

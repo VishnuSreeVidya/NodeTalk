@@ -112,6 +112,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   useEffect(() => {
     if (!selectedUser) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMessages()
     setDecryptedTexts({})
     setReplyTo(null)

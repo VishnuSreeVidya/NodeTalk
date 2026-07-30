@@ -45,6 +45,7 @@ export default function GroupChatWindow({ group }) {
   }, [group])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMessages()
     fetchMembers()
     setReplyTo(null)
