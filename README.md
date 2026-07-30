@@ -61,29 +61,7 @@ NodeTalk is a secure real-time messaging platform with end-to-end encryption, au
 
 ---
 
-## Screenshots
 
-| Login | Home | Chat |
-|:-----:|:----:|:----:|
-| ![Login](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Login) | ![Home](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Home) | ![Chat](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Chat) |
-
-| Group Chat | Settings | Profile |
-|:----------:|:--------:|:-------:|
-| ![Group Chat](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Group+Chat) | ![Settings](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Settings) | ![Profile](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Profile) |
-
-| Video Call | Mobile View |
-|:----------:|:-----------:|
-| ![Video Call](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Video+Call) | ![Mobile](https://via.placeholder.com/200x400/1a1a2e/ffffff?text=Mobile) |
-
----
-
-## Demo
-
-- **Live instance** &mdash; [nodetalk-sli6.onrender.com](https://nodetalk-sli6.onrender.com/)
-- **Demo GIF** &mdash; *coming soon*
-- **Demo video** &mdash; *coming soon*
-
----
 
 ## Messaging
 
