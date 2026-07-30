@@ -17,7 +17,7 @@
 
 ---
 
-NodeTalk is a feature-rich messaging application with end-to-end encryption, real-time messaging, audio/video calls, group chats, and a fully responsive glassmorphism UI. Built with React, Vite 8, Supabase, and WebRTC.
+NodeTalk is a feature-rich messaging application with end-to-end encryption, real-time messaging, audio/video calls, group chats, and 6 professionally crafted themes. Built with React, Vite 8, Supabase, and WebRTC.
 
 ## Features
 
@@ -97,6 +97,7 @@ NodeTalk is a feature-rich messaging application with end-to-end encryption, rea
 - In-app notification bell with unread count
 - Skeleton loading states
 - Responsive design (desktop, tablet, mobile)
+- Animated transitions with Framer Motion
 
 </details>
 
@@ -105,9 +106,12 @@ NodeTalk is a feature-rich messaging application with end-to-end encryption, rea
 
 | Theme | Description |
 |-------|-------------|
-| Glass Dark | Elegant frosted-glass interface |
-| Vibrant Amethyst | Purple gradient with glowing effects |
-| Retro Cyberpunk | Neon-inspired cyberpunk aesthetic |
+| Midnight | Deep charcoal & blue — balanced dark |
+| Graphite | Neutral enterprise grey |
+| Ocean | Navy & cyan — cool aquatic |
+| Forest | Dark green & emerald — natural |
+| Light Pro | Apple-inspired light mode |
+| AMOLED | Pure black for OLED screens |
 
 </details>
 
@@ -566,7 +570,7 @@ erDiagram
         text status_message "DEFAULT 'Hey there!'"
         boolean is_online "DEFAULT false"
         timestamp last_seen
-        text current_theme "DEFAULT 'glass-dark'"
+        text current_theme "DEFAULT 'midnight'"
         timestamp created_at
     }
 
@@ -958,7 +962,7 @@ flowchart LR
 
 | Layer | Technology |
 |:------|:-----------|
-| **Frontend** | React 19 · Vite 8 · Tailwind CSS 3 · Framer Motion |
+| **Frontend** | React 19 · Vite 8 · Tailwind CSS 3 · Framer Motion · CSS Custom Properties |
 | **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime) |
 | **Realtime** | Supabase Realtime (postgres_changes + broadcast channels) |
 | **Encryption** | Web Crypto API (ECDH P-256 + AES-256-GCM) |
@@ -1053,56 +1057,73 @@ NodeTalk/
 │   │   │   ├── DateSeparator.jsx
 │   │   │   ├── MessageContextMenu.jsx
 │   │   │   └── TypingIndicator.jsx
-│   │   ├── Auth.jsx
-│   │   ├── CallHandler.jsx        # WebRTC call management
-│   │   ├── ChatWindow.jsx         # DM chat (lazy-loaded)
-│   │   ├── ErrorBoundary.jsx      # Error boundary with logging
-│   │   ├── MessageBubble.jsx
-│   │   ├── MessageInput.jsx
-│   │   ├── NotificationBell.jsx
-│   │   ├── Sidebar.jsx            # User list + groups (lazy-loaded)
-│   │   └── VoiceRecorder.jsx
-│   │
-│   ├── features/
-│   │   ├── calls/hooks/           # Noise suppression, PiP, network quality
-│   │   ├── chat/                  # Search, media gallery, star messages
-│   │   ├── groups/                # Group chat + create modal
-│   │   ├── search/                # Global search panel
-│   │   └── settings/              # Multi-device session manager
-│   │
-│   ├── hooks/
-│   │   ├── useFocusTrap.js        # Modal focus trapping
-│   │   ├── useKeyboardShortcuts.js
-│   │   ├── useRealtimeSubscription.js
-│   │   └── useSupabaseChannel.js
-│   │
-│   ├── lib/
-│   │   ├── constants.js           # App-wide constants
-│   │   ├── env.js                 # Env validation + config
-│   │   ├── logger.js              # Structured logging
-│   │   └── utils.js
-│   │
-│   ├── services/                  # Service layer (API/DB logic)
-│   │   ├── messageService.js
-│   │   ├── groupService.js
-│   │   ├── notificationService.js
-│   │   └── userService.js
-│   │
-│   ├── test/setup.js              # Test mocks
-│   ├── ui/                        # Shared UI primitives
-│   │   ├── Avatar.jsx
-│   │   ├── Button.jsx
-│   │   ├── LiveRegion.jsx         # Screen reader announcements
-│   │   ├── Modal.jsx
-│   │   └── Skeleton.jsx
-│   │
-│   ├── utils/
-│   │   ├── crypto.js              # E2EE encryption/decryption
-│   │   └── validation.js          # Input sanitization
-│   │
-│   ├── App.jsx                    # Root with lazy loading + Suspense
-│   ├── main.jsx                   # Entry with env validation
-│   └── index.css
+    │   ├── components/
+    │   │   ├── shared/                # Reusable components
+    │   │   │   ├── ChatHeader.jsx
+    │   │   │   ├── DateSeparator.jsx
+    │   │   │   ├── MessageContextMenu.jsx
+    │   │   │   └── TypingIndicator.jsx
+    │   │   ├── Auth.jsx
+    │   │   ├── CallHandler.jsx        # WebRTC call management
+    │   │   ├── ChatWindow.jsx         # DM chat (lazy-loaded)
+    │   │   ├── EmojiPicker.jsx
+    │   │   ├── ErrorBoundary.jsx      # Error boundary with logging
+    │   │   ├── FileUpload.jsx
+    │   │   ├── MessageBubble.jsx
+    │   │   ├── MessageInput.jsx
+    │   │   ├── NotificationBell.jsx
+    │   │   ├── ProfileModal.jsx
+    │   │   ├── SettingsModal.jsx
+    │   │   ├── Sidebar.jsx            # User list + groups (lazy-loaded)
+    │   │   ├── ThemeSelector.jsx      # Theme picker with visual swatches
+    │   │   ├── Toast.jsx
+    │   │   └── VoiceRecorder.jsx
+    │   │
+    │   ├── features/
+    │   │   ├── calls/hooks/           # Noise suppression, PiP, network quality
+    │   │   ├── chat/                  # Search, media gallery, star messages
+    │   │   ├── groups/                # Group chat + create modal
+    │   │   ├── search/                # Global search panel
+    │   │   └── settings/              # Multi-device session manager
+    │   │
+    │   ├── hooks/
+    │   │   ├── useFocusTrap.js        # Modal focus trapping
+    │   │   ├── useKeyboardShortcuts.js
+    │   │   ├── useMediaQuery.js
+    │   │   ├── useRealtimeSubscription.js
+    │   │   └── useSupabaseChannel.js
+    │   │
+    │   ├── lib/
+    │   │   ├── constants.js           # App-wide constants
+    │   │   ├── env.js                 # Env validation + config
+    │   │   ├── logger.js              # Structured logging
+    │   │   └── utils.js
+    │   │
+    │   ├── services/                  # Service layer (API/DB logic)
+    │   │   ├── messageService.js
+    │   │   ├── groupService.js
+    │   │   ├── notificationService.js
+    │   │   └── userService.js
+    │   │
+    │   ├── test/setup.js              # Test mocks
+    │   ├── ui/                        # Shared UI primitives
+    │   │   ├── Avatar.jsx
+    │   │   ├── Badge.jsx
+    │   │   ├── Button.jsx
+    │   │   ├── EmptyState.jsx
+    │   │   ├── FileAttachment.jsx
+    │   │   ├── LiveRegion.jsx         # Screen reader announcements
+    │   │   ├── Modal.jsx
+    │   │   ├── Skeleton.jsx
+    │   │   └── __tests__/             # Component tests
+    │   │
+    │   ├── utils/
+    │   │   ├── crypto.js              # E2EE encryption/decryption
+    │   │   └── validation.js          # Input sanitization
+    │   │
+    │   ├── App.jsx                    # Root with lazy loading + Suspense
+    │   ├── main.jsx                   # Entry with env validation
+    │   └── index.css                  # Design system + 6 themes
 │
 ├── .github/workflows/ci.yml       # CI pipeline
 ├── supabase-schema.sql
@@ -1125,14 +1146,14 @@ The production build is split into 16 optimized chunks:
 | Chunk | Size (gzip) | Contents |
 |:------|:------------|:---------|
 | `react-vendor` | 57 KB | React + ReactDOM |
-| `supabase` | 51 KB | Supabase client |
+| `supabase` | 53 KB | Supabase client |
 | `framer` | 43 KB | Framer Motion |
 | `messageService` | 9 KB | Message service layer |
 | `Sidebar` | 8 KB | Sidebar component |
 | `date-fns` | 6 KB | Date utilities |
-| `index` | 5 KB | App entry |
+| `index` | 5 KB | App entry + CSS design system |
 | `ChatWindow` | 4 KB | DM chat window |
-| `CallHandler` | 3 KB | Call handling |
+| `CallHandler` | 4 KB | Call handling |
 | `GroupChatWindow` | 3 KB | Group chat window |
 | + 6 more | — | Auth, ThemeSelector, Avatar, Search, etc. |
 
@@ -1144,12 +1165,12 @@ The production build is split into 16 optimized chunks:
 npm run test
 ```
 
-36 tests across 3 suites:
+TBD tests across 3 suites:
 
 | Suite | Tests | Description |
 |:------|:------|:------------|
 | `src/lib/__tests__/utils.test.js` | 29 | Utility functions |
-| `src/ui/__tests__/Button.test.jsx` | 5 | Button component |
+| `src/ui/__tests__/Button.test.jsx` | 4 | Button component |
 | `src/hooks/__tests__/useDebounce.test.js` | 2 | Debounce hook |
 
 ---
