@@ -6,7 +6,7 @@ import MessageBubble from './MessageBubble'
 import MessageInput from './MessageInput'
 import EmptyState from '../ui/EmptyState'
 import Skeleton from '../ui/Skeleton'
-import { initEncryption, encryptMessage, decryptMessage } from '../utils/crypto'
+import { initEncryption, encryptFor, decryptMessage } from '../utils/crypto'
 import { shouldShowDateSeparator } from '../lib/utils'
 import { MESSAGE_PAGE_SIZE } from '../lib/constants'
 import { DateSeparator, SingleTypingIndicator } from './shared'
@@ -34,7 +34,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const [reactions, setReactions] = useState([])
   const [replyTo, setReplyTo] = useState(null)
   const [editMessage, setEditMessage] = useState(null)
-  const [sharedKey, setSharedKey] = useState(null)
+  const [encryption, setEncryption] = useState(null)
   const [decryptedTexts, setDecryptedTexts] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
@@ -240,8 +240,8 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
     const setupEncryption = async () => {
       try {
-        const key = await initEncryption(selectedUser.id)
-        setSharedKey(key)
+        const enc = await initEncryption(selectedUser.id)
+        setEncryption(enc)
       } catch (err) {
         console.error('E2EE setup failed:', err)
       }
@@ -251,17 +251,16 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!sharedKey || messages.length === 0) return
+    if (!encryption || messages.length === 0) return
 
     const decryptAll = async () => {
       const newDecrypted = {}
       for (const msg of messages) {
         if (msg.encrypted && msg.encrypted_text && !decryptedTexts[msg.id]) {
-          try {
-            newDecrypted[msg.id] = await decryptMessage(msg.encrypted_text, sharedKey)
-          } catch {
-            newDecrypted[msg.id] = '[decryption failed]'
-          }
+          newDecrypted[msg.id] = await decryptMessage(msg.encrypted_text, encryption.privateKey, {
+            isOwn: msg.sender_id === user.id,
+            fallbackPeerPublicKeyJwk: encryption.peerPublicKeyJwk,
+          })
         }
       }
       if (Object.keys(newDecrypted).length > 0) {
@@ -270,7 +269,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     }
 
     decryptAll()
-  }, [sharedKey, messages]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [encryption, messages, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const broadcastTyping = () => {
     if (isTypingRef.current) return
@@ -301,9 +300,9 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     }
 
     if (editMessage) {
-      if (sharedKey && !imageUrl) {
+      if (encryption && !imageUrl) {
         try {
-          payload.encrypted_text = await encryptMessage(msgText.trim(), sharedKey)
+          payload.encrypted_text = await encryptFor(encryption, msgText.trim())
           payload.encrypted = true
           payload.message_text = '🔒 Encrypted message'
           payload.is_edited = true
@@ -339,9 +338,9 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       payload.message_text = msgText || fileMeta.file_name || '📎 File'
     } else {
       if (!msgText?.trim()) return
-      if (sharedKey) {
+      if (encryption) {
         try {
-          payload.encrypted_text = await encryptMessage(msgText.trim(), sharedKey)
+          payload.encrypted_text = await encryptFor(encryption, msgText.trim())
           payload.encrypted = true
           payload.message_text = '🔒 Encrypted message'
         } catch {
@@ -440,7 +439,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         user={selectedUser}
         isGroup={false}
         receiverTyping={receiverTyping}
-        sharedKey={sharedKey}
+        sharedKey={!!encryption}
         onSearchToggle={() => setShowSearch(!showSearch)}
         onStartAudioCall={() => onStartCall?.('audio')}
         onStartVideoCall={() => onStartCall?.('video')}
