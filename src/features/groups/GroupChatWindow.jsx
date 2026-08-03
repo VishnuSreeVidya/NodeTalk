@@ -179,10 +179,16 @@ export default function GroupChatWindow({ group }) {
       payload.message_text = msgText.trim()
     }
 
-    const { error } = await sendGroupMessage(payload)
+    const { data, error } = await sendGroupMessage(payload)
     if (!error) {
       setText('')
       setReplyTo(null)
+      if (data) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === data.id)) return prev
+          return [...prev, data]
+        })
+      }
     }
   }
 

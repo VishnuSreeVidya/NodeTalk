@@ -108,7 +108,7 @@ describe('E2EE crypto round-trip', () => {
       fallbackPeerPublicKeyJwk: alice.publicKeyJwk,
     })
 
-    expect(wrongDecryption).toBe('[decryption failed]')
+    expect(wrongDecryption).toBe('Unable to decrypt message')
   })
 
   it('round-trips non-ASCII text and emoji', async () => {

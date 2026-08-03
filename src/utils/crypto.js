@@ -131,7 +131,7 @@ export async function decryptMessage(encryptedJson, privateKey, { isOwn = false,
 
     const embedded = isOwn ? receiverKey : senderKey
     const ecdhPeerJwk = embedded ? decodeJwk(embedded) : fallbackPeerPublicKeyJwk
-    if (!ecdhPeerJwk) return '[decryption failed]'
+    if (!ecdhPeerJwk) return 'Unable to decrypt message'
 
     const sharedKey = await deriveSharedKey(privateKey, ecdhPeerJwk)
 
@@ -142,8 +142,9 @@ export async function decryptMessage(encryptedJson, privateKey, { isOwn = false,
     )
 
     return new TextDecoder().decode(decrypted)
-  } catch {
-    return '[decryption failed]'
+  } catch (err) {
+    console.error('Decryption failed safely:', err.message || 'Corrupted payload')
+    return 'Unable to decrypt message'
   }
 }
 
@@ -151,6 +152,7 @@ export async function decryptMessage(encryptedJson, privateKey, { isOwn = false,
  * Convenience wrapper: derives the conversation key and embeds both public keys.
  */
 export async function encryptFor(encryption, text) {
+  if (!encryption?.peerPublicKeyJwk) throw new Error('Peer public key missing')
   const sharedKey = await deriveSharedKey(encryption.privateKey, encryption.peerPublicKeyJwk)
   return encryptMessage(text, sharedKey, encryption.publicKeyJwk, encryption.peerPublicKeyJwk)
 }
@@ -206,7 +208,6 @@ export async function initEncryption(userId) {
   }
 
   const peerPublicKeyJwk = await fetchPublicKey(userId)
-  if (!peerPublicKeyJwk) return null
 
-  return { privateKey: keys.privateKey, publicKeyJwk: keys.publicKeyJwk, peerPublicKeyJwk }
+  return { privateKey: keys.privateKey, publicKeyJwk: keys.publicKeyJwk, peerPublicKeyJwk: peerPublicKeyJwk || null }
 }

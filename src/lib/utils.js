@@ -98,3 +98,9 @@ export function parseMarkdown(text) {
   html = html.replace(/\n/g, '<br/>')
   return html
 }
+
+export function getConversationChannelId(userId1, userId2) {
+  if (!userId1 || !userId2) return ''
+  return [userId1, userId2].sort().join(':')
+}
+

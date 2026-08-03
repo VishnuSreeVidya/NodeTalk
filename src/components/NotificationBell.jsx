@@ -36,8 +36,23 @@ function NotificationBell() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
         (payload) => {
-          setNotifications((prev) => [payload.new, ...prev].slice(0, 20))
+          setNotifications((prev) => {
+            if (prev.some((n) => n.id === payload.new.id)) return prev
+            return [payload.new, ...prev].slice(0, 20)
+          })
           setUnreadCount((prev) => prev + 1)
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === payload.new.id ? { ...n, ...payload.new } : n))
+          )
+          if (payload.new.is_read) {
+            setUnreadCount((prev) => Math.max(0, prev - 1))
+          }
         }
       )
       .subscribe()

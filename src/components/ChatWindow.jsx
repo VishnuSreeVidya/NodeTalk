@@ -7,7 +7,7 @@ import MessageInput from './MessageInput'
 import EmptyState from '../ui/EmptyState'
 import Skeleton from '../ui/Skeleton'
 import { initEncryption, encryptFor, decryptMessage } from '../utils/crypto'
-import { shouldShowDateSeparator } from '../lib/utils'
+import { shouldShowDateSeparator, getConversationChannelId } from '../lib/utils'
 import { MESSAGE_PAGE_SIZE } from '../lib/constants'
 import { DateSeparator, SingleTypingIndicator } from './shared'
 import MessageContextMenu from './shared/MessageContextMenu'
@@ -22,7 +22,6 @@ import {
   togglePinMessage,
   fetchReactions as fetchReactionsApi,
 } from '../services/messageService'
-import { createNotification } from '../services/notificationService'
 
 export default function ChatWindow({ selectedUser, onStartCall }) {
   const { user, profile } = useAuth()
@@ -47,7 +46,6 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const messagesRef = useRef(messages)
   const [showScrollBtn, setShowScrollBtn] = useState(false)
   const markReadTimerRef = useRef(null)
-  const lastMarkReadRef = useRef(0)
 
   useEffect(() => {
     messagesRef.current = messages
@@ -55,16 +53,20 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
 
   const markAsRead = useCallback(async () => {
     if (!selectedUser || !user) return
-    const now = Date.now()
-    if (now - lastMarkReadRef.current < 3000) return
-    lastMarkReadRef.current = now
-
     const unreadIds = messagesRef.current
       .filter((m) => m.sender_id === selectedUser.id && m.receiver_id === user.id && m.message_status !== 'read')
       .map((m) => m.id)
 
     if (unreadIds.length === 0) return
-    await markMessagesRead(unreadIds)
+    const { data } = await markMessagesRead(unreadIds)
+    if (data && data.length > 0) {
+      setMessages((prev) =>
+        prev.map((m) => {
+          const updated = data.find((d) => d.id === m.id)
+          return updated ? { ...m, ...updated } : m
+        })
+      )
+    }
   }, [selectedUser, user])
 
   const markAsDelivered = useCallback(async () => {
@@ -74,7 +76,15 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .map((m) => m.id)
 
     if (undeliveredIds.length === 0) return
-    await markMessagesDelivered(undeliveredIds)
+    const { data } = await markMessagesDelivered(undeliveredIds)
+    if (data && data.length > 0) {
+      setMessages((prev) =>
+        prev.map((m) => {
+          const updated = data.find((d) => d.id === m.id)
+          return updated ? { ...m, ...updated } : m
+        })
+      )
+    }
   }, [selectedUser, user])
 
   useEffect(() => {
@@ -86,7 +96,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [selectedUser?.id, messages]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, messages, markAsRead])
 
   const fetchMessages = useCallback(async () => {
     if (!selectedUser) return
@@ -122,41 +132,32 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!selectedUser) return
+    if (!selectedUser || !user) return
 
+    const convChannelId = getConversationChannelId(user.id, selectedUser.id)
     const channel = supabase
-      .channel(`messages-${user.id}-${selectedUser.id}`)
+      .channel(`messages-${convChannelId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `sender_id=eq.${selectedUser.id}` },
+        { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === payload.new.id)) return prev
-            return [...prev, payload.new]
-          })
-          if (document.hidden) {
-            createNotification({
-              userId: user.id,
-              type: 'message',
-              title: selectedUser.username,
-              body: payload.new.message_text || '📷 Image',
+          const msg = payload.new
+          if (
+            (msg.sender_id === selectedUser.id && msg.receiver_id === user.id) ||
+            (msg.sender_id === user.id && msg.receiver_id === selectedUser.id)
+          ) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev
+              return [...prev, msg]
             })
+            if (msg.sender_id === selectedUser.id) {
+              clearTimeout(markReadTimerRef.current)
+              markReadTimerRef.current = setTimeout(() => {
+                markAsDelivered()
+                markAsRead()
+              }, 300)
+            }
           }
-          clearTimeout(markReadTimerRef.current)
-          markReadTimerRef.current = setTimeout(() => {
-            markAsDelivered()
-            markAsRead()
-          }, 500)
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `sender_id=eq.${user.id}` },
-        (payload) => {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === payload.new.id)) return prev
-            return [...prev, payload.new]
-          })
         }
       )
       .on(
@@ -174,7 +175,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       supabase.removeChannel(channel)
       clearTimeout(markReadTimerRef.current)
     }
-  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, user?.id, markAsDelivered, markAsRead])
 
   useEffect(() => {
     if (messages.length === 0) return
@@ -182,10 +183,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!selectedUser) return
+    if (!selectedUser || !user) return
 
+    const convChannelId = getConversationChannelId(user.id, selectedUser.id)
     const channel = supabase
-      .channel(`reactions-${user.id}-${selectedUser.id}`)
+      .channel(`reactions-${convChannelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'reactions' },
@@ -194,7 +196,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [selectedUser?.id, messages]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, user?.id, messages, loadReactions])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -213,9 +215,10 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }, [])
 
   useEffect(() => {
-    if (!selectedUser) return
+    if (!selectedUser || !user) return
 
-    const channel = supabase.channel(`typing-${user.id}-${selectedUser.id}`, {
+    const convChannelId = getConversationChannelId(user.id, selectedUser.id)
+    const channel = supabase.channel(`typing-${convChannelId}`, {
       config: { broadcast: { self: false } },
     })
 
@@ -233,7 +236,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       supabase.removeChannel(channel)
       clearTimeout(typingTimeoutRef.current)
     }
-  }, [selectedUser?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, user?.id])
 
   useEffect(() => {
     if (!selectedUser) return
@@ -272,10 +275,11 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   }, [encryption, messages, user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const broadcastTyping = () => {
-    if (isTypingRef.current) return
+    if (isTypingRef.current || !selectedUser || !user) return
     isTypingRef.current = true
 
-    const channel = supabase.channel(`typing-${user.id}-${selectedUser.id}`)
+    const convChannelId = getConversationChannelId(user.id, selectedUser.id)
+    const channel = supabase.channel(`typing-${convChannelId}`)
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         channel.send({
@@ -338,7 +342,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       payload.message_text = msgText || fileMeta.file_name || '📎 File'
     } else {
       if (!msgText?.trim()) return
-      if (encryption) {
+      if (encryption?.peerPublicKeyJwk) {
         try {
           payload.encrypted_text = await encryptFor(encryption, msgText.trim())
           payload.encrypted = true
@@ -351,10 +355,16 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       }
     }
 
-    const { error } = await sendDMMessage(payload)
+    const { data, error } = await sendDMMessage(payload)
     if (!error) {
       setText('')
       setReplyTo(null)
+      if (data) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === data.id)) return prev
+          return [...prev, data]
+        })
+      }
     } else {
       console.error('Failed to send message:', error.message)
     }

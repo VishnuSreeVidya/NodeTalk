@@ -12,10 +12,10 @@ export async function fetchDMMessages(userId, otherUserId, limit = 50) {
     .from('messages')
     .select('*')
     .or(`and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
     .limit(limit)
 
-  return { data, error }
+  return { data: data ? data.reverse() : null, error }
 }
 
 /**
@@ -29,10 +29,10 @@ export async function fetchGroupMessages(groupId, limit = 50) {
     .from('group_messages')
     .select('*')
     .eq('group_id', groupId)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
     .limit(limit)
 
-  return { data, error }
+  return { data: data ? data.reverse() : null, error }
 }
 
 /**
@@ -41,7 +41,7 @@ export async function fetchGroupMessages(groupId, limit = 50) {
  * @returns {Promise<{data: Object|null, error: Error|null}>}
  */
 export async function sendDMMessage(payload) {
-  const { data, error } = await supabase.from('messages').insert(payload)
+  const { data, error } = await supabase.from('messages').insert(payload).select().single()
   return { data, error }
 }
 
@@ -51,7 +51,7 @@ export async function sendDMMessage(payload) {
  * @returns {Promise<{data: Object|null, error: Error|null}>}
  */
 export async function sendGroupMessage(payload) {
-  const { data, error } = await supabase.from('group_messages').insert(payload)
+  const { data, error } = await supabase.from('group_messages').insert(payload).select().single()
   return { data, error }
 }
 
@@ -120,12 +120,13 @@ export async function deleteGroupMessage(messageId, deleteForAll = false) {
  * @returns {Promise<{data: Object|null, error: Error|null}>}
  */
 export async function markMessagesRead(messageIds) {
-  if (messageIds.length === 0) return { data: null, error: null }
+  if (!messageIds || messageIds.length === 0) return { data: null, error: null }
   const { data, error } = await supabase
     .from('messages')
     .update({ message_status: 'read', read_at: new Date().toISOString() })
     .in('id', messageIds)
-    .eq('message_status', 'delivered')
+    .neq('message_status', 'read')
+    .select()
   return { data, error }
 }
 
@@ -133,12 +134,13 @@ export async function markMessagesRead(messageIds) {
  * Mark messages as delivered
  */
 export async function markMessagesDelivered(messageIds) {
-  if (messageIds.length === 0) return { data: null, error: null }
+  if (!messageIds || messageIds.length === 0) return { data: null, error: null }
   const { data, error } = await supabase
     .from('messages')
     .update({ message_status: 'delivered' })
     .in('id', messageIds)
     .eq('message_status', 'sent')
+    .select()
   return { data, error }
 }
 
