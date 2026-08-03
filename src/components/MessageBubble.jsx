@@ -27,7 +27,7 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
     >
       <div className="max-w-[70%] min-w-[60px]">
         {/* Reply preview */}
-        {replyMsg && !replyMsg.deleted_for_all && (
+        {replyMsg && (
           <motion.div
             initial={{ opacity: 0, x: isOwn ? 8 : -8 }}
             animate={{ opacity: 1, x: 0 }}
@@ -38,7 +38,9 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
               <p className="reply-label">
                 {replyMsg.sender_id === msg.sender_id ? 'You' : 'Reply'}
               </p>
-              <p className="reply-text">{replyMsg.message_text || '📷 Image'}</p>
+              <p className="reply-text italic">
+                {replyMsg.deleted_for_all ? '🚫 This message was deleted' : (replyMsg.message_text || '📷 Image')}
+              </p>
             </div>
           </motion.div>
         )}
@@ -54,37 +56,51 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
             boxShadow: 'var(--shadow-bubble)',
           }}
         >
-          {hasImage && (
-            <img
-              src={msg.image_url}
-              alt="Shared image"
-              className="chat-image mb-1.5"
-              loading="lazy"
-              onClick={() => window.open(msg.image_url, '_blank')}
-            />
-          )}
-          {hasFile && (
-            <div className="mb-1.5">
-              <FileAttachment
-                url={msg.file_url}
-                fileName={msg.file_name}
-                fileType={msg.file_type}
-                fileSize={msg.file_size}
-                isOwn={isOwn}
-              />
+          {msg.deleted_for_all ? (
+            <div className="flex items-center gap-1.5 py-0.5 text-xs italic opacity-60">
+              <svg className="w-3.5 h-3.5 flex-shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              <span>
+                {msg.image_url || msg.file_url ? 'This attachment was deleted' : 'This message was deleted'}
+              </span>
             </div>
+          ) : (
+            <>
+              {hasImage && (
+                <img
+                  src={msg.image_url}
+                  alt="Shared image"
+                  className="chat-image mb-1.5"
+                  loading="lazy"
+                  onClick={() => window.open(msg.image_url, '_blank')}
+                />
+              )}
+              {hasFile && (
+                <div className="mb-1.5">
+                  <FileAttachment
+                    url={msg.file_url}
+                    fileName={msg.file_name}
+                    fileType={msg.file_type}
+                    fileSize={msg.file_size}
+                    isOwn={isOwn}
+                  />
+                </div>
+              )}
+              {hasText && (
+                <div
+                  className="text-sm leading-relaxed whitespace-pre-wrap break-words"
+                  style={{ color: isOwn ? 'var(--bubble-own-text)' : 'var(--bubble-other-text)' }}
+                  dangerouslySetInnerHTML={{ __html: parseMarkdown(displayText) }}
+                />
+              )}
+              {msg.is_edited && hasText && (
+                <span className="text-[9px] italic opacity-40">(edited)</span>
+              )}
+            </>
           )}
-          {hasText && (
-            <div
-              className="text-sm leading-relaxed whitespace-pre-wrap break-words"
-              style={{ color: isOwn ? 'var(--bubble-own-text)' : 'var(--bubble-other-text)' }}
-              dangerouslySetInnerHTML={{ __html: parseMarkdown(displayText) }}
-            />
-          )}
-          {msg.is_edited && hasText && (
-            <span className="text-[9px] italic opacity-40">(edited)</span>
-          )}
-          {msg.is_pinned && (
+
+          {msg.is_pinned && !msg.deleted_for_all && (
             <div className="flex items-center gap-1 mt-1">
               <span className="text-[10px] font-medium" style={{ color: isOwn ? 'rgba(255,255,255,0.6)' : 'var(--warning)' }}>
                 📌 Pinned
@@ -93,7 +109,7 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
           )}
           <div className="flex items-center justify-between gap-2 mt-1">
             <div className="flex items-center gap-1">
-              {msg.encrypted && (
+              {msg.encrypted && !msg.deleted_for_all && (
                 <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: isOwn ? 'var(--bubble-own-text)' : 'var(--text-tertiary)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
@@ -126,7 +142,7 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
           </div>
 
           {/* Action buttons on hover */}
-          {hovering && (
+          {hovering && !msg.deleted_for_all && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}

@@ -13,6 +13,7 @@ import { DateSeparator, SingleTypingIndicator } from './shared'
 import MessageContextMenu from './shared/MessageContextMenu'
 import ChatHeader from './shared/ChatHeader'
 import MessageInfoModal from './shared/MessageInfoModal'
+import ConfirmDeleteModal from './shared/ConfirmDeleteModal'
 import {
   fetchDMMessages,
   fetchOlderDMMessages,
@@ -40,6 +41,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const [replyTo, setReplyTo] = useState(null)
   const [editMessage, setEditMessage] = useState(null)
   const [selectedInfoMessage, setSelectedInfoMessage] = useState(null)
+  const [confirmDeleteMessage, setConfirmDeleteMessage] = useState(null)
   const [encryption, setEncryption] = useState(null)
   const [decryptedTexts, setDecryptedTexts] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
@@ -415,13 +417,24 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     return () => window.removeEventListener('online', handleOnline)
   }, [])
 
-  const handleDeleteMessage = async (msg, deleteForAll = false) => {
-    if (deleteForAll && msg.sender_id === user.id) {
-      await deleteDMMessage(msg.id, true)
+  const handleDeleteMessage = async (msg, mode = 'self') => {
+    if (mode === 'everyone' || mode === true) {
+      setConfirmDeleteMessage(msg)
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== msg.id))
+      await deleteDMMessage(msg.id, 'self', user.id)
     }
     setContextMenu(null)
+  }
+
+  const handleConfirmDeleteEveryone = async () => {
+    if (!confirmDeleteMessage) return
+    const targetMsg = confirmDeleteMessage
+    setConfirmDeleteMessage(null)
+    setMessages((prev) =>
+      prev.map((m) => (m.id === targetMsg.id ? { ...m, deleted_for_all: true } : m))
+    )
+    await deleteDMMessage(targetMsg.id, 'everyone', user.id)
   }
 
   const handlePinMessage = async (msg) => {
@@ -650,6 +663,13 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         onClose={() => setSelectedInfoMessage(null)}
         message={selectedInfoMessage}
         decryptedText={selectedInfoMessage ? decryptedTexts[selectedInfoMessage.id] : ''}
+      />
+
+      {/* Confirm Delete Modal */}
+      <ConfirmDeleteModal
+        isOpen={!!confirmDeleteMessage}
+        onClose={() => setConfirmDeleteMessage(null)}
+        onConfirm={handleConfirmDeleteEveryone}
       />
 
       {/* Input */}

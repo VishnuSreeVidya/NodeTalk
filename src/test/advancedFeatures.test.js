@@ -88,7 +88,8 @@ describe('Advanced Features Test Suite', () => {
       })
       const mockOrder = vi.fn().mockReturnValue({ limit: mockLimit })
       const mockLtFunc = vi.fn().mockReturnValue({ order: mockOrder })
-      const mockEq = vi.fn().mockReturnValue({ lt: mockLtFunc })
+      const mockIn = vi.fn().mockResolvedValue({ data: [], error: null })
+      const mockEq = vi.fn().mockReturnValue({ lt: mockLtFunc, in: mockIn })
       const mockOr = vi.fn().mockReturnValue({ lt: mockLtFunc })
 
       supabase.from.mockReturnValue({

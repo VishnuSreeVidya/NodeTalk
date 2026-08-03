@@ -8,6 +8,7 @@ import EmptyState from '../../ui/EmptyState'
 import Skeleton from '../../ui/Skeleton'
 import { DateSeparator, MessageContextMenu, TypingIndicator, ChatHeader } from '../../components/shared'
 import MessageInfoModal from '../../components/shared/MessageInfoModal'
+import ConfirmDeleteModal from '../../components/shared/ConfirmDeleteModal'
 import { fetchGroupMessages, fetchOlderGroupMessages, sendGroupMessage, editGroupMessage, deleteGroupMessage } from '../../services/messageService'
 import { fetchGroupMembers } from '../../services/groupService'
 import { shouldShowDateSeparator } from '../../lib/utils'
@@ -25,6 +26,7 @@ export default function GroupChatWindow({ group }) {
   const [editMessage, setEditMessage] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
   const [selectedInfoMessage, setSelectedInfoMessage] = useState(null)
+  const [confirmDeleteMessage, setConfirmDeleteMessage] = useState(null)
   const [showInfo, setShowInfo] = useState(false)
   const [members, setMembers] = useState([])
   const [typingUsers, setTypingUsers] = useState({})
@@ -35,12 +37,12 @@ export default function GroupChatWindow({ group }) {
   const isTypingRef = useRef(false)
 
   const fetchMessages = useCallback(async () => {
-    if (!group) return
+    if (!group || !user) return
     setLoading(true)
-    const { data, error } = await fetchGroupMessages(group.id, MESSAGE_PAGE_SIZE)
+    const { data, error } = await fetchGroupMessages(group.id, user.id, MESSAGE_PAGE_SIZE)
     if (!error && data) setMessages(data)
     setLoading(false)
-  }, [group])
+  }, [group, user])
 
   const fetchMembers = useCallback(async () => {
     if (!group) return
@@ -141,10 +143,10 @@ export default function GroupChatWindow({ group }) {
   }, [group, user, profile])
 
   const handleLoadOlder = useCallback(async () => {
-    if (!group || !messages.length || loadingOlder || !hasMore) return
+    if (!group || !user || !messages.length || loadingOlder || !hasMore) return
     setLoadingOlder(true)
     const oldest = messages[0].created_at
-    const { data } = await fetchOlderGroupMessages(group.id, oldest, MESSAGE_PAGE_SIZE)
+    const { data } = await fetchOlderGroupMessages(group.id, user.id, oldest, MESSAGE_PAGE_SIZE)
     if (data && data.length > 0) {
       setMessages((prev) => [...data, ...prev])
       if (data.length < MESSAGE_PAGE_SIZE) setHasMore(false)
@@ -152,7 +154,7 @@ export default function GroupChatWindow({ group }) {
       setHasMore(false)
     }
     setLoadingOlder(false)
-  }, [group, messages, loadingOlder, hasMore])
+  }, [group, user, messages, loadingOlder, hasMore])
 
   const {
     handleScroll,
@@ -213,13 +215,24 @@ export default function GroupChatWindow({ group }) {
     }
   }
 
-  const handleDeleteMessage = async (msg, deleteForAll = false) => {
-    if (deleteForAll && msg.sender_id === user.id) {
-      await deleteGroupMessage(msg.id, true)
+  const handleDeleteMessage = async (msg, mode = 'self') => {
+    if (mode === 'everyone' || mode === true) {
+      setConfirmDeleteMessage(msg)
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== msg.id))
+      await deleteGroupMessage(msg.id, 'self', user.id)
     }
     setContextMenu(null)
+  }
+
+  const handleConfirmDeleteEveryone = async () => {
+    if (!confirmDeleteMessage) return
+    const targetMsg = confirmDeleteMessage
+    setConfirmDeleteMessage(null)
+    setMessages((prev) =>
+      prev.map((m) => (m.id === targetMsg.id ? { ...m, deleted_for_all: true } : m))
+    )
+    await deleteGroupMessage(targetMsg.id, 'everyone', user.id)
   }
 
   const handleSubmit = (e) => {
@@ -242,7 +255,8 @@ export default function GroupChatWindow({ group }) {
 
   const handleContextMenu = (e, msg) => {
     e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY, message: msg })
+    const isGroupAdmin = members.some((m) => m.user_id === user?.id && m.role === 'admin')
+    setContextMenu({ x: e.clientX, y: e.clientY, message: msg, isGroupAdmin })
   }
 
   if (!group) {
@@ -363,6 +377,12 @@ export default function GroupChatWindow({ group }) {
         open={!!selectedInfoMessage}
         onClose={() => setSelectedInfoMessage(null)}
         message={selectedInfoMessage}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={!!confirmDeleteMessage}
+        onClose={() => setConfirmDeleteMessage(null)}
+        onConfirm={handleConfirmDeleteEveryone}
       />
 
       {/* Input */}

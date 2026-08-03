@@ -7,32 +7,79 @@ import { supabase } from '../lib/supabase'
  * @param {number} limit - Max messages to fetch
  * @returns {Promise<{data: Array|null, error: Error|null}>}
  */
+/**
+ * Fetch DM messages between two users
+ * @param {string} userId - Current user ID
+ * @param {string} otherUserId - Other user ID
+ * @param {number} limit - Max messages to fetch
+ * @returns {Promise<{data: Array|null, error: Error|null}>}
+ */
 export async function fetchDMMessages(userId, otherUserId, limit = 50) {
-  const { data, error } = await supabase
+  const { data: messages, error } = await supabase
     .from('messages')
     .select('*')
     .or(`and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`)
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  return { data: data ? data.reverse() : null, error }
+  if (error || !messages) return { data: null, error }
+
+  // Filter out messages deleted for current user
+  if (userId && messages.length > 0) {
+    const msgIds = messages.map((m) => m.id)
+    const { data: deletions } = await supabase
+      .from('message_deletions')
+      .select('message_id')
+      .eq('user_id', userId)
+      .in('message_id', msgIds)
+
+    if (deletions && deletions.length > 0) {
+      const deletedSet = new Set(deletions.map((d) => d.message_id))
+      const visibleMessages = messages.filter((m) => !deletedSet.has(m.id))
+      return { data: visibleMessages.reverse(), error: null }
+    }
+  }
+
+  return { data: messages.reverse(), error: null }
 }
 
 /**
  * Fetch group messages
  * @param {string} groupId - Group ID
+ * @param {string} userId - Current user ID (for filtering deleted for me)
  * @param {number} limit - Max messages to fetch
  * @returns {Promise<{data: Array|null, error: Error|null}>}
  */
-export async function fetchGroupMessages(groupId, limit = 50) {
-  const { data, error } = await supabase
+export async function fetchGroupMessages(groupId, userId, limit = 50) {
+  // Support signature where limit is passed as second param
+  const actualUserId = typeof userId === 'string' ? userId : null
+  const actualLimit = typeof userId === 'number' ? userId : limit
+
+  const { data: messages, error } = await supabase
     .from('group_messages')
     .select('*')
     .eq('group_id', groupId)
     .order('created_at', { ascending: false })
-    .limit(limit)
+    .limit(actualLimit)
 
-  return { data: data ? data.reverse() : null, error }
+  if (error || !messages) return { data: null, error }
+
+  if (actualUserId && messages.length > 0) {
+    const msgIds = messages.map((m) => m.id)
+    const { data: deletions } = await supabase
+      .from('group_message_deletions')
+      .select('group_message_id')
+      .eq('user_id', actualUserId)
+      .in('group_message_id', msgIds)
+
+    if (deletions && deletions.length > 0) {
+      const deletedSet = new Set(deletions.map((d) => d.group_message_id))
+      const visibleMessages = messages.filter((m) => !deletedSet.has(m.id))
+      return { data: visibleMessages.reverse(), error: null }
+    }
+  }
+
+  return { data: messages.reverse(), error: null }
 }
 
 /**
@@ -84,31 +131,54 @@ export async function editGroupMessage(messageId, updates) {
 }
 
 /**
- * Delete a DM message (soft delete for self, hard delete for all)
+ * Delete a DM message (Delete for me vs Delete for everyone)
  * @param {string} messageId - Message ID
- * @param {boolean} deleteForAll - Delete for everyone
+ * @param {boolean|string} deleteForAll - true or 'everyone' for Delete for Everyone, false or 'self' for Delete for me
+ * @param {string} userId - Current user ID (required for Delete for me)
  * @returns {Promise<{data: Object|null, error: Error|null}>}
  */
-export async function deleteDMMessage(messageId, deleteForAll = false) {
-  if (deleteForAll) {
+export async function deleteDMMessage(messageId, deleteForAll = false, userId = null) {
+  const isEveryone = deleteForAll === true || deleteForAll === 'everyone'
+
+  if (isEveryone) {
     const { data, error } = await supabase
       .from('messages')
-      .update({ deleted_for_all: true, message_text: '🗑️ This message was deleted' })
+      .update({ deleted_for_all: true })
       .eq('id', messageId)
+      .select()
+    return { data, error }
+  } else if (userId) {
+    const { data, error } = await supabase
+      .from('message_deletions')
+      .upsert({ message_id: messageId, user_id: userId }, { onConflict: 'message_id,user_id' })
+      .select()
     return { data, error }
   }
   return { data: null, error: null }
 }
 
 /**
- * Delete a group message
+ * Delete a group message (Delete for me vs Delete for everyone)
+ * @param {string} messageId - Message ID
+ * @param {boolean|string} deleteForAll - true or 'everyone' for Delete for Everyone, false or 'self' for Delete for me
+ * @param {string} userId - Current user ID (required for Delete for me)
+ * @returns {Promise<{data: Object|null, error: Error|null}>}
  */
-export async function deleteGroupMessage(messageId, deleteForAll = false) {
-  if (deleteForAll) {
+export async function deleteGroupMessage(messageId, deleteForAll = false, userId = null) {
+  const isEveryone = deleteForAll === true || deleteForAll === 'everyone'
+
+  if (isEveryone) {
     const { data, error } = await supabase
       .from('group_messages')
-      .update({ deleted_for_all: true, message_text: '🗑️ This message was deleted' })
+      .update({ deleted_for_all: true })
       .eq('id', messageId)
+      .select()
+    return { data, error }
+  } else if (userId) {
+    const { data, error } = await supabase
+      .from('group_message_deletions')
+      .upsert({ group_message_id: messageId, user_id: userId }, { onConflict: 'group_message_id,user_id' })
+      .select()
     return { data, error }
   }
   return { data: null, error: null }
@@ -225,7 +295,7 @@ export async function fetchUnreadCount(userId, otherUserId) {
  */
 export async function fetchOlderDMMessages(userId, otherUserId, oldestCreatedAt, limit = 50) {
   if (!oldestCreatedAt) return { data: [], error: null }
-  const { data, error } = await supabase
+  const { data: messages, error } = await supabase
     .from('messages')
     .select('*')
     .or(`and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`)
@@ -233,25 +303,66 @@ export async function fetchOlderDMMessages(userId, otherUserId, oldestCreatedAt,
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  return { data: data ? data.reverse() : [], error }
+  if (error || !messages) return { data: [], error }
+
+  if (userId && messages.length > 0) {
+    const msgIds = messages.map((m) => m.id)
+    const { data: deletions } = await supabase
+      .from('message_deletions')
+      .select('message_id')
+      .eq('user_id', userId)
+      .in('message_id', msgIds)
+
+    if (deletions && deletions.length > 0) {
+      const deletedSet = new Set(deletions.map((d) => d.message_id))
+      const visibleMessages = messages.filter((m) => !deletedSet.has(m.id))
+      return { data: visibleMessages.reverse(), error: null }
+    }
+  }
+
+  return { data: messages.reverse(), error }
 }
 
 /**
  * Fetch older group messages before a given timestamp (cursor pagination)
  * @param {string} groupId
- * @param {string} oldestCreatedAt
+ * @param {string} userId - Current user ID
+ * @param {string} oldestCreatedAt - ISO timestamp of oldest loaded message
  * @param {number} limit
  */
-export async function fetchOlderGroupMessages(groupId, oldestCreatedAt, limit = 50) {
-  if (!oldestCreatedAt) return { data: [], error: null }
-  const { data, error } = await supabase
+export async function fetchOlderGroupMessages(groupId, userId, oldestCreatedAt, limit = 50) {
+  const actualOldest = typeof userId === 'string' && userId.includes('-') && !oldestCreatedAt ? userId : oldestCreatedAt
+  const actualUserId = typeof userId === 'string' && !userId.includes('Z') && !userId.includes('T') ? userId : null
+  const actualLimit = typeof oldestCreatedAt === 'number' ? oldestCreatedAt : limit
+
+  const queryTimestamp = actualOldest || oldestCreatedAt
+  if (!queryTimestamp) return { data: [], error: null }
+
+  const { data: messages, error } = await supabase
     .from('group_messages')
     .select('*')
     .eq('group_id', groupId)
-    .lt('created_at', oldestCreatedAt)
+    .lt('created_at', queryTimestamp)
     .order('created_at', { ascending: false })
-    .limit(limit)
+    .limit(actualLimit)
 
-  return { data: data ? data.reverse() : [], error }
+  if (error || !messages) return { data: [], error }
+
+  if (actualUserId && messages.length > 0) {
+    const msgIds = messages.map((m) => m.id)
+    const { data: deletions } = await supabase
+      .from('group_message_deletions')
+      .select('group_message_id')
+      .eq('user_id', actualUserId)
+      .in('group_message_id', msgIds)
+
+    if (deletions && deletions.length > 0) {
+      const deletedSet = new Set(deletions.map((d) => d.group_message_id))
+      const visibleMessages = messages.filter((m) => !deletedSet.has(m.id))
+      return { data: visibleMessages.reverse(), error: null }
+    }
+  }
+
+  return { data: messages.reverse(), error }
 }
 
