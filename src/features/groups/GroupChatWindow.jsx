@@ -12,6 +12,7 @@ import { fetchGroupMessages, fetchOlderGroupMessages, sendGroupMessage, editGrou
 import { fetchGroupMembers } from '../../services/groupService'
 import { shouldShowDateSeparator } from '../../lib/utils'
 import { MESSAGE_PAGE_SIZE, TYPING_TIMEOUT } from '../../lib/constants'
+import { useChatScroll } from '../../hooks/useChatScroll'
 
 export default function GroupChatWindow({ group }) {
   const { user, profile } = useAuth()
@@ -32,7 +33,6 @@ export default function GroupChatWindow({ group }) {
   const inputRef = useRef(null)
   const typingTimeoutRef = useRef(null)
   const isTypingRef = useRef(false)
-  const [showScrollBtn, setShowScrollBtn] = useState(false)
 
   const fetchMessages = useCallback(async () => {
     if (!group) return
@@ -154,20 +154,20 @@ export default function GroupChatWindow({ group }) {
     setLoadingOlder(false)
   }, [group, messages, loadingOlder, hasMore])
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-    setShowScrollBtn(false)
-  }, [])
-
-  const handleScroll = useCallback(() => {
-    const container = messagesContainerRef.current
-    if (!container) return
-    const { scrollTop, scrollHeight, clientHeight } = container
-    setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 100)
-    if (scrollTop === 0 && hasMore && !loadingOlder) {
-      handleLoadOlder()
-    }
-  }, [hasMore, loadingOlder, handleLoadOlder])
+  const {
+    handleScroll,
+    scrollToBottom,
+    showScrollButton,
+    unreadCount,
+  } = useChatScroll({
+    containerRef: messagesContainerRef,
+    messages,
+    currentUserId: user?.id,
+    loading,
+    hasMore,
+    onLoadOlder: handleLoadOlder,
+    chatId: group?.id,
+  })
 
   const sendMessage = async (msgText, imageUrl, fileMeta) => {
     const payload = {
@@ -320,26 +320,30 @@ export default function GroupChatWindow({ group }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Scroll to bottom */}
+      {/* Scroll to bottom button / new messages badge */}
       <AnimatePresence>
-        {showScrollBtn && (
+        {showScrollButton && (
           <motion.button
             initial={{ opacity: 0, scale: 0.85, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 16 }}
             transition={{ duration: 0.15 }}
-            onClick={scrollToBottom}
-            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-10 rounded-full p-2.5 transition-transform"
+            onClick={() => scrollToBottom('smooth')}
+            className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold shadow-lg transition-transform hover:scale-105"
             style={{
               background: 'var(--surface-elevated)',
               border: '1px solid var(--border-secondary)',
-              color: 'var(--accent)',
+              color: unreadCount > 0 ? 'var(--accent)' : 'var(--text-primary)',
               boxShadow: 'var(--shadow-popover)',
             }}
+            title="Scroll to bottom"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
+            {unreadCount > 0 ? (
+              <span>{unreadCount} new message{unreadCount > 1 ? 's' : ''}</span>
+            ) : null}
           </motion.button>
         )}
       </AnimatePresence>
