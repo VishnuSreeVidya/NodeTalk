@@ -427,6 +427,26 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
           )}
         </AnimatePresence>
       </div>
+
+      {/* Modals */}
+      <CreateGroupModal
+        open={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onCreated={(newGroup) => {
+          setGroups((prev) => [newGroup, ...prev.filter((g) => g.id !== newGroup.id)])
+          onSelectGroup?.(newGroup)
+          fetchGroups()
+        }}
+        users={users}
+      />
+      <ProfileModal
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+      />
+      <SettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </div>
   )
 }

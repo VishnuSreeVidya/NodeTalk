@@ -5,9 +5,11 @@ import Avatar from '../../ui/Avatar'
 import Button from '../../ui/Button'
 import { supabase } from '../../supabaseClient'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../components/Toast'
 
 export default function CreateGroupModal({ open, onClose, onCreated, users }) {
   const { user } = useAuth()
+  const toast = useToast()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [selectedMembers, setSelectedMembers] = useState([])
@@ -41,6 +43,7 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
     setLoading(true)
 
     try {
+      // 1. Insert group
       const { data: group, error: groupError } = await supabase
         .from('groups')
         .insert({
@@ -53,21 +56,33 @@ export default function CreateGroupModal({ open, onClose, onCreated, users }) {
 
       if (groupError) throw groupError
 
-      const members = [
-        { group_id: group.id, user_id: user.id, role: 'admin' },
-        ...selectedMembers.map((m) => ({ group_id: group.id, user_id: m.id, role: 'member' })),
-      ]
-
-      const { error: memberError } = await supabase
+      // 2. Insert admin row first (creator)
+      const { error: adminError } = await supabase
         .from('group_members')
-        .insert(members)
+        .insert({ group_id: group.id, user_id: user.id, role: 'admin' })
 
-      if (memberError) throw memberError
+      if (adminError) throw adminError
 
+      // 3. Insert other group members
+      if (selectedMembers.length > 0) {
+        const otherMembers = selectedMembers.map((m) => ({
+          group_id: group.id,
+          user_id: m.id,
+          role: 'member',
+        }))
+        const { error: memberError } = await supabase
+          .from('group_members')
+          .insert(otherMembers)
+
+        if (memberError) throw memberError
+      }
+
+      toast.success(`Group "${group.name}" created!`)
       onCreated?.(group)
-      onClose()
+      handleClose()
     } catch (err) {
       console.error('Failed to create group:', err.message)
+      toast.error(err.message || 'Failed to create group')
     } finally {
       setLoading(false)
     }
