@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
-function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPin, onClose }) {
+function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPin, onInfo, onClose }) {
   const message = contextMenu?.message
 
   const handleCopy = useCallback(() => {
@@ -18,6 +18,7 @@ function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPi
   const items = [
     { label: 'Copy', icon: 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-2a2 2 0 00-2-2h-8a2 2 0 00-2 2v2a2 2 0 002 2z', action: handleCopy },
     { label: 'Reply', icon: 'M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6', action: () => { onReply(message); onClose() } },
+    { label: 'Message Info', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', action: () => { onInfo?.(message); onClose() } },
     ...(isOwn ? [
       { label: 'Edit', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', action: () => { onEdit(message); onClose() } },
       { label: 'Delete', icon: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', action: () => onDelete(message, false), danger: false },

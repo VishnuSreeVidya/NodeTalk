@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import { useToast } from '../components/Toast'
 import ThemeSelector from './ThemeSelector'
+import { backupPrivateKeyWithPassphrase, restorePrivateKeyWithPassphrase } from '../utils/crypto'
+import { requestNotificationPermission } from '../utils/webPush'
 
 function SettingToggle({ label, description, enabled, onToggle }) {
   return (
@@ -40,6 +42,8 @@ export default function SettingsModal({ open, onClose }) {
     enter_to_send: true,
   })
   const [loading, setLoading] = useState(true)
+  const [passphrase, setPassphrase] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
 
   useEffect(() => {
     if (!open || !user) return
@@ -63,10 +67,13 @@ export default function SettingsModal({ open, onClose }) {
     }
     load()
     return () => { cancelled = true }
-  }, [open, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, user?.id])
 
   const toggle = async (key) => {
     const newValue = !settings[key]
+    if (key === 'notification_browser' && newValue) {
+      await requestNotificationPermission()
+    }
     setSettings((prev) => ({ ...prev, [key]: newValue }))
     const { error } = await supabase
       .from('user_settings')
@@ -75,6 +82,38 @@ export default function SettingsModal({ open, onClose }) {
       toast.error('Failed to save setting')
       setSettings((prev) => ({ ...prev, [key]: !newValue }))
     }
+  }
+
+  const handleBackupKeys = async () => {
+    if (!passphrase || passphrase.length < 6) {
+      toast.error('Passphrase must be at least 6 characters')
+      return
+    }
+    setActionLoading(true)
+    try {
+      await backupPrivateKeyWithPassphrase(passphrase, user.id)
+      toast.success('Encryption keys backed up securely!')
+      setPassphrase('')
+    } catch (err) {
+      toast.error(err.message || 'Backup failed')
+    }
+    setActionLoading(false)
+  }
+
+  const handleRestoreKeys = async () => {
+    if (!passphrase) {
+      toast.error('Enter your backup passphrase')
+      return
+    }
+    setActionLoading(true)
+    try {
+      await restorePrivateKeyWithPassphrase(passphrase, user.id)
+      toast.success('Encryption keys restored successfully!')
+      setPassphrase('')
+    } catch (err) {
+      toast.error(err.message || 'Restore failed')
+    }
+    setActionLoading(false)
   }
 
   return (
@@ -100,9 +139,40 @@ export default function SettingsModal({ open, onClose }) {
           </div>
 
           <div className="border-t pt-3 pb-2" style={{ borderColor: 'var(--border-primary)' }}>
-            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Privacy</p>
+            <p className="text-2xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Privacy & Security</p>
             <SettingToggle label="Show online status" description="Let others see when you're online" enabled={settings.show_online_status} onToggle={() => toggle('show_online_status')} />
             <SettingToggle label="Read receipts" description="Show when you've read messages" enabled={settings.read_receipts} onToggle={() => toggle('read_receipts')} />
+
+            {/* E2EE Key Backup */}
+            <div className="mt-3 p-3 rounded-lg border text-xs space-y-2" style={{ background: 'var(--surface-primary)', borderColor: 'var(--border-primary)' }}>
+              <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>🔐 E2EE Key Backup & Recovery</p>
+              <p style={{ color: 'var(--text-tertiary)' }}>Set a passphrase to back up your encryption keys to your account, so you can restore identity keys on a new device.</p>
+              <input
+                type="password"
+                placeholder="Passphrase (min 6 characters)"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                className="surface-input w-full text-xs"
+              />
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={handleBackupKeys}
+                  disabled={actionLoading}
+                  className="surface-btn flex-1 py-1.5 text-xs rounded-md"
+                  style={{ background: 'var(--accent)', color: '#fff' }}
+                >
+                  Backup Keys
+                </button>
+                <button
+                  onClick={handleRestoreKeys}
+                  disabled={actionLoading}
+                  className="surface-btn flex-1 py-1.5 text-xs rounded-md border"
+                  style={{ borderColor: 'var(--border-secondary)', color: 'var(--text-primary)' }}
+                >
+                  Restore Keys
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="border-t pt-3 pb-2" style={{ borderColor: 'var(--border-primary)' }}>

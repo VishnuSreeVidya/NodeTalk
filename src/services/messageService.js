@@ -215,3 +215,43 @@ export async function fetchUnreadCount(userId, otherUserId) {
     .neq('message_status', 'read')
   return count || 0
 }
+
+/**
+ * Fetch older DM messages before a given timestamp (cursor pagination)
+ * @param {string} userId
+ * @param {string} otherUserId
+ * @param {string} oldestCreatedAt - ISO timestamp of oldest loaded message
+ * @param {number} limit
+ */
+export async function fetchOlderDMMessages(userId, otherUserId, oldestCreatedAt, limit = 50) {
+  if (!oldestCreatedAt) return { data: [], error: null }
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .or(`and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`)
+    .lt('created_at', oldestCreatedAt)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return { data: data ? data.reverse() : [], error }
+}
+
+/**
+ * Fetch older group messages before a given timestamp (cursor pagination)
+ * @param {string} groupId
+ * @param {string} oldestCreatedAt
+ * @param {number} limit
+ */
+export async function fetchOlderGroupMessages(groupId, oldestCreatedAt, limit = 50) {
+  if (!oldestCreatedAt) return { data: [], error: null }
+  const { data, error } = await supabase
+    .from('group_messages')
+    .select('*')
+    .eq('group_id', groupId)
+    .lt('created_at', oldestCreatedAt)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return { data: data ? data.reverse() : [], error }
+}
+

@@ -7,7 +7,8 @@ import MessageInput from '../../components/MessageInput'
 import EmptyState from '../../ui/EmptyState'
 import Skeleton from '../../ui/Skeleton'
 import { DateSeparator, MessageContextMenu, TypingIndicator, ChatHeader } from '../../components/shared'
-import { fetchGroupMessages, sendGroupMessage, editGroupMessage, deleteGroupMessage } from '../../services/messageService'
+import MessageInfoModal from '../../components/shared/MessageInfoModal'
+import { fetchGroupMessages, fetchOlderGroupMessages, sendGroupMessage, editGroupMessage, deleteGroupMessage } from '../../services/messageService'
 import { fetchGroupMembers } from '../../services/groupService'
 import { shouldShowDateSeparator } from '../../lib/utils'
 import { MESSAGE_PAGE_SIZE, TYPING_TIMEOUT } from '../../lib/constants'
@@ -17,9 +18,12 @@ export default function GroupChatWindow({ group }) {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
   const [replyTo, setReplyTo] = useState(null)
   const [editMessage, setEditMessage] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
+  const [selectedInfoMessage, setSelectedInfoMessage] = useState(null)
   const [showInfo, setShowInfo] = useState(false)
   const [members, setMembers] = useState([])
   const [typingUsers, setTypingUsers] = useState({})
@@ -136,6 +140,20 @@ export default function GroupChatWindow({ group }) {
     }, 2000)
   }, [group, user, profile])
 
+  const handleLoadOlder = useCallback(async () => {
+    if (!group || !messages.length || loadingOlder || !hasMore) return
+    setLoadingOlder(true)
+    const oldest = messages[0].created_at
+    const { data } = await fetchOlderGroupMessages(group.id, oldest, MESSAGE_PAGE_SIZE)
+    if (data && data.length > 0) {
+      setMessages((prev) => [...data, ...prev])
+      if (data.length < MESSAGE_PAGE_SIZE) setHasMore(false)
+    } else {
+      setHasMore(false)
+    }
+    setLoadingOlder(false)
+  }, [group, messages, loadingOlder, hasMore])
+
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     setShowScrollBtn(false)
@@ -146,7 +164,10 @@ export default function GroupChatWindow({ group }) {
     if (!container) return
     const { scrollTop, scrollHeight, clientHeight } = container
     setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 100)
-  }, [])
+    if (scrollTop === 0 && hasMore && !loadingOlder) {
+      handleLoadOlder()
+    }
+  }, [hasMore, loadingOlder, handleLoadOlder])
 
   const sendMessage = async (msgText, imageUrl, fileMeta) => {
     const payload = {
@@ -330,7 +351,14 @@ export default function GroupChatWindow({ group }) {
         onEdit={handleEdit}
         onDelete={handleDeleteMessage}
         onPin={async (m) => { await supabase.from('group_messages').update({ is_pinned: !m.is_pinned }).eq('id', m.id); setContextMenu(null) }}
+        onInfo={(m) => setSelectedInfoMessage(m)}
         onClose={() => setContextMenu(null)}
+      />
+
+      <MessageInfoModal
+        open={!!selectedInfoMessage}
+        onClose={() => setSelectedInfoMessage(null)}
+        message={selectedInfoMessage}
       />
 
       {/* Input */}

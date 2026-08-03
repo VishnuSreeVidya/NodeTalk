@@ -211,3 +211,187 @@ export async function initEncryption(userId) {
 
   return { privateKey: keys.privateKey, publicKeyJwk: keys.publicKeyJwk, peerPublicKeyJwk: peerPublicKeyJwk || null }
 }
+
+/**
+ * Encrypt user private key with passphrase for secure DB backup
+ */
+export async function backupPrivateKeyWithPassphrase(passphrase, userId) {
+  const stored = localStorage.getItem(KEY_STORAGE)
+  const all = JSON.parse(stored || '{}')
+  const entry = all[userId]
+  if (!entry?.privateKeyJwk) throw new Error('No local keypair found to backup')
+  const { privateKeyJwk, publicKeyJwk } = entry
+
+  const enc = new TextEncoder()
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(passphrase),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  )
+
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 100, hash: 'SHA-256' },
+    keyMaterial,
+    AES_ALGO,
+    false,
+    ['encrypt']
+  )
+
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    enc.encode(JSON.stringify({ privateKeyJwk, publicKeyJwk }))
+  )
+
+  const payload = JSON.stringify({
+    salt: arrayBufferToBase64(salt),
+    iv: arrayBufferToBase64(iv),
+    data: arrayBufferToBase64(ciphertext),
+  })
+
+  const { error } = await supabase
+    .from('user_keys')
+    .update({ encrypted_key_backup: btoa(payload) })
+    .eq('id', userId)
+
+  if (error) throw new Error('Failed to save key backup: ' + error.message)
+  return true
+}
+
+/**
+ * Restore user private key from DB using passphrase
+ */
+export async function restorePrivateKeyWithPassphrase(passphrase, userId) {
+  const { data, error } = await supabase
+    .from('user_keys')
+    .select('encrypted_key_backup')
+    .eq('id', userId)
+    .single()
+
+  if (error || !data?.encrypted_key_backup) throw new Error('No key backup found for account')
+
+  const payload = JSON.parse(atob(data.encrypted_key_backup))
+  const salt = new Uint8Array(base64ToArrayBuffer(payload.salt))
+  const iv = new Uint8Array(base64ToArrayBuffer(payload.iv))
+  const ciphertext = base64ToArrayBuffer(payload.data)
+
+  const enc = new TextEncoder()
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(passphrase),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  )
+
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 100, hash: 'SHA-256' },
+    keyMaterial,
+    AES_ALGO,
+    false,
+    ['decrypt']
+  )
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    ciphertext
+  )
+
+  const { privateKeyJwk, publicKeyJwk } = JSON.parse(new TextDecoder().decode(decrypted))
+
+  const privateKey = await crypto.subtle.importKey(
+    'jwk',
+    privateKeyJwk,
+    ALGO,
+    false,
+    ['deriveKey', 'deriveBits']
+  )
+
+  await storeKeyPair(userId, { privateKey }, publicKeyJwk)
+  await savePublicKey(publicKeyJwk)
+  return { privateKey, publicKeyJwk }
+}
+
+/**
+ * Encrypt a group message payload using pairwise recipient keys
+ */
+export async function encryptGroupMessagePayload(text, senderEncryption, memberKeysMap) {
+  // memberKeysMap: { [userId]: publicKeyJwk }
+  const symKey = await crypto.subtle.generateKey(AES_ALGO, true, ['encrypt', 'decrypt'])
+  const exportedSymKey = await crypto.subtle.exportKey('jwk', symKey)
+  const symKeyText = JSON.stringify(exportedSymKey)
+
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const encodedText = new TextEncoder().encode(text)
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    symKey,
+    encodedText
+  )
+
+  const encryptedSymKeys = {}
+  for (const [memberId, peerJwk] of Object.entries(memberKeysMap)) {
+    try {
+      const sharedKey = await deriveSharedKey(senderEncryption.privateKey, peerJwk)
+      const keyIv = crypto.getRandomValues(new Uint8Array(12))
+      const encKeyData = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: keyIv },
+        sharedKey,
+        new TextEncoder().encode(symKeyText)
+      )
+      encryptedSymKeys[memberId] = {
+        iv: arrayBufferToBase64(keyIv),
+        key: arrayBufferToBase64(encKeyData),
+        senderJwk: encodeJwk(senderEncryption.publicKeyJwk),
+      }
+    } catch {
+      // Ignore members with invalid keys
+    }
+  }
+
+  return JSON.stringify({
+    v: 'group-1',
+    iv: arrayBufferToBase64(iv),
+    data: arrayBufferToBase64(ciphertext),
+    keys: encryptedSymKeys,
+  })
+}
+
+/**
+ * Decrypt a group message payload for a recipient
+ */
+export async function decryptGroupMessagePayload(encryptedGroupJson, userId, privateKey) {
+  try {
+    const parsed = JSON.parse(encryptedGroupJson)
+    if (parsed.v !== 'group-1' || !parsed.keys?.[userId]) return 'Unable to decrypt message'
+
+    const userKeyEntry = parsed.keys[userId]
+    const senderJwk = decodeJwk(userKeyEntry.senderJwk)
+    const sharedKey = await deriveSharedKey(privateKey, senderJwk)
+
+    const decryptedSymKeyText = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: new Uint8Array(base64ToArrayBuffer(userKeyEntry.iv)) },
+      sharedKey,
+      base64ToArrayBuffer(userKeyEntry.key)
+    )
+
+    const symKeyJwk = JSON.parse(new TextDecoder().decode(decryptedSymKeyText))
+    const symKey = await crypto.subtle.importKey('jwk', symKeyJwk, AES_ALGO, false, ['decrypt'])
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: new Uint8Array(base64ToArrayBuffer(parsed.iv)) },
+      symKey,
+      base64ToArrayBuffer(parsed.data)
+    )
+
+    return new TextDecoder().decode(decrypted)
+  } catch (err) {
+    console.error('Group message decryption failed safely:', err.message)
+    return 'Unable to decrypt message'
+  }
+}

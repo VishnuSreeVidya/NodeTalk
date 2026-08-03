@@ -1,63 +1,41 @@
-const CACHE_NAME = 'nodetalk-v1'
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/favicon.svg',
-  '/icons.svg',
-]
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS)
-    })
-  )
-  self.skipWaiting()
+  event.waitUntil(self.skipWaiting())
 })
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    })
-  )
-  self.clients.claim()
+  event.waitUntil(self.clients.claim())
 })
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return
-
-  if (event.request.url.includes('supabase')) return
-
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
-          return response
-        })
-        .catch(() => caches.match('/index.html'))
-    )
-    return
+self.addEventListener('push', (event) => {
+  if (!event.data) return
+  try {
+    const data = event.data.json()
+    const title = data.title || 'NodeTalk'
+    const options = {
+      body: data.body || 'New message received',
+      icon: '/pwa-192x192.png',
+      badge: '/pwa-192x192.png',
+      data: { url: data.link || '/' },
+    }
+    event.waitUntil(self.registration.showNotification(title, options))
+  } catch (err) {
+    console.error('Push notification parse failed:', err)
   }
+})
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached
-
-      return fetch(event.request).then((response) => {
-        if (!response.ok || event.request.url.origin !== self.location.origin) {
-          return response
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const targetUrl = event.notification.data?.url || '/'
+      for (const client of clientList) {
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus()
         }
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
-        return response
-      })
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl)
+      }
     })
   )
 })

@@ -12,8 +12,10 @@ import { MESSAGE_PAGE_SIZE } from '../lib/constants'
 import { DateSeparator, SingleTypingIndicator } from './shared'
 import MessageContextMenu from './shared/MessageContextMenu'
 import ChatHeader from './shared/ChatHeader'
+import MessageInfoModal from './shared/MessageInfoModal'
 import {
   fetchDMMessages,
+  fetchOlderDMMessages,
   sendDMMessage,
   editDMMessage,
   deleteDMMessage,
@@ -22,17 +24,21 @@ import {
   togglePinMessage,
   fetchReactions as fetchReactionsApi,
 } from '../services/messageService'
+import { addPendingMessage, getPendingMessages, removePendingMessage } from '../utils/offlineDb'
 
 export default function ChatWindow({ selectedUser, onStartCall }) {
   const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadingOlder, setLoadingOlder] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
   const [receiverTyping, setReceiverTyping] = useState(false)
   const [showEmoji, setShowEmoji] = useState(false)
   const [reactions, setReactions] = useState([])
   const [replyTo, setReplyTo] = useState(null)
   const [editMessage, setEditMessage] = useState(null)
+  const [selectedInfoMessage, setSelectedInfoMessage] = useState(null)
   const [encryption, setEncryption] = useState(null)
   const [decryptedTexts, setDecryptedTexts] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
@@ -198,9 +204,19 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     return () => { supabase.removeChannel(channel) }
   }, [selectedUser?.id, user?.id, messages, loadReactions])
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  const handleLoadOlder = useCallback(async () => {
+    if (!selectedUser || !messages.length || loadingOlder || !hasMore) return
+    setLoadingOlder(true)
+    const oldest = messages[0].created_at
+    const { data } = await fetchOlderDMMessages(user.id, selectedUser.id, oldest, MESSAGE_PAGE_SIZE)
+    if (data && data.length > 0) {
+      setMessages((prev) => [...data, ...prev])
+      if (data.length < MESSAGE_PAGE_SIZE) setHasMore(false)
+    } else {
+      setHasMore(false)
+    }
+    setLoadingOlder(false)
+  }, [selectedUser, user, messages, loadingOlder, hasMore])
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -212,7 +228,10 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
     if (!container) return
     const { scrollTop, scrollHeight, clientHeight } = container
     setShowScrollBtn(scrollHeight - scrollTop - clientHeight > 100)
-  }, [])
+    if (scrollTop === 0 && hasMore && !loadingOlder) {
+      handleLoadOlder()
+    }
+  }, [hasMore, loadingOlder, handleLoadOlder])
 
   useEffect(() => {
     if (!selectedUser || !user) return
@@ -355,6 +374,16 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       }
     }
 
+    if (!navigator.onLine) {
+      const pending = await addPendingMessage(payload)
+      if (pending) {
+        setMessages((prev) => [...prev, pending])
+        setText('')
+        setReplyTo(null)
+      }
+      return
+    }
+
     const { data, error } = await sendDMMessage(payload)
     if (!error) {
       setText('')
@@ -369,6 +398,22 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
       console.error('Failed to send message:', error.message)
     }
   }
+
+  useEffect(() => {
+    const handleOnline = async () => {
+      const pendingList = await getPendingMessages()
+      for (const msg of pendingList) {
+        const { tempId, ...cleanPayload } = msg
+        const { data, error } = await sendDMMessage(cleanPayload)
+        if (!error && data) {
+          await removePendingMessage(tempId)
+          setMessages((prev) => prev.map((m) => m.tempId === tempId ? data : m))
+        }
+      }
+    }
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
 
   const handleDeleteMessage = async (msg, deleteForAll = false) => {
     if (deleteForAll && msg.sender_id === user.id) {
@@ -519,7 +564,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
               if (msg.deleted_for_all) {
                 return (
                   <motion.div
-                    key={msg.id}
+                    key={msg.id || msg.tempId}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
@@ -530,7 +575,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
               }
 
               return (
-                <div key={msg.id}>
+                <div key={msg.id || msg.tempId}>
                   {showDate && <DateSeparator date={msg.created_at} />}
                   <MessageBubble
                     msg={msg}
@@ -590,10 +635,19 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
             onEdit={handleEdit}
             onDelete={handleDeleteMessage}
             onPin={handlePinMessage}
+            onInfo={(msg) => setSelectedInfoMessage(msg)}
             onClose={() => setContextMenu(null)}
           />
         )}
       </AnimatePresence>
+
+      {/* Message Info Modal */}
+      <MessageInfoModal
+        open={!!selectedInfoMessage}
+        onClose={() => setSelectedInfoMessage(null)}
+        message={selectedInfoMessage}
+        decryptedText={selectedInfoMessage ? decryptedTexts[selectedInfoMessage.id] : ''}
+      />
 
       {/* Input */}
       <MessageInput
