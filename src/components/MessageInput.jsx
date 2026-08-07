@@ -163,6 +163,10 @@ const MessageInput = forwardRef(function MessageInput(
           <EmojiPicker
             open={showEmoji}
             onSelect={onEmojiSelect}
+            onSelectMedia={(url) => {
+              onImageUpload?.(url)
+              setShowEmoji(false)
+            }}
             onClose={() => setShowEmoji(false)}
           />
         </div>

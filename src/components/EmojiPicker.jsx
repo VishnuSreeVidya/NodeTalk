@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// EMOJI CATEGORIES
 const EMOJI_CATEGORIES = [
-  {
-    id: 'recent',
-    name: 'Frequently Used',
-    icon: '🕒',
-  },
+  { id: 'recent', name: 'Frequently Used', icon: '🕒' },
   {
     id: 'smileys',
     name: 'Smileys & Emotion',
@@ -29,15 +26,9 @@ const EMOJI_CATEGORIES = [
       { char: '😍', name: 'smiling face with heart-eyes', tags: ['love', 'heart', 'adore'] },
       { char: '🤩', name: 'star-struck', tags: ['star', 'eyes', 'wow'] },
       { char: '😘', name: 'face blowing a kiss', tags: ['kiss', 'love', 'flirt'] },
-      { char: '😗', name: 'kissing face', tags: ['kiss'] },
-      { char: '☺️', name: 'smiling face', tags: ['blush', 'smile'] },
-      { char: '😚', name: 'kissing face with closed eyes', tags: ['kiss'] },
-      { char: '😙', name: 'kissing face with smiling eyes', tags: ['kiss'] },
       { char: '😋', name: 'face savoring food', tags: ['yum', 'delicious', 'tongue'] },
-      { char: '😛', name: 'face with tongue', tags: ['tongue', 'silly'] },
       { char: '😜', name: 'winking face with tongue', tags: ['tongue', 'wink', 'silly'] },
       { char: '🤪', name: 'zany face', tags: ['crazy', 'silly'] },
-      { char: '😝', name: 'squinting face with tongue', tags: ['tongue', 'silly'] },
       { char: '🤑', name: 'money-mouth face', tags: ['money', 'rich', 'cash'] },
       { char: '🤗', name: 'hugging face', tags: ['hug', 'warm'] },
       { char: '🤭', name: 'face with hand over mouth', tags: ['oops', 'gasp'] },
@@ -52,7 +43,6 @@ const EMOJI_CATEGORIES = [
       { char: '😒', name: 'unamused face', tags: ['annoyed', 'meh'] },
       { char: '🙄', name: 'face with rolling eyes', tags: ['eye-roll', 'whatever'] },
       { char: '😬', name: 'grimacing face', tags: ['awkward', 'nervous'] },
-      { char: '🤥', name: 'lying face', tags: ['liar', 'pinocchio'] },
       { char: '😌', name: 'relieved face', tags: ['peaceful', 'calm'] },
       { char: '😔', name: 'pensive face', tags: ['sad', 'thoughtful'] },
       { char: '😪', name: 'sleepy face', tags: ['tired', 'sleep'] },
@@ -60,49 +50,30 @@ const EMOJI_CATEGORIES = [
       { char: '😴', name: 'sleeping face', tags: ['zzz', 'sleep', 'night'] },
       { char: '😷', name: 'face with medical mask', tags: ['sick', 'mask', 'covid'] },
       { char: '🤒', name: 'face with thermometer', tags: ['sick', 'fever'] },
-      { char: '🤕', name: 'face with head-bandage', tags: ['hurt', 'injury'] },
       { char: '🤢', name: 'nauseated face', tags: ['gross', 'sick', 'disgust'] },
       { char: '🤮', name: 'face vomiting', tags: ['vomit', 'sick', 'barf'] },
-      { char: '🤧', name: 'sneezing face', tags: ['sneeze', 'sick', 'achoo'] },
       { char: '🥵', name: 'hot face', tags: ['hot', 'heat', 'sweating'] },
       { char: '🥶', name: 'cold face', tags: ['cold', 'freezing', 'ice'] },
       { char: '🥴', name: 'woozy face', tags: ['dizzy', 'drunk'] },
-      { char: '😵', name: 'dizzy face', tags: ['knocked out', 'dizzy'] },
       { char: '🤯', name: 'exploding head', tags: ['mindblown', 'shock'] },
-      { char: '🤠', name: 'cowboy hat face', tags: ['cowboy', 'hat'] },
       { char: '🥳', name: 'partying face', tags: ['party', 'celebrate', 'birthday'] },
       { char: '😎', name: 'smiling face with sunglasses', tags: ['cool', 'sunglasses'] },
       { char: '🤓', name: 'nerd face', tags: ['nerd', 'geek', 'glasses'] },
       { char: '🧐', name: 'face with monocle', tags: ['monocle', 'curious'] },
       { char: '😕', name: 'confused face', tags: ['confused', 'huh'] },
       { char: '😟', name: 'worried face', tags: ['worried', 'nervous'] },
-      { char: '🙁', name: 'slightly frowning face', tags: ['sad'] },
       { char: '😮', name: 'face with open mouth', tags: ['surprise', 'wow'] },
-      { char: '😯', name: 'hushed face', tags: ['surprised', 'silent'] },
       { char: '😲', name: 'astonished face', tags: ['shocked', 'gasp'] },
       { char: '😳', name: 'flushed face', tags: ['blush', 'embarrassed'] },
       { char: '🥺', name: 'pleading face', tags: ['puppy eyes', 'please', 'beg'] },
-      { char: '😦', name: 'frowning face with open mouth', tags: ['gasp', 'sad'] },
-      { char: '😧', name: 'anguished face', tags: ['stunned'] },
-      { char: '😨', name: 'fearful face', tags: ['scared', 'fear'] },
-      { char: '😰', name: 'anxious face with sweat', tags: ['nervous', 'sweat'] },
-      { char: '😥', name: 'sad but relieved face', tags: ['whew', 'phew'] },
       { char: '😢', name: 'crying face', tags: ['cry', 'sad', 'tear'] },
       { char: '😭', name: 'loudly crying face', tags: ['sob', 'cry', 'sad'] },
       { char: '😱', name: 'face screaming in fear', tags: ['scream', 'scared'] },
-      { char: '😖', name: 'confounded face', tags: ['frustrated'] },
-      { char: '😣', name: 'persevering face', tags: ['struggle'] },
-      { char: '😞', name: 'disappointed face', tags: ['sad', 'disappointed'] },
-      { char: '😓', name: 'downcast face with sweat', tags: ['hard work', 'sweat'] },
-      { char: '😩', name: 'weary face', tags: ['tired', 'frustrated'] },
-      { char: '😫', name: 'tired face', tags: ['exhausted', 'tired'] },
-      { char: '🥱', name: 'yawning face', tags: ['yawn', 'sleepy'] },
       { char: '😤', name: 'face with steam from nose', tags: ['huff', 'triumph', 'angry'] },
       { char: '😡', name: 'enraged face', tags: ['angry', 'mad', 'rage'] },
       { char: '😠', name: 'angry face', tags: ['mad', 'annoyed'] },
       { char: '🤬', name: 'face with symbols on mouth', tags: ['curse', 'swearing', 'angry'] },
       { char: '😈', name: 'smiling face with horns', tags: ['devil', 'evil'] },
-      { char: '👿', name: 'angry face with horns', tags: ['demon', 'devil'] },
       { char: '💀', name: 'skull', tags: ['dead', 'skeleton', 'death'] },
       { char: '💩', name: 'pile of poop', tags: ['poop', 'poo', 'crap'] },
       { char: '🤡', name: 'clown face', tags: ['clown', 'joke'] },
@@ -110,14 +81,7 @@ const EMOJI_CATEGORIES = [
       { char: '👽', name: 'alien', tags: ['extraterrestrial', 'space'] },
       { char: '🤖', name: 'robot', tags: ['bot', 'tech'] },
       { char: '😺', name: 'grinning cat', tags: ['cat', 'smile'] },
-      { char: '😸', name: 'grinning cat with smiling eyes', tags: ['cat', 'happy'] },
-      { char: '😹', name: 'cat with tears of joy', tags: ['cat', 'lol'] },
       { char: '😻', name: 'smiling cat with heart-eyes', tags: ['cat', 'love'] },
-      { char: '😼', name: 'cat with wry smile', tags: ['cat', 'smirk'] },
-      { char: '😽', name: 'kissing cat', tags: ['cat', 'kiss'] },
-      { char: '🙀', name: 'weary cat', tags: ['cat', 'shock'] },
-      { char: '😿', name: 'crying cat', tags: ['cat', 'sad'] },
-      { char: '😾', name: 'pouting cat', tags: ['cat', 'angry'] },
     ],
   },
   {
@@ -126,82 +90,44 @@ const EMOJI_CATEGORIES = [
     icon: '👋',
     emojis: [
       { char: '👋', name: 'waving hand', tags: ['wave', 'hello', 'bye'] },
-      { char: '🤚', name: 'raised back of hand', tags: ['backhand'] },
-      { char: '🖐️', name: 'hand with fingers splayed', tags: ['five', 'hand'] },
       { char: '✋', name: 'raised hand', tags: ['stop', 'highfive'] },
-      { char: '🖖', name: 'vulcan salute', tags: ['spock', 'star trek'] },
       { char: '👌', name: 'OK hand', tags: ['ok', 'perfect'] },
-      { char: '🤏', name: 'pinching hand', tags: ['tiny', 'small'] },
       { char: '✌️', name: 'victory hand', tags: ['peace', 'victory'] },
       { char: '🤞', name: 'crossed fingers', tags: ['luck', 'hope'] },
       { char: '🤟', name: 'love-you gesture', tags: ['ily', 'love'] },
       { char: '🤘', name: 'sign of the horns', tags: ['rock', 'metal'] },
       { char: '🤙', name: 'call me hand', tags: ['call', 'shaka'] },
-      { char: '👈', name: 'backhand index pointing left', tags: ['left', 'point'] },
-      { char: '👉', name: 'backhand index pointing right', tags: ['right', 'point'] },
-      { char: '👆', name: 'backhand index pointing up', tags: ['up', 'point'] },
-      { char: '🖕', name: 'middle finger', tags: ['fuck', 'finger'] },
-      { char: '👇', name: 'backhand index pointing down', tags: ['down', 'point'] },
-      { char: '☝️', name: 'index pointing up', tags: ['one', 'up'] },
-      { char: '👍', name: 'thumbs up', tags: ['like', 'yes', 'good', 'thumbsup'] },
+      { char: '👈', name: 'pointing left', tags: ['left', 'point'] },
+      { char: '👉', name: 'pointing right', tags: ['right', 'point'] },
+      { char: '👆', name: 'pointing up', tags: ['up', 'point'] },
+      { char: '👇', name: 'pointing down', tags: ['down', 'point'] },
+      { char: '👍', name: 'thumbs up', tags: ['like', 'yes', 'good'] },
       { char: '👎', name: 'thumbs down', tags: ['dislike', 'no', 'bad'] },
       { char: '✊', name: 'raised fist', tags: ['fist', 'power'] },
       { char: '👊', name: 'oncoming fist', tags: ['punch', 'fistbump'] },
-      { char: '🤛', name: 'left-facing fist', tags: ['fistbump'] },
-      { char: '🤜', name: 'right-facing fist', tags: ['fistbump'] },
-      { char: '👏', name: 'clapping hands', tags: ['clap', 'applause', 'bravo'] },
-      { char: '🙌', name: 'raising hands', tags: ['celebrate', 'praise', 'hooray'] },
+      { char: '👏', name: 'clapping hands', tags: ['clap', 'applause'] },
+      { char: '🙌', name: 'raising hands', tags: ['celebrate', 'praise'] },
       { char: '👐', name: 'open hands', tags: ['hug', 'open'] },
-      { char: '🤲', name: 'palms up together', tags: ['pray', 'cupped'] },
-      { char: '🤝', name: 'handshake', tags: ['deal', 'agreement', 'partner'] },
-      { char: '🙏', name: 'folded hands', tags: ['pray', 'please', 'thanks', 'namaste'] },
-      { char: '✍️', name: 'writing hand', tags: ['write', 'letter'] },
-      { char: '💅', name: 'nail polish', tags: ['nails', 'sassy', 'slay'] },
+      { char: '🤝', name: 'handshake', tags: ['deal', 'agreement'] },
+      { char: '🙏', name: 'folded hands', tags: ['pray', 'please', 'thanks'] },
+      { char: '💅', name: 'nail polish', tags: ['nails', 'sassy'] },
       { char: '🤳', name: 'selfie', tags: ['camera', 'selfie'] },
-      { char: '💪', name: 'flexed biceps', tags: ['strong', 'muscle', 'gym', 'power'] },
-      { char: '🧠', name: 'brain', tags: ['smart', 'intellect'] },
-      { char: '👀', name: 'eyes', tags: ['look', 'see', 'peek', 'spotted'] },
-      { char: '👁️', name: 'eye', tags: ['look'] },
-      { char: '👅', name: 'tongue', tags: ['taste', 'lick'] },
-      { char: '👄', name: 'mouth', tags: ['lips', 'kiss'] },
+      { char: '💪', name: 'flexed biceps', tags: ['strong', 'muscle', 'gym'] },
+      { char: '👀', name: 'eyes', tags: ['look', 'see', 'peek'] },
       { char: '👶', name: 'baby', tags: ['child', 'infant'] },
-      { char: '🧒', name: 'child', tags: ['kid'] },
-      { char: '👦', name: 'boy', tags: ['kid', 'male'] },
-      { char: '👧', name: 'girl', tags: ['kid', 'female'] },
-      { char: '🧑', name: 'person', tags: ['human'] },
-      { char: '👨', name: 'man', tags: ['male', 'adult'] },
-      { char: '👩', name: 'woman', tags: ['female', 'adult'] },
-      { char: '🧔', name: 'bearded person', tags: ['beard'] },
-      { char: '👵', name: 'old woman', tags: ['grandma', 'elder'] },
-      { char: '👴', name: 'old man', tags: ['grandpa', 'elder'] },
-      { char: '👲', name: 'man with skullcap', tags: ['hat'] },
-      { char: '👮‍♂️', name: 'police officer', tags: ['cop', 'police'] },
-      { char: '👷‍♀️', name: 'construction worker', tags: ['builder', 'helmet'] },
-      { char: '💂‍♂️', name: 'guard', tags: ['british', 'security'] },
-      { char: '🕵️‍♀️', name: 'detective', tags: ['spy', 'sleuth'] },
-      { char: '👩‍⚕️', name: 'health worker', tags: ['doctor', 'nurse'] },
-      { char: '👨‍🎓', name: 'student', tags: ['grad', 'college'] },
-      { char: '👨‍🏫', name: 'teacher', tags: ['professor', 'school'] },
-      { char: '👨‍⚖️', name: 'judge', tags: ['court', 'law'] },
-      { char: '👨‍🌾', name: 'farmer', tags: ['crops', 'nature'] },
-      { char: '👨‍🍳', name: 'cook', tags: ['chef', 'kitchen'] },
-      { char: '👨‍🔧', name: 'mechanic', tags: ['repair', 'tools'] },
-      { char: '👨‍💼', name: 'office worker', tags: ['business', 'suit'] },
-      { char: '👨‍🔬', name: 'scientist', tags: ['lab', 'chemistry'] },
-      { char: '👨‍💻', name: 'technologist', tags: ['coder', 'developer', 'hacker', 'laptop'] },
-      { char: '👨‍🎤', name: 'singer', tags: ['rockstar', 'music'] },
-      { char: '👨‍🎨', name: 'artist', tags: ['paint', 'art'] },
-      { char: '👨‍✈️', name: 'pilot', tags: ['plane', 'flight'] },
-      { char: '👨‍🚀', name: 'astronaut', tags: ['space', 'rocket'] },
-      { char: '👨‍🚒', name: 'firefighter', tags: ['fire', 'hero'] },
+      { char: '👦', name: 'boy', tags: ['male'] },
+      { char: '👧', name: 'girl', tags: ['female'] },
+      { char: '👨', name: 'man', tags: ['male'] },
+      { char: '👩', name: 'woman', tags: ['female'] },
+      { char: '👵', name: 'old woman', tags: ['grandma'] },
+      { char: '👴', name: 'old man', tags: ['grandpa'] },
+      { char: '👮‍♂️', name: 'police officer', tags: ['cop'] },
+      { char: '🕵️‍♀️', name: 'detective', tags: ['spy'] },
+      { char: '👨‍💻', name: 'technologist', tags: ['coder', 'developer'] },
       { char: '🤴', name: 'prince', tags: ['king', 'royal'] },
-      { char: '👸', name: 'princess', tags: ['queen', 'crown', 'royal'] },
+      { char: '👸', name: 'princess', tags: ['queen', 'royal'] },
       { char: '💃', name: 'woman dancing', tags: ['dance', 'party'] },
       { char: '🕺', name: 'man dancing', tags: ['disco', 'dance'] },
-      { char: '👯‍♀️', name: 'people with bunny ears', tags: ['party', 'friends'] },
-      { char: '👫', name: 'man and woman holding hands', tags: ['couple', 'love'] },
-      { char: '👬', name: 'two men holding hands', tags: ['couple', 'friends'] },
-      { char: '👭', name: 'two women holding hands', tags: ['couple', 'sisters'] },
     ],
   },
   {
@@ -209,104 +135,51 @@ const EMOJI_CATEGORIES = [
     name: 'Animals & Nature',
     icon: '🐶',
     emojis: [
-      { char: '🐶', name: 'dog face', tags: ['dog', 'puppy', 'pet'] },
-      { char: '🐱', name: 'cat face', tags: ['cat', 'kitty', 'pet'] },
-      { char: '🐭', name: 'mouse face', tags: ['mouse', 'rat'] },
-      { char: '🐹', name: 'hamster', tags: ['pet', 'hamster'] },
-      { char: '🐰', name: 'rabbit face', tags: ['bunny', 'rabbit'] },
-      { char: '🦊', name: 'fox', tags: ['fox', 'clever'] },
-      { char: '🐻', name: 'bear', tags: ['bear', 'teddy'] },
-      { char: '🐼', name: 'panda', tags: ['panda', 'bamboo'] },
-      { char: '🐨', name: 'koala', tags: ['koala', 'australia'] },
-      { char: '🐯', name: 'tiger face', tags: ['tiger', 'wild'] },
-      { char: '🦁', name: 'lion', tags: ['lion', 'king'] },
-      { char: '🐮', name: 'cow face', tags: ['cow', 'farm'] },
-      { char: '🐷', name: 'pig face', tags: ['pig', 'farm'] },
-      { char: '🐸', name: 'frog', tags: ['frog', 'toad'] },
-      { char: '🐵', name: 'monkey face', tags: ['monkey', 'ape'] },
-      { char: '🙈', name: 'see-no-evil monkey', tags: ['monkey', 'blind'] },
-      { char: '🙉', name: 'hear-no-evil monkey', tags: ['monkey', 'deaf'] },
-      { char: '🙊', name: 'speak-no-evil monkey', tags: ['monkey', 'secret'] },
-      { char: '🐔', name: 'chicken', tags: ['hen', 'rooster'] },
-      { char: '🐧', name: 'penguin', tags: ['penguin', 'ice', 'bird'] },
-      { char: '🐦', name: 'bird', tags: ['bird', 'fly'] },
-      { char: '🐤', name: 'baby chick', tags: ['chick', 'cute'] },
+      { char: '🐶', name: 'dog face', tags: ['dog', 'puppy'] },
+      { char: '🐱', name: 'cat face', tags: ['cat', 'kitty'] },
+      { char: '🐭', name: 'mouse face', tags: ['mouse'] },
+      { char: '🐹', name: 'hamster', tags: ['hamster'] },
+      { char: '🐰', name: 'rabbit face', tags: ['bunny'] },
+      { char: '🦊', name: 'fox', tags: ['fox'] },
+      { char: '🐻', name: 'bear', tags: ['bear'] },
+      { char: '🐼', name: 'panda', tags: ['panda'] },
+      { char: '🐨', name: 'koala', tags: ['koala'] },
+      { char: '🐯', name: 'tiger face', tags: ['tiger'] },
+      { char: '🦁', name: 'lion', tags: ['lion'] },
+      { char: '🐮', name: 'cow face', tags: ['cow'] },
+      { char: '🐷', name: 'pig face', tags: ['pig'] },
+      { char: '🐸', name: 'frog', tags: ['frog'] },
+      { char: '🐵', name: 'monkey face', tags: ['monkey'] },
+      { char: '🐔', name: 'chicken', tags: ['hen'] },
+      { char: '🐧', name: 'penguin', tags: ['bird'] },
+      { char: '🐦', name: 'bird', tags: ['bird'] },
       { char: '🦆', name: 'duck', tags: ['quack'] },
-      { char: '🦅', name: 'eagle', tags: ['bird', 'freedom'] },
-      { char: '🦉', name: 'owl', tags: ['wise', 'bird', 'night'] },
-      { char: '🦇', name: 'bat', tags: ['vampire', 'batman'] },
-      { char: '🐺', name: 'wolf', tags: ['wolf', 'wild'] },
-      { char: '🐗', name: 'boar', tags: ['pig', 'wild'] },
-      { char: '🐴', name: 'horse face', tags: ['horse', 'farm'] },
-      { char: '🦄', name: 'unicorn', tags: ['magic', 'fantasy'] },
-      { char: '🐝', name: 'honeybee', tags: ['bee', 'bug', 'honey'] },
-      { char: '🐛', name: 'bug', tags: ['caterpillar', 'insect'] },
-      { char: '🦋', name: 'butterfly', tags: ['beauty', 'insect'] },
-      { char: '🐌', name: 'snail', tags: ['slow'] },
-      { char: '🐞', name: 'lady beetle', tags: ['ladybug', 'luck'] },
-      { char: '🐜', name: 'ant', tags: ['insect', 'worker'] },
-      { char: '🕷️', name: 'spider', tags: ['scary', 'spooky'] },
-      { char: '🦂', name: 'scorpion', tags: ['zodiac', 'poison'] },
-      { char: '🐍', name: 'snake', tags: ['reptile', 'danger'] },
-      { char: '🦎', name: 'lizard', tags: ['reptile'] },
-      { char: '🦖', name: 't-rex', tags: ['dinosaur', 'dino'] },
-      { char: '🐙', name: 'octopus', tags: ['sea', 'ocean'] },
-      { char: '🦑', name: 'squid', tags: ['sea', 'food'] },
-      { char: '🦐', name: 'shrimp', tags: ['seafood'] },
-      { char: '🐠', name: 'tropical fish', tags: ['nemo', 'ocean'] },
-      { char: '🐟', name: 'fish', tags: ['sea', 'swim'] },
-      { char: '🐬', name: 'dolphin', tags: ['sea', 'ocean'] },
-      { char: '🐳', name: 'spouting whale', tags: ['whale', 'ocean'] },
-      { char: '🦈', name: 'shark', tags: ['jaws', 'danger'] },
-      { char: '🐊', name: 'crocodile', tags: ['gator', 'alligator'] },
-      { char: '🐅', name: 'tiger', tags: ['wild'] },
-      { char: '🐆', name: 'leopard', tags: ['cheetah'] },
-      { char: '🦓', name: 'zebra', tags: ['stripes'] },
-      { char: '🦍', name: 'gorilla', tags: ['ape', 'strong'] },
-      { char: '🐘', name: 'elephant', tags: ['trunk', 'big'] },
-      { char: '🦏', name: 'rhinoceros', tags: ['rhino'] },
-      { char: '🐪', name: 'camel', tags: ['desert'] },
-      { char: '🦒', name: 'giraffe', tags: ['tall', 'safari'] },
-      { char: '🐕', name: 'dog', tags: ['pet'] },
-      { char: '🐈', name: 'cat', tags: ['pet'] },
-      { char: '🦚', name: 'peacock', tags: ['feathers', 'bird'] },
-      { char: '🦜', name: 'parrot', tags: ['bird', 'talk'] },
-      { char: '🦩', name: 'flamingo', tags: ['pink', 'bird'] },
-      { char: '🌲', name: 'evergreen tree', tags: ['tree', 'forest', 'christmas'] },
-      { char: '🌳', name: 'deciduous tree', tags: ['tree', 'nature'] },
-      { char: '🌴', name: 'palm tree', tags: ['beach', 'summer', 'tropical'] },
-      { char: '🌵', name: 'cactus', tags: ['desert', 'prickly'] },
-      { char: '🌾', name: 'sheaf of rice', tags: ['grain', 'nature'] },
-      { char: '🌿', name: 'herb', tags: ['plant', 'leaf'] },
-      { char: '☘️', name: 'shamrock', tags: ['clover', 'irish'] },
-      { char: '🍀', name: 'four leaf clover', tags: ['luck', 'irish'] },
-      { char: '🍁', name: 'maple leaf', tags: ['canada', 'fall', 'autumn'] },
-      { char: '🍂', name: 'fallen leaf', tags: ['autumn', 'fall'] },
-      { char: '🍃', name: 'leaf fluttering in wind', tags: ['nature', 'wind'] },
-      { char: '🍄', name: 'mushroom', tags: ['mario', 'fungus'] },
-      { char: '🌰', name: 'chestnut', tags: ['nut'] },
-      { char: '🦀', name: 'crab', tags: ['seafood', 'beach'] },
-      { char: '🌹', name: 'rose', tags: ['flower', 'love', 'red'] },
-      { char: '🥀', name: 'wilted flower', tags: ['sad', 'dead'] },
-      { char: '🌸', name: 'cherry blossom', tags: ['sakura', 'pink', 'spring'] },
-      { char: '🌼', name: 'blossom', tags: ['flower', 'yellow'] },
-      { char: '🌻', name: 'sunflower', tags: ['flower', 'sun', 'summer'] },
-      { char: '🌞', name: 'sun with face', tags: ['sun', 'sunny', 'day'] },
-      { char: '🌝', name: 'full moon face', tags: ['moon', 'night'] },
-      { char: '⭐️', name: 'star', tags: ['star', 'favorite'] },
-      { char: '🌟', name: 'glowing star', tags: ['sparkle', 'shine'] },
-      { char: '✨', name: 'sparkles', tags: ['magic', 'clean', 'shiny', 'glitter'] },
-      { char: '⚡️', name: 'high voltage', tags: ['zap', 'lightning', 'thunder', 'power'] },
-      { char: '🔥', name: 'fire', tags: ['flame', 'hot', 'lit', 'trend'] },
-      { char: '💥', name: 'collision', tags: ['boom', 'explode'] },
-      { char: '☀️', name: 'sun', tags: ['sunny', 'weather'] },
-      { char: '☁️', name: 'cloud', tags: ['weather', 'sky'] },
-      { char: '🌧️', name: 'cloud with rain', tags: ['rain', 'weather'] },
-      { char: '🌩️', name: 'cloud with lightning', tags: ['storm', 'thunder'] },
-      { char: '❄️', name: 'snowflake', tags: ['cold', 'winter', 'snow'] },
-      { char: '☃️', name: 'snowman', tags: ['frosty', 'winter'] },
-      { char: '🌈', name: 'rainbow', tags: ['pride', 'color', 'sky'] },
-      { char: '🌊', name: 'water wave', tags: ['ocean', 'sea', 'surf'] },
+      { char: '🦅', name: 'eagle', tags: ['bird'] },
+      { char: '🦉', name: 'owl', tags: ['bird'] },
+      { char: '🐴', name: 'horse face', tags: ['horse'] },
+      { char: '🦄', name: 'unicorn', tags: ['magic'] },
+      { char: '🐝', name: 'honeybee', tags: ['bee'] },
+      { char: '🐛', name: 'bug', tags: ['insect'] },
+      { char: '🦋', name: 'butterfly', tags: ['beauty'] },
+      { char: '🐢', name: 'turtle', tags: ['slow'] },
+      { char: '🐍', name: 'snake', tags: ['reptile'] },
+      { char: '🐙', name: 'octopus', tags: ['sea'] },
+      { char: '🐬', name: 'dolphin', tags: ['sea'] },
+      { char: '🐳', name: 'whale', tags: ['ocean'] },
+      { char: '🦈', name: 'shark', tags: ['danger'] },
+      { char: '🌲', name: 'evergreen tree', tags: ['tree'] },
+      { char: '🌴', name: 'palm tree', tags: ['beach'] },
+      { char: '🌵', name: 'cactus', tags: ['desert'] },
+      { char: '🍀', name: 'clover', tags: ['luck'] },
+      { char: '🍁', name: 'maple leaf', tags: ['fall'] },
+      { char: '🌹', name: 'rose', tags: ['flower', 'love'] },
+      { char: '🌸', name: 'cherry blossom', tags: ['flower'] },
+      { char: '🌻', name: 'sunflower', tags: ['flower'] },
+      { char: '🔥', name: 'fire', tags: ['flame', 'lit', 'hot'] },
+      { char: '✨', name: 'sparkles', tags: ['magic', 'glitter'] },
+      { char: '⚡️', name: 'lightning', tags: ['zap', 'power'] },
+      { char: '🌈', name: 'rainbow', tags: ['color'] },
+      { char: '🌊', name: 'water wave', tags: ['ocean'] },
     ],
   },
   {
@@ -314,94 +187,38 @@ const EMOJI_CATEGORIES = [
     name: 'Food & Drink',
     icon: '🍔',
     emojis: [
-      { char: '🍏', name: 'green apple', tags: ['fruit', 'apple', 'healthy'] },
-      { char: '🍎', name: 'red apple', tags: ['fruit', 'apple'] },
-      { char: '🍐', name: 'pear', tags: ['fruit'] },
-      { char: '🍊', name: 'tangerine', tags: ['orange', 'fruit'] },
-      { char: '🍋', name: 'lemon', tags: ['sour', 'citrus'] },
-      { char: '🍌', name: 'banana', tags: ['fruit', 'yellow'] },
-      { char: '🍉', name: 'watermelon', tags: ['summer', 'fruit'] },
-      { char: '🍇', name: 'grapes', tags: ['fruit', 'wine'] },
-      { char: '🍓', name: 'strawberry', tags: ['fruit', 'berry'] },
-      { char: '🍈', name: 'melon', tags: ['fruit'] },
-      { char: '🍒', name: 'cherries', tags: ['fruit', 'cherry'] },
-      { char: '🍑', name: 'peach', tags: ['fruit', 'butt'] },
-      { char: '🥭', name: 'mango', tags: ['fruit', 'tropical'] },
-      { char: '🍍', name: 'pineapple', tags: ['fruit', 'tropical'] },
-      { char: '🥥', name: 'coconut', tags: ['tropical', 'nut'] },
-      { char: '🍅', name: 'tomato', tags: ['vegetable'] },
-      { char: '🥑', name: 'avocado', tags: ['guacamole', 'toast'] },
-      { char: '🍆', name: 'eggplant', tags: ['aubergine'] },
-      { char: '🥔', name: 'potato', tags: ['spud'] },
-      { char: '🥕', name: 'carrot', tags: ['vegetable'] },
-      { char: '🌽', name: 'ear of corn', tags: ['popcorn', 'maize'] },
-      { char: '🌶️', name: 'hot pepper', tags: ['spicy', 'chili'] },
-      { char: '🥒', name: 'cucumber', tags: ['pickle'] },
-      { char: '🥦', name: 'broccoli', tags: ['veggie', 'green'] },
-      { char: '🧄', name: 'garlic', tags: ['flavor', 'cooking'] },
-      { char: '🧅', name: 'onion', tags: ['cooking'] },
-      { char: '🍞', name: 'bread', tags: ['toast', 'bakery'] },
-      { char: '🥐', name: 'croissant', tags: ['french', 'pastry'] },
-      { char: '🥖', name: 'baguette bread', tags: ['french', 'bread'] },
-      { char: '🥨', name: 'pretzel', tags: ['snack', 'german'] },
-      { char: '🥯', name: 'bagel', tags: ['breakfast'] },
-      { char: '🥞', name: 'pancakes', tags: ['breakfast', 'syrup'] },
-      { char: '🧇', name: 'waffle', tags: ['breakfast'] },
-      { char: '🧀', name: 'cheese wedge', tags: ['cheese'] },
-      { char: '🍖', name: 'meat on bone', tags: ['meat', 'bbq'] },
-      { char: '🍗', name: 'poultry leg', tags: ['chicken', 'drumstick'] },
-      { char: '🥩', name: 'cut of meat', tags: ['steak', 'beef'] },
-      { char: '🥓', name: 'bacon', tags: ['pork', 'breakfast'] },
-      { char: '🍔', name: 'hamburger', tags: ['burger', 'fast food'] },
-      { char: '🍟', name: 'french fries', tags: ['fries', 'fast food'] },
-      { char: '🍕', name: 'pizza', tags: ['slice', 'cheese', 'italian'] },
-      { char: '🌭', name: 'hot dog', tags: ['sausage', 'fast food'] },
-      { char: '🥪', name: 'sandwich', tags: ['lunch'] },
-      { char: '🌮', name: 'taco', tags: ['mexican', 'food'] },
-      { char: '🌯', name: 'burrito', tags: ['mexican', 'wrap'] },
-      { char: '🍳', name: 'cooking', tags: ['egg', 'breakfast'] },
-      { char: '🥘', name: 'shallow pan of food', tags: ['paella'] },
-      { char: '🍲', name: 'pot of food', tags: ['soup', 'stew'] },
-      { char: '🥣', name: 'bowl with spoon', tags: ['cereal', 'soup'] },
-      { char: '🥗', name: 'green salad', tags: ['healthy', 'salad'] },
-      { char: '🍿', name: 'popcorn', tags: ['movie', 'snack'] },
-      { char: '🧈', name: 'butter', tags: ['dairy'] },
-      { char: '🧂', name: 'salt', tags: ['seasoning', 'salty'] },
-      { char: '🍱', name: 'bento box', tags: ['japanese', 'lunch'] },
-      { char: '🍙', name: 'rice ball', tags: ['onigiri', 'japanese'] },
-      { char: '🍚', name: 'cooked rice', tags: ['bowl'] },
-      { char: '🍛', name: 'curry rice', tags: ['indian', 'curry'] },
-      { char: '🍜', name: 'steaming bowl', tags: ['ramen', 'noodes'] },
-      { char: '🍝', name: 'spaghetti', tags: ['pasta', 'italian'] },
-      { char: '🍣', name: 'sushi', tags: ['japanese', 'fish'] },
-      { char: '🍤', name: 'fried shrimp', tags: ['tempura'] },
-      { char: '🥟', name: 'dumpling', tags: ['gyoza', 'asian'] },
-      { char: '🍦', name: 'soft ice cream', tags: ['dessert', 'sweet'] },
-      { char: '🍨', name: 'ice cream', tags: ['dessert', 'cold'] },
-      { char: '🍩', name: 'donut', tags: ['doughnut', 'sweet'] },
-      { char: '🍪', name: 'cookie', tags: ['chocolate', 'snack'] },
-      { char: '🎂', name: 'birthday cake', tags: ['cake', 'celebrate', 'birthday'] },
-      { char: '🍰', name: 'shortcake', tags: ['dessert', 'cake'] },
-      { char: '🧁', name: 'cupcake', tags: ['muffin', 'sweet'] },
-      { char: '🥧', name: 'pie', tags: ['apple pie', 'baking'] },
-      { char: '🍫', name: 'chocolate bar', tags: ['candy', 'sweet'] },
-      { char: '🍬', name: 'candy', tags: ['sweet'] },
-      { char: '🍭', name: 'lollipop', tags: ['candy', 'sugar'] },
-      { char: '🍮', name: 'custard', tags: ['pudding', 'flan'] },
-      { char: '🍯', name: 'honey pot', tags: ['sweet', 'bee'] },
-      { char: '🥛', name: 'glass of milk', tags: ['dairy', 'drink'] },
-      { char: '☕️', name: 'hot beverage', tags: ['coffee', 'tea', 'espresso'] },
-      { char: '🍵', name: 'teacup without handle', tags: ['green tea', 'matcha'] },
-      { char: '🍾', name: 'bottle with popping cork', tags: ['champagne', 'celebration'] },
-      { char: '🍷', name: 'wine glass', tags: ['wine', 'alcohol', 'drink'] },
-      { char: '🍸', name: 'cocktail glass', tags: ['martini', 'drink'] },
-      { char: '🍹', name: 'tropical drink', tags: ['cocktail', 'summer'] },
-      { char: '🍺', name: 'beer mug', tags: ['beer', 'pub', 'cheers'] },
-      { char: '🍻', name: 'clinking beer mugs', tags: ['cheers', 'beers'] },
-      { char: '🥂', name: 'clinking glasses', tags: ['toast', 'champagne'] },
-      { char: '🥃', name: 'tumbler glass', tags: ['whiskey', 'bourbon'] },
-      { char: '🥤', name: 'cup with straw', tags: ['soda', 'smoothie'] },
-      { char: '🧊', name: 'ice', tags: ['cold', 'cube'] },
+      { char: '🍏', name: 'green apple', tags: ['apple'] },
+      { char: '🍎', name: 'red apple', tags: ['apple'] },
+      { char: '🍌', name: 'banana', tags: ['fruit'] },
+      { char: '🍉', name: 'watermelon', tags: ['summer'] },
+      { char: '🍇', name: 'grapes', tags: ['fruit'] },
+      { char: '🍓', name: 'strawberry', tags: ['fruit'] },
+      { char: '🍒', name: 'cherries', tags: ['fruit'] },
+      { char: '🍑', name: 'peach', tags: ['fruit'] },
+      { char: '🍍', name: 'pineapple', tags: ['fruit'] },
+      { char: '🥑', name: 'avocado', tags: ['guacamole'] },
+      { char: '🍕', name: 'pizza', tags: ['slice', 'cheese'] },
+      { char: '🍔', name: 'hamburger', tags: ['burger'] },
+      { char: '🍟', name: 'french fries', tags: ['fries'] },
+      { char: '🌭', name: 'hot dog', tags: ['fast food'] },
+      { char: '🌮', name: 'taco', tags: ['mexican'] },
+      { char: '🌯', name: 'burrito', tags: ['wrap'] },
+      { char: '🍿', name: 'popcorn', tags: ['movie'] },
+      { char: '🍱', name: 'bento box', tags: ['sushi'] },
+      { char: '🍜', name: 'ramen bowl', tags: ['noodes'] },
+      { char: '🍝', name: 'spaghetti', tags: ['pasta'] },
+      { char: '🍣', name: 'sushi', tags: ['japanese'] },
+      { char: '🍩', name: 'donut', tags: ['sweet'] },
+      { char: '🍪', name: 'cookie', tags: ['snack'] },
+      { char: '🎂', name: 'birthday cake', tags: ['celebrate'] },
+      { char: '🍰', name: 'shortcake', tags: ['cake'] },
+      { char: '🧁', name: 'cupcake', tags: ['sweet'] },
+      { char: '🍫', name: 'chocolate', tags: ['sweet'] },
+      { char: '☕️', name: 'coffee', tags: ['hot', 'tea'] },
+      { char: '🍺', name: 'beer mug', tags: ['drink', 'cheers'] },
+      { char: '🍻', name: 'clinking beers', tags: ['cheers'] },
+      { char: '🥂', name: 'champagne glasses', tags: ['toast'] },
+      { char: '🧃', name: 'juice box', tags: ['drink'] },
     ],
   },
   {
@@ -409,56 +226,32 @@ const EMOJI_CATEGORIES = [
     name: 'Activities & Sports',
     icon: '⚽',
     emojis: [
-      { char: '⚽️', name: 'soccer ball', tags: ['football', 'sports'] },
-      { char: '🏀', name: 'basketball', tags: ['hoops', 'sports'] },
-      { char: '🏈', name: 'american football', tags: ['nfl', 'sports'] },
+      { char: '⚽️', name: 'soccer ball', tags: ['sports'] },
+      { char: '🏀', name: 'basketball', tags: ['sports'] },
+      { char: '🏈', name: 'football', tags: ['sports'] },
       { char: '⚾️', name: 'baseball', tags: ['sports'] },
-      { char: '🥎', name: 'softball', tags: ['sports'] },
-      { char: '🎾', name: 'tennis', tags: ['racket', 'sports'] },
-      { char: '🏐', name: 'volleyball', tags: ['beach', 'sports'] },
-      { char: '🏉', name: 'rugby football', tags: ['sports'] },
-      { char: '🎱', name: 'pool 8 ball', tags: ['billiards', 'game'] },
+      { char: '🎾', name: 'tennis', tags: ['sports'] },
+      { char: '🏐', name: 'volleyball', tags: ['sports'] },
+      { char: '🎱', name: 'pool ball', tags: ['billiards'] },
       { char: '🏓', name: 'ping pong', tags: ['table tennis'] },
-      { char: '🏸', name: 'badminton', tags: ['shuttlecock'] },
-      { char: '🏒', name: 'ice hockey', tags: ['sports', 'puck'] },
-      { char: '🏏', name: 'cricket game', tags: ['cricket', 'bat', 'ball', 'sports'] },
-      { char: '⛳️', name: 'flag in hole', tags: ['golf'] },
-      { char: '🏹', name: 'bow and arrow', tags: ['archery'] },
-      { char: '🎣', name: 'fishing pole', tags: ['fish', 'catch'] },
-      { char: '🥊', name: 'boxing glove', tags: ['fight', 'punch'] },
-      { char: '🥋', name: 'martial arts uniform', tags: ['karate', 'judo'] },
-      { char: '🛹', name: 'skateboard', tags: ['skate', 'board'] },
-      { char: '🎿', name: 'skis', tags: ['skiing', 'snow'] },
-      { char: '🏋️‍♂️', name: 'man lifting weights', tags: ['gym', 'workout', 'barbell'] },
-      { char: '🤸‍♀️', name: 'woman cartwheeling', tags: ['gymnastics', 'flip'] },
-      { char: '🧘‍♀️', name: 'woman in lotus position', tags: ['yoga', 'meditate'] },
-      { char: '🏄‍♂️', name: 'man surfing', tags: ['surf', 'waves'] },
-      { char: '🏊‍♂️', name: 'man swimming', tags: ['swim', 'pool'] },
-      { char: '🚣‍♂️', name: 'man rowing boat', tags: ['rowing', 'boat'] },
-      { char: '🧗‍♀️', name: 'woman climbing', tags: ['rock climbing', 'climb'] },
-      { char: '🚴‍♂️', name: 'man biking', tags: ['bicycle', 'cycling'] },
-      { char: '🎯', name: 'bullseye', tags: ['darts', 'target', 'goal'] },
-      { char: '🎮', name: 'video game', tags: ['game', 'controller', 'playstation', 'xbox'] },
-      { char: '🎰', name: 'slot machine', tags: ['casino', 'gamble'] },
-      { char: '🎲', name: 'game die', tags: ['dice', 'luck'] },
-      { char: '🧩', name: 'puzzle piece', tags: ['jigsaw', 'game'] },
-      { char: '🎨', name: 'artist palette', tags: ['art', 'paint', 'design'] },
-      { char: '🎭', name: 'performing arts', tags: ['theater', 'drama', 'masks'] },
-      { char: '🎤', name: 'microphone', tags: ['sing', 'karaoke', 'music'] },
-      { char: '🎧', name: 'headphone', tags: ['music', 'listen', 'audio'] },
-      { char: '🎼', name: 'musical score', tags: ['notes', 'music'] },
-      { char: '🎹', name: 'musical keyboard', tags: ['piano', 'music'] },
-      { char: '🥁', name: 'drum', tags: ['music', 'beats'] },
-      { char: '🎷', name: 'saxophone', tags: ['jazz', 'music'] },
-      { char: '🎺', name: 'trumpet', tags: ['music', 'brass'] },
-      { char: '🎸', name: 'guitar', tags: ['rock', 'music'] },
-      { char: '🎻', name: 'violin', tags: ['classical', 'music'] },
-      { char: '🎬', name: 'clapper board', tags: ['movie', 'film', 'cinema'] },
-      { char: '🏆', name: 'trophy', tags: ['winner', 'first', 'award'] },
-      { char: '🥇', name: '1st place medal', tags: ['gold', 'winner'] },
-      { char: '🥈', name: '2nd place medal', tags: ['silver'] },
-      { char: '🥉', name: '3rd place medal', tags: ['bronze'] },
-      { char: '🏅', name: 'sports medal', tags: ['award'] },
+      { char: '🏒', name: 'ice hockey', tags: ['sports'] },
+      { char: '🏏', name: 'cricket', tags: ['sports'] },
+      { char: '🥊', name: 'boxing glove', tags: ['fight'] },
+      { char: '🏋️‍♂️', name: 'weightlifting', tags: ['gym'] },
+      { char: '🧘‍♀️', name: 'yoga', tags: ['meditate'] },
+      { char: '🏄‍♂️', name: 'surfing', tags: ['surf'] },
+      { char: '🏊‍♂️', name: 'swimming', tags: ['swim'] },
+      { char: '🎯', name: 'bullseye', tags: ['target'] },
+      { char: '🎮', name: 'video game', tags: ['playstation', 'xbox'] },
+      { char: '🎲', name: 'dice', tags: ['game'] },
+      { char: '🎨', name: 'paint palette', tags: ['art'] },
+      { char: '🎭', name: 'theater masks', tags: ['drama'] },
+      { char: '🎤', name: 'microphone', tags: ['sing'] },
+      { char: '🎧', name: 'headphones', tags: ['music'] },
+      { char: '🎸', name: 'guitar', tags: ['music'] },
+      { char: '🎬', name: 'clapperboard', tags: ['movie'] },
+      { char: '🏆', name: 'trophy', tags: ['winner'] },
+      { char: '🥇', name: 'gold medal', tags: ['first'] },
     ],
   },
   {
@@ -466,52 +259,28 @@ const EMOJI_CATEGORIES = [
     name: 'Travel & Places',
     icon: '🚀',
     emojis: [
-      { char: '🚗', name: 'automobile', tags: ['car', 'drive'] },
+      { char: '🚗', name: 'car', tags: ['drive'] },
       { char: '🚕', name: 'taxi', tags: ['cab'] },
-      { char: '🚙', name: 'sport utility vehicle', tags: ['suv', 'car'] },
-      { char: '🚌', name: 'bus', tags: ['transit'] },
-      { char: '🏎️', name: 'racing car', tags: ['f1', 'speed'] },
-      { char: '🚓', name: 'police car', tags: ['cop', 'patrol'] },
-      { char: '🚑', name: 'ambulance', tags: ['emergency', 'medical'] },
-      { char: '🚒', name: 'fire engine', tags: ['fire truck'] },
-      { char: '🚚', name: 'delivery truck', tags: ['shipping'] },
-      { char: '🚜', name: 'tractor', tags: ['farm'] },
-      { char: '🛴', name: 'kick scooter', tags: ['scooter'] },
-      { char: '🚲', name: 'bicycle', tags: ['bike', 'cycling'] },
-      { char: '🛵', name: 'motor scooter', tags: ['vespa'] },
-      { char: '🏍️', name: 'motorcycle', tags: ['bike', 'speed'] },
-      { char: '🚨', name: 'police car light', tags: ['siren', 'alert', 'warning'] },
-      { char: '🚄', name: 'high-speed train', tags: ['bullet train', 'japan'] },
-      { char: '🚅', name: 'bullet train', tags: ['speed', 'train'] },
-      { char: '🚆', name: 'train', tags: ['railway'] },
-      { char: '🚇', name: 'metro', tags: ['subway', 'underground'] },
-      { char: '✈️', name: 'airplane', tags: ['flight', 'fly', 'travel', 'vacation'] },
-      { char: '🛫', name: 'airplane departure', tags: ['takeoff', 'flight'] },
-      { char: '🛬', name: 'airplane arrival', tags: ['landing', 'flight'] },
-      { char: '🚀', name: 'rocket', tags: ['space', 'launch', 'moon', 'crypto'] },
-      { char: '🛸', name: 'flying saucer', tags: ['ufo', 'alien'] },
-      { char: '🚁', name: 'helicopter', tags: ['chopper'] },
-      { char: '⛵️', name: 'sailboat', tags: ['boat', 'sea'] },
-      { char: '🛥️', name: 'motor boat', tags: ['yacht'] },
-      { char: '🚢', name: 'ship', tags: ['cruise', 'boat'] },
-      { char: '⚓️', name: 'anchor', tags: ['ship', 'navy'] },
-      { char: '⛽️', name: 'fuel pump', tags: ['gas', 'petrol'] },
-      { char: '🗺️', name: 'world map', tags: ['travel', 'geography'] },
-      { char: '🗿', name: 'moai', tags: ['easter island', 'stone'] },
-      { char: '🗽', name: 'statue of liberty', tags: ['nyc', 'usa'] },
-      { char: '🗼', name: 'tokyo tower', tags: ['japan', 'tower'] },
-      { char: '🏰', name: 'castle', tags: ['disney', 'fairytale'] },
-      { char: '🏯', name: 'japanese castle', tags: ['japan'] },
-      { char: '🏟️', name: 'stadium', tags: ['arena', 'sports'] },
-      { char: '🎡', name: 'ferris wheel', tags: ['carnival', 'park'] },
-      { char: '🎢', name: 'roller coaster', tags: ['amusement park'] },
-      { char: '💈', name: 'barber pole', tags: ['haircut'] },
-      { char: '⛺️', name: 'tent', tags: ['camping', 'outdoors'] },
-      { char: '🌅', name: 'sunrise', tags: ['morning', 'sun'] },
-      { char: '🌄', name: 'sunrise over mountains', tags: ['nature'] },
-      { char: '🏙️', name: 'cityscape', tags: ['city', 'buildings'] },
-      { char: '🏞️', name: 'national park', tags: ['nature', 'mountains'] },
-      { char: '🛺', name: 'auto rickshaw', tags: ['tuk tuk', 'india'] },
+      { char: '🏎️', name: 'race car', tags: ['f1'] },
+      { char: '🚓', name: 'police car', tags: ['cop'] },
+      { char: '🚑', name: 'ambulance', tags: ['medical'] },
+      { char: '🚲', name: 'bicycle', tags: ['bike'] },
+      { char: '🏍️', name: 'motorcycle', tags: ['bike'] },
+      { char: '🚨', name: 'police light', tags: ['alert'] },
+      { char: '🚄', name: 'bullet train', tags: ['speed'] },
+      { char: '✈️', name: 'airplane', tags: ['flight'] },
+      { char: '🚀', name: 'rocket', tags: ['space', 'launch'] },
+      { char: '🛸', name: 'ufo', tags: ['alien'] },
+      { char: '🚁', name: 'helicopter', tags: ['flight'] },
+      { char: '⛵️', name: 'sailboat', tags: ['sea'] },
+      { char: '🗿', name: 'moai', tags: ['stone'] },
+      { char: '🗽', name: 'statue of liberty', tags: ['usa'] },
+      { char: '🗼', name: 'tokyo tower', tags: ['japan'] },
+      { char: '🏰', name: 'castle', tags: ['fairytale'] },
+      { char: '🎡', name: 'ferris wheel', tags: ['park'] },
+      { char: '🎢', name: 'roller coaster', tags: ['park'] },
+      { char: '🌅', name: 'sunrise', tags: ['morning'] },
+      { char: '🏙️', name: 'cityscape', tags: ['city'] },
     ],
   },
   {
@@ -519,52 +288,29 @@ const EMOJI_CATEGORIES = [
     name: 'Objects & Technology',
     icon: '💡',
     emojis: [
-      { char: '⌚️', name: 'watch', tags: ['time', 'clock', 'apple watch'] },
-      { char: '📱', name: 'mobile phone', tags: ['smartphone', 'iphone', 'cell'] },
-      { char: '📲', name: 'mobile phone with arrow', tags: ['call', 'text'] },
-      { char: '💻', name: 'laptop', tags: ['computer', 'pc', 'macbook', 'work'] },
-      { char: '⌨️', name: 'keyboard', tags: ['typing', 'tech'] },
-      { char: '🖥️', name: 'desktop computer', tags: ['pc', 'monitor'] },
-      { char: '🖨️', name: 'printer', tags: ['print', 'office'] },
-      { char: '🖱️', name: 'computer mouse', tags: ['tech', 'click'] },
-      { char: '💾', name: 'floppy disk', tags: ['save', 'disk', 'retro'] },
-      { char: '💿', name: 'optical disk', tags: ['cd', 'dvd'] },
-      { char: '📷', name: 'camera', tags: ['photo', 'picture', 'snap'] },
-      { char: '📸', name: 'camera with flash', tags: ['photo', 'flash'] },
-      { char: '📹', name: 'video camera', tags: ['video', 'record'] },
-      { char: '🔍', name: 'magnifying glass tilted left', tags: ['search', 'find'] },
-      { char: '🔎', name: 'magnifying glass tilted right', tags: ['search', 'zoom'] },
-      { char: '🕯️', name: 'candle', tags: ['light', 'flame'] },
-      { char: '💡', name: 'light bulb', tags: ['idea', 'light', 'bright'] },
-      { char: '🔦', name: 'flashlight', tags: ['torch', 'light'] },
-      { char: '📖', name: 'open book', tags: ['read', 'study', 'book'] },
-      { char: '📚', name: 'books', tags: ['library', 'study', 'read', 'school'] },
-      { char: '📝', name: 'memo', tags: ['note', 'write', 'paper'] },
-      { char: '💰', name: 'money bag', tags: ['cash', 'rich', 'wealth'] },
-      { char: '💵', name: 'dollar banknote', tags: ['cash', 'money', 'usd'] },
-      { char: '💳', name: 'credit card', tags: ['pay', 'card', 'visa'] },
-      { char: '✉️', name: 'envelope', tags: ['email', 'mail', 'letter'] },
-      { char: '📧', name: 'e-mail', tags: ['email', 'mail'] },
-      { char: '📦', name: 'package', tags: ['parcel', 'box', 'delivery'] },
-      { char: '✏️', name: 'pencil', tags: ['draw', 'write', 'edit'] },
-      { char: '📅', name: 'calendar', tags: ['date', 'schedule', 'event'] },
-      { char: '📊', name: 'bar chart', tags: ['stats', 'analytics'] },
-      { char: '📋', name: 'clipboard', tags: ['copy', 'paste', 'task'] },
-      { char: '📌', name: 'pushpin', tags: ['pin', 'mark', 'location'] },
-      { char: '📍', name: 'round pushpin', tags: ['pin', 'map'] },
-      { char: '📎', name: 'paperclip', tags: ['attach', 'file'] },
-      { char: '✂️', name: 'scissors', tags: ['cut', 'snip'] },
-      { char: '🔒', name: 'locked', tags: ['security', 'password', 'padlock'] },
-      { char: '🔓', name: 'unlocked', tags: ['open', 'padlock'] },
-      { char: '🔑', name: 'key', tags: ['password', 'access', 'unlock'] },
-      { char: '🔨', name: 'hammer', tags: ['tool', 'build'] },
-      { char: '🛡️', name: 'shield', tags: ['protect', 'security', 'guard'] },
-      { char: '⚙️', name: 'gear', tags: ['settings', 'config', 'cog'] },
-      { char: '🔔', name: 'bell', tags: ['notification', 'ring', 'alert'] },
-      { char: '🔕', name: 'bell with slash', tags: ['mute', 'silent'] },
-      { char: '🧪', name: 'test tube', tags: ['science', 'chemistry'] },
-      { char: '💉', name: 'syringe', tags: ['vaccine', 'shot', 'doctor'] },
-      { char: '💊', name: 'pill', tags: ['medicine', 'drugs'] },
+      { char: '⌚️', name: 'watch', tags: ['clock'] },
+      { char: '📱', name: 'phone', tags: ['smartphone'] },
+      { char: '💻', name: 'laptop', tags: ['computer'] },
+      { char: '⌨️', name: 'keyboard', tags: ['tech'] },
+      { char: '🖥️', name: 'desktop', tags: ['monitor'] },
+      { char: '📷', name: 'camera', tags: ['photo'] },
+      { char: '💡', name: 'light bulb', tags: ['idea'] },
+      { char: '📖', name: 'book', tags: ['read'] },
+      { char: '📚', name: 'books', tags: ['study'] },
+      { char: '💰', name: 'money bag', tags: ['cash'] },
+      { char: '💵', name: 'dollar banknote', tags: ['money'] },
+      { char: '💳', name: 'credit card', tags: ['pay'] },
+      { char: '✉️', name: 'envelope', tags: ['mail'] },
+      { char: '📦', name: 'package', tags: ['box'] },
+      { char: '✏️', name: 'pencil', tags: ['write'] },
+      { char: '📅', name: 'calendar', tags: ['date'] },
+      { char: '📌', name: 'pushpin', tags: ['pin'] },
+      { char: '🔒', name: 'locked', tags: ['security'] },
+      { char: '🔑', name: 'key', tags: ['unlock'] },
+      { char: '🔨', name: 'hammer', tags: ['tool'] },
+      { char: '🛡️', name: 'shield', tags: ['guard'] },
+      { char: '⚙️', name: 'gear', tags: ['settings'] },
+      { char: '🔔', name: 'bell', tags: ['notification'] },
     ],
   },
   {
@@ -572,84 +318,118 @@ const EMOJI_CATEGORIES = [
     name: 'Symbols & Flags',
     icon: '❤️',
     emojis: [
-      { char: '❤️', name: 'red heart', tags: ['love', 'heart', 'like'] },
-      { char: '🧡', name: 'orange heart', tags: ['love', 'heart'] },
-      { char: '💛', name: 'yellow heart', tags: ['love', 'heart', 'gold'] },
-      { char: '💚', name: 'green heart', tags: ['love', 'heart', 'nature'] },
-      { char: '💙', name: 'blue heart', tags: ['love', 'heart', 'blue'] },
-      { char: '💜', name: 'purple heart', tags: ['love', 'heart', 'bts'] },
-      { char: '🖤', name: 'black heart', tags: ['love', 'heart', 'dark'] },
-      { char: '🤍', name: 'white heart', tags: ['love', 'heart', 'pure'] },
-      { char: '💔', name: 'broken heart', tags: ['breakup', 'sad', 'heartbreak'] },
-      { char: '❣️', name: 'heart exclamation', tags: ['love'] },
-      { char: '💕', name: 'two hearts', tags: ['love', 'hearts'] },
-      { char: '💞', name: 'revolving hearts', tags: ['love'] },
-      { char: '💓', name: 'beating heart', tags: ['heartbeat', 'love'] },
-      { char: '💗', name: 'growing heart', tags: ['love'] },
-      { char: '💖', name: 'sparkling heart', tags: ['love', 'sparkle'] },
-      { char: '💘', name: 'heart with arrow', tags: ['cupid', 'love'] },
-      { char: '💝', name: 'heart with ribbon', tags: ['gift', 'love'] },
-      { char: '☮️', name: 'peace symbol', tags: ['peace'] },
-      { char: '✝️', name: 'latin cross', tags: ['christian'] },
+      { char: '❤️', name: 'red heart', tags: ['love'] },
+      { char: '🧡', name: 'orange heart', tags: ['love'] },
+      { char: '💛', name: 'yellow heart', tags: ['love'] },
+      { char: '💚', name: 'green heart', tags: ['love'] },
+      { char: '💙', name: 'blue heart', tags: ['love'] },
+      { char: '💜', name: 'purple heart', tags: ['love'] },
+      { char: '🖤', name: 'black heart', tags: ['love'] },
+      { char: '🤍', name: 'white heart', tags: ['love'] },
+      { char: '💔', name: 'broken heart', tags: ['sad'] },
+      { char: '💕', name: 'two hearts', tags: ['love'] },
+      { char: '💖', name: 'sparkling heart', tags: ['love'] },
+      { char: '💘', name: 'cupid heart', tags: ['love'] },
+      { char: '☮️', name: 'peace', tags: ['symbol'] },
+      { char: '✝️', name: 'cross', tags: ['christian'] },
       { char: '☪️', name: 'star and crescent', tags: ['islam'] },
-      { char: '🕉️', name: 'om', tags: ['hindu', 'yoga'] },
-      { char: '☸️', name: 'wheel of dharma', tags: ['buddhism'] },
-      { char: '✡️', name: 'star of david', tags: ['jewish'] },
-      { char: '☯️', name: 'yin yang', tags: ['balance', 'taoism'] },
-      { char: '♈️', name: 'aries', tags: ['zodiac'] },
-      { char: '♉️', name: 'taurus', tags: ['zodiac'] },
-      { char: '♊️', name: 'gemini', tags: ['zodiac'] },
-      { char: '♋️', name: 'cancer', tags: ['zodiac'] },
-      { char: '♌️', name: 'leo', tags: ['zodiac'] },
-      { char: '♍️', name: 'virgo', tags: ['zodiac'] },
-      { char: '♎️', name: 'libra', tags: ['zodiac'] },
-      { char: '♏️', name: 'scorpio', tags: ['zodiac'] },
-      { char: '♐️', name: 'sagittarius', tags: ['zodiac'] },
-      { char: '♑️', name: 'capricorn', tags: ['zodiac'] },
-      { char: '♒️', name: 'aquarius', tags: ['zodiac'] },
-      { char: '♓️', name: 'pisces', tags: ['zodiac'] },
-      { char: '⚛️', name: 'atom symbol', tags: ['science', 'physics'] },
-      { char: '🆘', name: 'SOS button', tags: ['help', 'emergency'] },
-      { char: '❌', name: 'cross mark', tags: ['no', 'x', 'wrong', 'delete'] },
-      { char: '⭕️', name: 'hollow red circle', tags: ['circle', 'ok'] },
-      { char: '🛑', name: 'stop sign', tags: ['stop', 'halt'] },
-      { char: '⛔️', name: 'no entry', tags: ['forbidden', 'stop'] },
-      { char: '🚫', name: 'prohibited', tags: ['no', 'ban', 'forbidden'] },
-      { char: '💯', name: 'hundred points', tags: ['100', 'perfect', 'score', 'lit'] },
-      { char: '💢', name: 'anger symbol', tags: ['mad', 'angry'] },
-      { char: '❗️', name: 'red exclamation mark', tags: ['alert', 'warning', 'important'] },
-      { char: '❓', name: 'red question mark', tags: ['ask', 'what', 'help'] },
-      { char: '⚠️', name: 'warning', tags: ['caution', 'danger', 'alert'] },
-      { char: '🏁', name: 'chequered flag', tags: ['race', 'finish', 'winner'] },
-      { char: '🚩', name: 'triangular flag', tags: ['red flag', 'mark'] },
-      { char: '🏳️‍🌈', name: 'rainbow flag', tags: ['pride', 'lgbt'] },
-      { char: '🏴‍☠️', name: 'pirate flag', tags: ['skull', 'jolly roger'] },
-      { char: '🇮🇳', name: 'flag India', tags: ['india', 'in', 'bharat'] },
-      { char: '🇺🇸', name: 'flag United States', tags: ['usa', 'america'] },
-      { char: '🇬🇧', name: 'flag United Kingdom', tags: ['uk', 'britain'] },
-      { char: '🇨🇦', name: 'flag Canada', tags: ['canada', 'ca'] },
-      { char: '🇦🇺', name: 'flag Australia', tags: ['australia', 'au'] },
-      { char: '🇩🇪', name: 'flag Germany', tags: ['germany', 'de'] },
-      { char: '🇫🇷', name: 'flag France', tags: ['france', 'fr'] },
-      { char: '🇯🇵', name: 'flag Japan', tags: ['japan', 'jp'] },
-      { char: '🇰🇷', name: 'flag South Korea', tags: ['korea', 'kr'] },
-      { char: '🇨🇳', name: 'flag China', tags: ['china', 'cn'] },
-      { char: '🇧🇷', name: 'flag Brazil', tags: ['brazil', 'br'] },
-      { char: '🇪🇸', name: 'flag Spain', tags: ['spain', 'es'] },
-      { char: '🇮🇹', name: 'flag Italy', tags: ['italy', 'it'] },
-      { char: '🇲🇽', name: 'flag Mexico', tags: ['mexico', 'mx'] },
-      { char: '🇦🇷', name: 'flag Argentina', tags: ['argentina', 'ar'] },
+      { char: '🕉️', name: 'om', tags: ['hindu'] },
+      { char: '☯️', name: 'yin yang', tags: ['balance'] },
+      { char: '💯', name: 'hundred points', tags: ['100', 'score'] },
+      { char: '⚠️', name: 'warning', tags: ['alert'] },
+      { char: '🏁', name: 'chequered flag', tags: ['finish'] },
+      { char: '🇮🇳', name: 'flag India', tags: ['india'] },
+      { char: '🇺🇸', name: 'flag USA', tags: ['usa'] },
+      { char: '🇬🇧', name: 'flag UK', tags: ['uk'] },
+      { char: '🇨🇦', name: 'flag Canada', tags: ['canada'] },
+      { char: '🇦🇺', name: 'flag Australia', tags: ['australia'] },
+      { char: '🇩🇪', name: 'flag Germany', tags: ['germany'] },
+      { char: '🇫🇷', name: 'flag France', tags: ['france'] },
+      { char: '🇯🇵', name: 'flag Japan', tags: ['japan'] },
+      { char: '🇰🇷', name: 'flag South Korea', tags: ['korea'] },
     ],
   },
+]
+
+// STICKER PACKS
+const STICKER_PACKS = [
+  {
+    id: 'cats',
+    name: 'Cute Cats',
+    icon: '🐱',
+    stickers: [
+      { id: 'cat-1', title: 'Happy Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/CjmvTCZf2U3p09Cn0h/giphy.gif' },
+      { id: 'cat-2', title: 'Dancing Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/GeimqsH0TLDt4tScGw/giphy.gif' },
+      { id: 'cat-3', title: 'Love Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/BzyTuYCmvSORqs1ABM/giphy.gif' },
+      { id: 'cat-4', title: 'Sleeping Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/Lq0h93752f6J9tijrh/giphy.gif' },
+      { id: 'cat-5', title: 'Hacker Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/mlvseq9yvZhba/giphy.gif' },
+      { id: 'cat-6', title: 'Shocked Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/VbnUQpnihPSIgIXuZv/giphy.gif' },
+      { id: 'cat-7', title: 'Playful Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/13CoXDiaCcCoyk/giphy.gif' },
+      { id: 'cat-8', title: 'Party Cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/3o6Zt481isNVuQI1l6/giphy.gif' },
+    ],
+  },
+  {
+    id: 'memes',
+    name: 'Pepe & Memes',
+    icon: '🐸',
+    stickers: [
+      { id: 'meme-1', title: 'Pepe Dance', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/c4Nc0v0g15g9A5v0GA/giphy.gif' },
+      { id: 'meme-2', title: 'Hype Meme', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/u08yPugMhiL1d3cE7A/giphy.gif' },
+      { id: 'meme-3', title: 'Smug Pepe', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/t3sZxY5zS5B0z5z5z5/giphy.gif' },
+      { id: 'meme-4', title: 'Popcorn Meme', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/A9A5n697CqA9hO1j1n/giphy.gif' },
+      { id: 'meme-5', title: 'Mindblown Meme', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/S6ED7y7r85Vw8F6E6k/giphy.gif' },
+      { id: 'meme-6', title: 'OK Hand Meme', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMml3M3U3Z3p3enU0bnYwcmlqZmsxZjN2OHY5dXZrbHRxZmd3ZndwdyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/dlsGM46Xy0wZ3B3z3z/giphy.gif' },
+    ],
+  },
+  {
+    id: 'pandas',
+    name: 'Panda & Bears',
+    icon: '🐼',
+    stickers: [
+      { id: 'panda-1', title: 'Panda Wave', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2OW0wYml3cWpxZ21pZHF4dWR2ZW81M2RreWpmZ3pxZmpjNXZ6byZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/l0HlOBZyy8jTNVTOU/giphy.gif' },
+      { id: 'panda-2', title: 'Bear Hug', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2OW0wYml3cWpxZ21pZHF4dWR2ZW81M2RreWpmZ3pxZmpjNXZ6byZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/3o7TKSjRrfIPjeiVyM/giphy.gif' },
+      { id: 'panda-3', title: 'Coffee Panda', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2OW0wYml3cWpxZ21pZHF4dWR2ZW81M2RreWpmZ3pxZmpjNXZ6byZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/l49JHz7kJLkqPZJwQ/giphy.gif' },
+      { id: 'panda-4', title: 'Heart Bear', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2OW0wYml3cWpxZ21pZHF4dWR2ZW81M2RreWpmZ3pxZmpjNXZ6byZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/3oKIPnAiaMCws8nOsE/giphy.gif' },
+      { id: 'panda-5', title: 'Sleeping Panda', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2OW0wYml3cWpxZ21pZHF4dWR2ZW81M2RreWpmZ3pxZmpjNXZ6byZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/26xBI73gWquCBBCDe/giphy.gif' },
+    ],
+  },
+  {
+    id: 'anime',
+    name: 'Anime & Chibi',
+    icon: '🌸',
+    stickers: [
+      { id: 'anime-1', title: 'Sparkle Chibi', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2J2b2d0OGY2dmszc3E1NDBndHJmdWVhOHZlZjF2dXpxbXRlYm1vMiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/13CoXDiaCcCoyk/giphy.gif' },
+      { id: 'anime-2', title: 'Shocked Anime', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2J2b2d0OGY2dmszc3E1NDBndHJmdWVhOHZlZjF2dXpxbXRlYm1vMiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/10UeedrT5MIfPG/giphy.gif' },
+      { id: 'anime-3', title: 'Fight Mode', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2J2b2d0OGY2dmszc3E1NDBndHJmdWVhOHZlZjF2dXpxbXRlYm1vMiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/3o7aD6Y0qM4L8cQZ04/giphy.gif' },
+      { id: 'anime-4', title: 'Victory Wink', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2J2b2d0OGY2dmszc3E1NDBndHJmdWVhOHZlZjF2dXpxbXRlYm1vMiZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/l0HlHFRb4OMYYYn3W/giphy.gif' },
+    ],
+  },
+]
+
+// CURATED GIFS COLLECTION
+const GIF_GALLERY = [
+  { id: 'g1', title: 'Happy Dance', category: 'happy', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/blSTtZehjAZ8I/giphy.gif' },
+  { id: 'g2', title: 'Joyful Celebration', category: 'happy', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/artj92V8o75VPL7AeQ/giphy.gif' },
+  { id: 'g3', title: 'Groovy Dance', category: 'dance', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/lu0u0j9xMFLSjYk9yU/giphy.gif' },
+  { id: 'g4', title: 'Laughing Out Loud', category: 'laugh', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/10ls7c9q3Q6m9d2j20/giphy.gif' },
+  { id: 'g5', title: 'ROFL Cat', category: 'laugh', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ro08Wv3zVypWXTOwiv/giphy.gif' },
+  { id: 'g6', title: 'Mindblown Reaction', category: 'wow', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26ufdipQqU2lhNA4g/giphy.gif' },
+  { id: 'g7', title: 'Astonished Eye Pop', category: 'wow', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xT0xezQGU5xCDJuCPe/giphy.gif' },
+  { id: 'g8', title: 'Sending Love', category: 'love', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l8vT5et8lLyDLETSLt/giphy.gif' },
+  { id: 'g9', title: 'Heart Hug', category: 'love', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/v9G3NGByE9x16/giphy.gif' },
+  { id: 'g10', title: 'Popcorn Cat', category: 'cat', url: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hvcWF2a3hpeWRxeXFzeDZvZm9ldnlhbThwMHVwNzlsbmlrcDFvMCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/CjmvTCZf2U3p09Cn0h/giphy.gif' },
 ]
 
 const STORAGE_KEY_RECENT = 'nodetalk_recent_emojis'
 const DEFAULT_RECENTS = ['😂', '❤️', '👍', '🔥', '😊', '🙌', '😍', '🎉', '💯', '✨']
 
-export default function EmojiPicker({ onSelect, open, onClose }) {
+export default function EmojiPicker({ onSelect, onSelectMedia, open, onClose }) {
   const ref = useRef(null)
   const gridContainerRef = useRef(null)
-  const [activeTab, setActiveTab] = useState('smileys')
+  const [pickerMode, setPickerMode] = useState('emojis') // 'emojis' | 'stickers' | 'gifs'
+  const [activeEmojiTab, setActiveEmojiTab] = useState('smileys')
+  const [activeStickerPack, setActiveStickerPack] = useState('cats')
+  const [activeGifTag, setActiveGifTag] = useState('all')
   const [search, setSearch] = useState('')
   const [recentEmojis, setRecentEmojis] = useState(() => {
     try {
@@ -669,7 +449,7 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open, onClose])
 
-  // Handle emoji selection & save to recent
+  // Handle emoji selection
   const handleEmojiClick = useCallback((char) => {
     onSelect(char)
     setRecentEmojis((prev) => {
@@ -683,9 +463,15 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
     })
   }, [onSelect])
 
-  // Scroll to section when tab is clicked
-  const handleTabClick = (catId) => {
-    setActiveTab(catId)
+  // Handle media selection (Sticker / GIF)
+  const handleMediaClick = useCallback((url) => {
+    onSelectMedia?.(url)
+    onClose?.()
+  }, [onSelectMedia, onClose])
+
+  // Scroll to section when emoji tab is clicked
+  const handleEmojiTabClick = (catId) => {
+    setActiveEmojiTab(catId)
     setSearch('')
     if (gridContainerRef.current) {
       const targetElement = gridContainerRef.current.querySelector(`#emoji-cat-${catId}`)
@@ -695,9 +481,9 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
     }
   }
 
-  // Filtered emojis based on search term
-  const searchResults = useMemo(() => {
-    if (!search.trim()) return null
+  // Filtered emojis
+  const searchEmojiResults = useMemo(() => {
+    if (pickerMode !== 'emojis' || !search.trim()) return null
     const query = search.toLowerCase().trim()
     const results = []
 
@@ -716,7 +502,21 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
       }
     }
     return results
-  }, [search])
+  }, [pickerMode, search])
+
+  // Filtered GIFs
+  const filteredGifs = useMemo(() => {
+    if (pickerMode !== 'gifs') return []
+    let list = GIF_GALLERY
+    if (activeGifTag !== 'all') {
+      list = list.filter((g) => g.category === activeGifTag)
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase().trim()
+      list = list.filter((g) => g.title.toLowerCase().includes(q) || g.category.includes(q))
+    }
+    return list
+  }, [pickerMode, activeGifTag, search])
 
   if (!open) return null
 
@@ -728,15 +528,46 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.95 }}
         transition={{ duration: 0.15 }}
-        className="absolute bottom-full left-0 mb-3 z-50 flex flex-col w-[340px] h-[390px] rounded-2xl shadow-2xl overflow-hidden border"
+        className="absolute bottom-full left-0 mb-3 z-50 flex flex-col w-[350px] h-[410px] rounded-2xl shadow-2xl overflow-hidden border"
         style={{
           background: 'var(--surface-elevated)',
           borderColor: 'var(--border-secondary)',
           boxShadow: 'var(--shadow-popover)',
         }}
       >
+        {/* Top Mode Selector Tabs: Emojis | Stickers | GIFs */}
+        <div
+          className="flex items-center justify-between px-3 py-2 border-b"
+          style={{
+            background: 'var(--surface-primary)',
+            borderColor: 'var(--border-primary)',
+          }}
+        >
+          {[
+            { id: 'emojis', label: '😀 Emojis' },
+            { id: 'stickers', label: '🏷️ Stickers' },
+            { id: 'gifs', label: '🎬 GIFs' },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              onClick={() => {
+                setPickerMode(mode.id)
+                setSearch('')
+              }}
+              className="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all text-center"
+              style={{
+                color: pickerMode === mode.id ? 'var(--accent)' : 'var(--text-tertiary)',
+                background: pickerMode === mode.id ? 'var(--accent-soft)' : 'transparent',
+              }}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+
         {/* Search Bar */}
-        <div className="p-2.5 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-primary)', background: 'var(--surface-primary)' }}>
+        <div className="p-2 border-b flex items-center gap-2" style={{ borderColor: 'var(--border-primary)', background: 'var(--surface-primary)' }}>
           <div className="relative flex-1">
             <svg
               className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
@@ -749,7 +580,7 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
             </svg>
             <input
               type="text"
-              placeholder="Search emoji..."
+              placeholder={pickerMode === 'emojis' ? 'Search emoji...' : pickerMode === 'stickers' ? 'Search stickers...' : 'Search GIFs...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="surface-input w-full pl-8 pr-7 py-1.5 text-xs rounded-xl"
@@ -768,123 +599,260 @@ export default function EmojiPicker({ onSelect, open, onClose }) {
           </div>
         </div>
 
-        {/* Category Tabs Header */}
-        {!search && (
-          <div
-            className="flex items-center justify-between px-1.5 py-1 border-b overflow-x-auto no-scrollbar"
-            style={{
-              borderColor: 'var(--border-primary)',
-              background: 'var(--surface-secondary)',
-            }}
-          >
-            {EMOJI_CATEGORIES.map((cat) => {
-              const isActive = activeTab === cat.id
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => handleTabClick(cat.id)}
-                  title={cat.name}
-                  className="p-1.5 rounded-lg text-sm transition-all relative flex items-center justify-center flex-1"
-                  style={{
-                    background: isActive ? 'var(--accent-soft)' : 'transparent',
-                    transform: isActive ? 'scale(1.15)' : 'scale(1)',
-                  }}
-                >
-                  <span>{cat.icon}</span>
-                </button>
-              )
-            })}
-          </div>
-        )}
+        {/* MODE 1: EMOJIS */}
+        {pickerMode === 'emojis' && (
+          <>
+            {/* Category Tabs Header */}
+            {!search && (
+              <div
+                className="flex items-center justify-between px-1.5 py-1 border-b overflow-x-auto no-scrollbar"
+                style={{
+                  borderColor: 'var(--border-primary)',
+                  background: 'var(--surface-secondary)',
+                }}
+              >
+                {EMOJI_CATEGORIES.map((cat) => {
+                  const isActive = activeEmojiTab === cat.id
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => handleEmojiTabClick(cat.id)}
+                      title={cat.name}
+                      className="p-1.5 rounded-lg text-sm transition-all relative flex items-center justify-center flex-1"
+                      style={{
+                        background: isActive ? 'var(--accent-soft)' : 'transparent',
+                        transform: isActive ? 'scale(1.15)' : 'scale(1)',
+                      }}
+                    >
+                      <span>{cat.icon}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
 
-        {/* Emoji Scroll Area */}
-        <div
-          ref={gridContainerRef}
-          className="flex-1 overflow-y-auto p-3 space-y-4 text-left custom-scrollbar"
-        >
-          {searchResults ? (
-            /* Search Results View */
-            <div>
-              <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--text-tertiary)' }}>
-                Search Results ({searchResults.length})
-              </p>
-              {searchResults.length === 0 ? (
-                <div className="text-center py-10 opacity-60">
-                  <p className="text-2xl mb-1">🔍</p>
-                  <p className="text-xs">No emojis found</p>
+            {/* Emoji Scroll Grid */}
+            <div
+              ref={gridContainerRef}
+              className="flex-1 overflow-y-auto p-3 space-y-4 text-left custom-scrollbar"
+            >
+              {searchEmojiResults ? (
+                <div>
+                  <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--text-tertiary)' }}>
+                    Search Results ({searchEmojiResults.length})
+                  </p>
+                  {searchEmojiResults.length === 0 ? (
+                    <div className="text-center py-10 opacity-60">
+                      <p className="text-2xl mb-1">🔍</p>
+                      <p className="text-xs">No emojis found</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-8 gap-1">
+                      {searchEmojiResults.map((item) => (
+                        <button
+                          key={item.char}
+                          type="button"
+                          onClick={() => handleEmojiClick(item.char)}
+                          title={item.name}
+                          className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
+                          style={{ background: 'transparent' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          {item.char}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="grid grid-cols-8 gap-1">
-                  {searchResults.map((item) => (
-                    <button
-                      key={item.char}
+                <>
+                  <div id="emoji-cat-recent">
+                    <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                      <span>🕒</span> Frequently Used
+                    </p>
+                    <div className="grid grid-cols-8 gap-1">
+                      {recentEmojis.map((char, index) => (
+                        <button
+                          key={`recent-${char}-${index}`}
+                          type="button"
+                          onClick={() => handleEmojiClick(char)}
+                          className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
+                          style={{ background: 'transparent' }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          {char}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {EMOJI_CATEGORIES.filter((cat) => cat.id !== 'recent').map((cat) => (
+                    <div key={cat.id} id={`emoji-cat-${cat.id}`}>
+                      <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5" style={{ color: 'var(--text-tertiary)' }}>
+                        <span>{cat.icon}</span> {cat.name}
+                      </p>
+                      <div className="grid grid-cols-8 gap-1">
+                        {cat.emojis.map((item) => (
+                          <button
+                            key={item.char}
+                            type="button"
+                            onClick={() => handleEmojiClick(item.char)}
+                            title={item.name}
+                            className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
+                            style={{ background: 'transparent' }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            {item.char}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* MODE 2: STICKERS */}
+        {pickerMode === 'stickers' && (
+          <>
+            {/* Sticker Pack Tabs */}
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 border-b overflow-x-auto no-scrollbar"
+              style={{
+                borderColor: 'var(--border-primary)',
+                background: 'var(--surface-secondary)',
+              }}
+            >
+              {STICKER_PACKS.map((pack) => {
+                const isActive = activeStickerPack === pack.id
+                return (
+                  <button
+                    key={pack.id}
+                    type="button"
+                    onClick={() => setActiveStickerPack(pack.id)}
+                    className="px-2.5 py-1 text-xs font-medium rounded-lg flex items-center gap-1.5 flex-shrink-0 transition-all"
+                    style={{
+                      background: isActive ? 'var(--accent-soft)' : 'transparent',
+                      color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                    }}
+                  >
+                    <span>{pack.icon}</span>
+                    <span>{pack.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Sticker Grid */}
+            <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+              {STICKER_PACKS.filter((p) => p.id === activeStickerPack).map((pack) => (
+                <div key={pack.id} className="grid grid-cols-4 gap-2">
+                  {pack.stickers.map((st) => (
+                    <motion.button
+                      key={st.id}
                       type="button"
-                      onClick={() => handleEmojiClick(item.char)}
-                      title={item.name}
-                      className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
-                      style={{ background: 'transparent' }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleMediaClick(st.url)}
+                      className="p-1.5 rounded-xl border flex items-center justify-center transition-all group relative"
+                      style={{
+                        borderColor: 'var(--border-primary)',
+                        background: 'var(--surface-primary)',
+                      }}
                     >
-                      {item.char}
-                    </button>
+                      <img
+                        src={st.url}
+                        alt={st.title}
+                        className="w-16 h-16 object-contain pointer-events-none"
+                        loading="lazy"
+                      />
+                    </motion.button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* MODE 3: GIFs */}
+        {pickerMode === 'gifs' && (
+          <>
+            {/* GIF Reaction Tags */}
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 border-b overflow-x-auto no-scrollbar"
+              style={{
+                borderColor: 'var(--border-primary)',
+                background: 'var(--surface-secondary)',
+              }}
+            >
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'happy', label: '😊 Happy' },
+                { id: 'dance', label: '💃 Dance' },
+                { id: 'laugh', label: '😂 Laugh' },
+                { id: 'love', label: '❤️ Love' },
+                { id: 'wow', label: '🤯 Wow' },
+                { id: 'cat', label: '🐱 Cat' },
+              ].map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => setActiveGifTag(tag.id)}
+                  className="px-2.5 py-1 text-2xs font-medium rounded-full flex-shrink-0 transition-all"
+                  style={{
+                    background: activeGifTag === tag.id ? 'var(--accent)' : 'var(--surface-tertiary)',
+                    color: activeGifTag === tag.id ? 'white' : 'var(--text-secondary)',
+                  }}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+
+            {/* GIF Gallery Grid */}
+            <div className="flex-1 overflow-y-auto p-2.5 custom-scrollbar">
+              {filteredGifs.length === 0 ? (
+                <div className="text-center py-10 opacity-60">
+                  <p className="text-2xl mb-1">🎬</p>
+                  <p className="text-xs">No GIFs found</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {filteredGifs.map((gif) => (
+                    <motion.button
+                      key={gif.id}
+                      type="button"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => handleMediaClick(gif.url)}
+                      className="rounded-xl overflow-hidden border relative group aspect-video"
+                      style={{
+                        borderColor: 'var(--border-primary)',
+                        background: 'black',
+                      }}
+                    >
+                      <img
+                        src={gif.url}
+                        alt={gif.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1.5">
+                        <span className="text-[10px] text-white font-medium truncate">{gif.title}</span>
+                      </div>
+                    </motion.button>
                   ))}
                 </div>
               )}
             </div>
-          ) : (
-            /* Categorized Sections View */
-            <>
-              {/* Frequently Used / Recent */}
-              <div id="emoji-cat-recent">
-                <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                  <span>🕒</span> Frequently Used
-                </p>
-                <div className="grid grid-cols-8 gap-1">
-                  {recentEmojis.map((char, index) => (
-                    <button
-                      key={`recent-${char}-${index}`}
-                      type="button"
-                      onClick={() => handleEmojiClick(char)}
-                      className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
-                      style={{ background: 'transparent' }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {char}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* All Categories */}
-              {EMOJI_CATEGORIES.filter((cat) => cat.id !== 'recent').map((cat) => (
-                <div key={cat.id} id={`emoji-cat-${cat.id}`}>
-                  <p className="text-2xs font-semibold uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5" style={{ color: 'var(--text-tertiary)' }}>
-                    <span>{cat.icon}</span> {cat.name}
-                  </p>
-                  <div className="grid grid-cols-8 gap-1">
-                    {cat.emojis.map((item) => (
-                      <button
-                        key={item.char}
-                        type="button"
-                        onClick={() => handleEmojiClick(item.char)}
-                        title={item.name}
-                        className="w-9 h-9 flex items-center justify-center text-xl rounded-lg hover:scale-125 transition-transform"
-                        style={{ background: 'transparent' }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        {item.char}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
+          </>
+        )}
       </motion.div>
     </AnimatePresence>
   )
