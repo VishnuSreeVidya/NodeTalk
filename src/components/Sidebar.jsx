@@ -11,6 +11,8 @@ import ProfileModal from './ProfileModal'
 import SettingsModal from './SettingsModal'
 import NotificationBell from './NotificationBell'
 
+import StarredMessagesModal from './StarredMessagesModal'
+
 function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, incomingCall }) {
   const { user, profile, signOut, updateOnlineStatus } = useAuth()
   const [users, setUsers] = useState([])
@@ -22,6 +24,7 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showStarred, setShowStarred] = useState(false)
   const [unreadCounts] = useState({})
   const typingRef = useRef(null)
 
@@ -410,6 +413,15 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
                 </svg>
                 Settings
               </button>
+              <button
+                onClick={() => { setShowStarred(true); setShowProfileMenu(false) }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors text-yellow-500"
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <span className="text-base">⭐</span>
+                Starred Messages
+              </button>
               <div className="my-1" style={{ height: 1, background: 'var(--border-primary)' }} />
               <button
                 onClick={() => { signOut(); setShowProfileMenu(false) }}
@@ -446,6 +458,10 @@ function Sidebar({ selectedUser, onSelectUser, onSelectGroup, selectedGroup, inc
       <SettingsModal
         open={showSettings}
         onClose={() => setShowSettings(false)}
+      />
+      <StarredMessagesModal
+        open={showStarred}
+        onClose={() => setShowStarred(false)}
       />
     </div>
   )
