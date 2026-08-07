@@ -129,15 +129,57 @@ export default function ProfileModal({ open, onClose }) {
             {STATUS_OPTIONS.slice(0, 4).map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => setStatusMessage(s)}
-                className="text-2xs px-2 py-1 rounded-[6px] transition-all"
+                className="text-xs px-2.5 py-1 rounded-full border transition-colors hover:brightness-110"
                 style={{
+                  borderColor: statusMessage === s ? 'var(--accent)' : 'var(--border-primary)',
                   background: statusMessage === s ? 'var(--accent-soft)' : 'var(--surface-tertiary)',
-                  color: statusMessage === s ? 'var(--accent)' : 'var(--text-tertiary)',
-                  border: '1px solid var(--border-primary)',
+                  color: statusMessage === s ? 'var(--accent)' : 'var(--text-secondary)',
                 }}
               >
                 {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Chat Wallpaper Selector */}
+        <div>
+          <label className="text-2xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: 'var(--text-tertiary)' }}>Chat Wallpaper</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: 'default', name: 'Default Dark', bg: 'var(--surface-tertiary)' },
+              { id: 'doodle', name: 'Doodle', bg: 'radial-gradient(rgba(255,255,255,0.2) 1.5px, transparent 0)', bgSize: '16px 16px' },
+              { id: 'midnight', name: 'Midnight', bg: 'radial-gradient(circle at center, #1e1e38 0%, #0a0a14 100%)' },
+              { id: 'sunset', name: 'Sunset', bg: 'linear-gradient(135deg, #2d142c 0%, #100720 100%)' },
+              { id: 'emerald', name: 'Emerald', bg: 'linear-gradient(135deg, #062c19 0%, #02120a 100%)' },
+              { id: 'cyberpunk', name: 'Cyberpunk', bg: 'linear-gradient(135deg, #18002e 0%, #00122e 100%)' },
+            ].map((wp) => (
+              <button
+                key={wp.id}
+                type="button"
+                onClick={() => {
+                  let styleObj = { background: wp.bg }
+                  if (wp.bgSize) styleObj.backgroundSize = wp.bgSize
+                  if (wp.id === 'doodle') {
+                    styleObj.backgroundImage = wp.bg
+                    styleObj.backgroundSize = wp.bgSize
+                  }
+                  if (wp.id === 'default') styleObj = { background: 'var(--surface-primary)' }
+                  localStorage.setItem('nodetalk_chat_wallpaper', JSON.stringify({ id: wp.id, name: wp.name, style: styleObj }))
+                  window.dispatchEvent(new Event('wallpaper-changed'))
+                  toast.success(`Wallpaper set to ${wp.name}`)
+                }}
+                className="h-12 rounded-xl border flex items-center justify-center p-1 text-[11px] font-semibold transition-all hover:scale-105"
+                style={{
+                  background: wp.bg,
+                  borderColor: 'var(--border-secondary)',
+                  color: 'white',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+                }}
+              >
+                {wp.name}
               </button>
             ))}
           </div>

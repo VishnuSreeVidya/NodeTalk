@@ -53,7 +53,27 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const isTypingRef = useRef(false)
   const inputRef = useRef(null)
   const messagesRef = useRef(messages)
-  const markReadTimerRef = useRef(null)
+  const [wallpaper, setWallpaper] = useState(() => {
+    try {
+      const saved = localStorage.getItem('nodetalk_chat_wallpaper')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
+
+  useEffect(() => {
+    const updateWp = () => {
+      try {
+        const saved = localStorage.getItem('nodetalk_chat_wallpaper')
+        setWallpaper(saved ? JSON.parse(saved) : null)
+      } catch {
+        // ignore
+      }
+    }
+    window.addEventListener('wallpaper-changed', updateWp)
+    return () => window.removeEventListener('wallpaper-changed', updateWp)
+  }, [])
 
   useEffect(() => {
     messagesRef.current = messages
@@ -564,7 +584,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         ref={messagesContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto px-4 py-3 space-y-1 relative"
-        style={{ background: 'var(--surface-primary)' }}
+        style={wallpaper?.style ? { ...wallpaper.style } : { background: 'var(--surface-primary)' }}
       >
         {loading ? (
           <Skeleton pattern="message" className="py-4" />
