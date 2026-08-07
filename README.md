@@ -49,6 +49,36 @@
 
 ---
 
+## 🏗️ Architecture Diagram
+
+```mermaid
+graph TD
+    User["User Browser / Client"]
+    ReactApp["React 19 App (Vite 8)"]
+
+    subgraph SupabaseCloud["Supabase Cloud"]
+        Auth["Supabase Auth (JWT)"]
+        Database["PostgreSQL (Row Level Security)"]
+        Realtime["Supabase Realtime (WebSockets)"]
+        Storage["Supabase Storage"]
+    end
+
+    subgraph ClientAPIs["Client Security & Calls"]
+        Crypto["Web Crypto API (E2EE AES-256-GCM)"]
+        WebRTC["WebRTC (P2P Audio / Video / Screen)"]
+    end
+
+    User --> ReactApp
+    ReactApp --> Auth
+    ReactApp --> Database
+    ReactApp <--> Realtime
+    ReactApp --> Storage
+    ReactApp --> Crypto
+    ReactApp <--> WebRTC
+```
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
