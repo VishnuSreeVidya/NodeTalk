@@ -147,7 +147,7 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.12 }}
-              className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? '-left-9' : '-right-9'} flex items-center gap-0.5`}
+              className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? '-left-14' : '-right-14'} flex items-center gap-0.5`}
             >
               <button
                 onClick={() => onReply(msg)}
@@ -169,6 +169,15 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
                   </svg>
                 </button>
               )}
+              <button
+                onClick={(e) => onContextMenu?.(e, msg)}
+                className="msg-action-btn"
+                title="More options"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              </button>
             </motion.div>
           )}
         </div>

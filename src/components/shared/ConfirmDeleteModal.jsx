@@ -23,11 +23,11 @@ export default function ConfirmDeleteModal({ isOpen, onClose, onConfirm }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold">Delete message?</h3>
+            <h3 className="text-lg font-bold">Delete for everyone?</h3>
           </div>
 
           <p className="text-sm opacity-80 leading-relaxed">
-            Delete this message for everyone in this conversation? This action cannot be undone.
+            This message will be deleted for everyone in this chat.
           </p>
 
           <div className="flex items-center justify-end gap-2 pt-2">
@@ -45,7 +45,7 @@ export default function ConfirmDeleteModal({ isOpen, onClose, onConfirm }) {
               }}
               className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-md transition-colors"
             >
-              Delete for everyone
+              Delete
             </button>
           </div>
         </motion.div>

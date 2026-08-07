@@ -39,6 +39,11 @@ CREATE POLICY "Users can insert own DM deletions" ON public.message_deletions
   FOR INSERT TO authenticated
   WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can update own DM deletions" ON public.message_deletions;
+CREATE POLICY "Users can update own DM deletions" ON public.message_deletions
+  FOR UPDATE TO authenticated
+  USING (user_id = auth.uid());
+
 -- 5. RLS POLICIES FOR GROUP MESSAGE DELETIONS
 DROP POLICY IF EXISTS "Users can view own group deletions" ON public.group_message_deletions;
 CREATE POLICY "Users can view own group deletions" ON public.group_message_deletions
@@ -49,6 +54,11 @@ DROP POLICY IF EXISTS "Users can insert own group deletions" ON public.group_mes
 CREATE POLICY "Users can insert own group deletions" ON public.group_message_deletions
   FOR INSERT TO authenticated
   WITH CHECK (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can update own group deletions" ON public.group_message_deletions;
+CREATE POLICY "Users can update own group deletions" ON public.group_message_deletions
+  FOR UPDATE TO authenticated
+  USING (user_id = auth.uid());
 
 -- 6. RLS POLICIES FOR DELETE FOR EVERYONE ON MESSAGES
 DROP POLICY IF EXISTS "Senders can delete for everyone in DMs" ON public.messages;

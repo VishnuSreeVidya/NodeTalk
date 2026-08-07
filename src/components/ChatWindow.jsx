@@ -177,6 +177,14 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           )
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'message_deletions', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          const deletedMsgId = payload.new.message_id
+          setMessages((prev) => prev.filter((m) => m.id !== deletedMsgId))
+        }
+      )
       .subscribe()
 
     return () => {
@@ -573,19 +581,6 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
                 msg.created_at,
                 filteredMessages[index - 1]?.created_at
               )
-
-              if (msg.deleted_for_all) {
-                return (
-                  <motion.div
-                    key={msg.id || msg.tempId}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <p className="text-xs italic py-1 px-4" style={{ color: 'var(--text-tertiary)' }}>This message was deleted</p>
-                  </motion.div>
-                )
-              }
 
               return (
                 <div key={msg.id || msg.tempId}>
