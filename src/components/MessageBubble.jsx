@@ -3,8 +3,11 @@ import { motion } from 'framer-motion'
 import ReactionBar from './ReactionBar'
 import FileAttachment from '../ui/FileAttachment'
 import { parseMarkdown, formatMessageTime } from '../lib/utils'
+import { supabase } from '../supabaseClient'
+import { useAuth } from '../context/AuthContext'
 
 function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, onContextMenu, decryptedText }) {
+  const { user } = useAuth()
   const [hovering, setHovering] = useState(false)
   const displayText = decryptedText || msg.message_text
   const hasImage = !!msg.image_url
@@ -12,6 +15,18 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
   const hasText = !!displayText && displayText !== '📷 Image' && !msg.deleted_for_all
   const replyMsg = msg.reply_to ? allMessages.find((m) => m.id === msg.reply_to) : null
   const time = formatMessageTime(msg.created_at)
+
+  const handleQuickReact = async (emoji) => {
+    if (!user || !msg.id) return
+    const existing = reactions?.find(
+      (r) => r.message_id === msg.id && r.user_id === user.id && r.emoji === emoji
+    )
+    if (existing) {
+      await supabase.from('reactions').delete().eq('id', existing.id)
+    } else {
+      await supabase.from('reactions').insert({ message_id: msg.id, user_id: user.id, emoji })
+    }
+  }
 
   return (
     <motion.div
@@ -56,6 +71,31 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
             boxShadow: 'var(--shadow-bubble)',
           }}
         >
+          {/* Quick Emoji Reaction bar on hover */}
+          {hovering && !msg.deleted_for_all && (
+            <motion.div
+              initial={{ opacity: 0, y: 4, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.12 }}
+              className={`absolute -top-7 ${isOwn ? 'right-0' : 'left-0'} z-20 flex items-center gap-1 px-2 py-0.5 rounded-full shadow-lg border text-xs`}
+              style={{
+                background: 'var(--surface-elevated)',
+                borderColor: 'var(--border-secondary)',
+                boxShadow: 'var(--shadow-popover)',
+              }}
+            >
+              {['❤️', '😂', '👍', '🔥', '😮', '😢'].map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => handleQuickReact(emoji)}
+                  className="hover:scale-125 transition-transform p-0.5"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </motion.div>
+          )}
           {msg.deleted_for_all ? (
             <div className="flex items-center gap-1.5 py-0.5 text-xs italic opacity-60">
               <svg className="w-3.5 h-3.5 flex-shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
