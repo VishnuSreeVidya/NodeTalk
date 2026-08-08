@@ -664,7 +664,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
             contextMenu={contextMenu}
             user={user}
             onReply={setReplyTo}
-            onEdit={setEditingMsg}
+            onEdit={setEditMessage}
             onDelete={handleDeleteMessage}
             onPin={handlePinMessage}
             onStar={async (msg) => {
