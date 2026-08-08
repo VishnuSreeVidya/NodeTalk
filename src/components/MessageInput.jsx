@@ -148,7 +148,7 @@ const MessageInput = forwardRef(function MessageInput(
         )}
       </AnimatePresence>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 sm:gap-1.5 w-full">
         <div className="relative">
           <motion.button
             type="button"
@@ -185,7 +185,7 @@ const MessageInput = forwardRef(function MessageInput(
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="surface-input flex-1"
+          className="surface-input flex-1 min-w-0"
           autoFocus
         />
         <motion.button

@@ -3,18 +3,30 @@ import { motion } from 'framer-motion'
 import Avatar from '../../ui/Avatar'
 import { formatLastSeen } from '../../lib/utils'
 
-function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onSearchToggle, onStartAudioCall, onStartVideoCall, onToggleInfo }) {
+function ChatHeader({ user, isGroup, memberCount, receiverTyping, sharedKey, onSearchToggle, onStartAudioCall, onStartVideoCall, onToggleInfo, onBack }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="flex items-center gap-3 px-4 py-3 border-b"
+      className="flex items-center gap-3 px-4 py-3 border-b flex-shrink-0"
       style={{
         background: 'var(--surface-secondary)',
         borderColor: 'var(--border-primary)',
       }}
     >
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="lg:hidden surface-icon-btn rounded-[8px] mr-0.5 flex-shrink-0"
+          title="Back to chats"
+          aria-label="Back to chats"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
       <Avatar
         username={user?.username || user?.name}
         size="md"

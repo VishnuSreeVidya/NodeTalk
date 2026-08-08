@@ -28,7 +28,7 @@ import {
 import { addPendingMessage, getPendingMessages, removePendingMessage } from '../utils/offlineDb'
 import { useChatScroll } from '../hooks/useChatScroll'
 
-export default function ChatWindow({ selectedUser, onStartCall }) {
+export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
   const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
@@ -540,6 +540,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
         onSearchToggle={() => setShowSearch(!showSearch)}
         onStartAudioCall={() => onStartCall?.('audio')}
         onStartVideoCall={() => onStartCall?.('video')}
+        onBack={onBack}
       />
 
       {/* Search bar */}

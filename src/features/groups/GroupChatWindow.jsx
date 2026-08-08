@@ -15,7 +15,7 @@ import { shouldShowDateSeparator } from '../../lib/utils'
 import { MESSAGE_PAGE_SIZE, TYPING_TIMEOUT } from '../../lib/constants'
 import { useChatScroll } from '../../hooks/useChatScroll'
 
-export default function GroupChatWindow({ group }) {
+export default function GroupChatWindow({ group, onBack }) {
   const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
@@ -283,6 +283,7 @@ export default function GroupChatWindow({ group }) {
         memberCount={members.length}
         showInfo={showInfo}
         onToggleInfo={() => setShowInfo(!showInfo)}
+        onBack={onBack}
       />
 
       {/* Messages */}

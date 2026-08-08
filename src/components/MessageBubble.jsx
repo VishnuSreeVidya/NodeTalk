@@ -40,7 +40,7 @@ function MessageBubble({ msg, isOwn, reactions, allMessages, onReply, onEdit, on
       onMouseLeave={() => setHovering(false)}
       onContextMenu={(e) => onContextMenu?.(e, msg)}
     >
-      <div className="max-w-[70%] min-w-[60px]">
+      <div className="max-w-[88%] sm:max-w-[70%] min-w-[60px]">
         {/* Reply preview */}
         {replyMsg && (
           <motion.div

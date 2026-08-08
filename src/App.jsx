@@ -71,6 +71,12 @@ export default function App() {
     if (isMobile) setSidebarOpen(false)
   }, [isMobile])
 
+  const handleBack = useCallback(() => {
+    setSelectedUser(null)
+    setSelectedGroup(null)
+    setSidebarOpen(false)
+  }, [])
+
   const handleStartCall = useCallback((type) => {
     setCallState({ type: 'calling', callType: type })
   }, [])
@@ -89,31 +95,11 @@ export default function App() {
     )
   }
 
+  const hasActiveChat = !!(selectedUser || selectedGroup)
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <div className="h-screen w-full flex app-container overflow-hidden">
-        {/* Mobile hamburger */}
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden fixed top-3 left-3 z-50 rounded-lg p-1.5"
-          style={{
-            background: 'var(--surface-elevated)',
-            border: '1px solid var(--border-secondary)',
-            color: 'var(--text-secondary)',
-          }}
-          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-          aria-expanded={sidebarOpen}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            {sidebarOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </motion.button>
-
+      <div className="h-[100dvh] w-full flex app-container overflow-hidden relative">
         {/* Mobile overlay */}
         <AnimatePresence>
           {sidebarOpen && (
@@ -131,12 +117,10 @@ export default function App() {
         </AnimatePresence>
 
         {/* Sidebar */}
-        <motion.div
-          animate={{
-            x: sidebarOpen ? 0 : 0,
-          }}
-          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-40 h-full transition-transform duration-300 ease-out`}
-          style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
+        <div
+          className={`${
+            sidebarOpen || !hasActiveChat ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 fixed lg:relative inset-y-0 left-0 z-40 w-full sm:w-80 lg:w-72 h-full transition-transform duration-300 ease-out flex-shrink-0`}
         >
           <Sidebar
             selectedUser={selectedUser}
@@ -145,23 +129,24 @@ export default function App() {
             onSelectGroup={handleSelectGroup}
             incomingCall={callState?.type === 'ringing' ? callState : null}
           />
-        </motion.div>
+        </div>
 
         {/* Main content */}
-        <div className="flex-1 min-w-0 relative">
+        <div className={`flex-1 min-w-0 h-full relative ${!hasActiveChat ? 'hidden lg:flex' : 'flex'}`}>
           <motion.div
             key={selectedGroup ? 'group' : selectedUser?.id || 'empty'}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.15 }}
-            className="h-full"
+            className="h-full w-full flex flex-col"
           >
             {selectedGroup ? (
-              <GroupChatWindow group={selectedGroup} />
+              <GroupChatWindow group={selectedGroup} onBack={handleBack} />
             ) : (
               <ChatWindow
                 selectedUser={selectedUser}
                 onStartCall={handleStartCall}
+                onBack={handleBack}
               />
             )}
           </motion.div>
