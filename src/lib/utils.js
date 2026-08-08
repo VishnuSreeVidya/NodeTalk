@@ -1,7 +1,13 @@
 import { format, isToday, isYesterday, isThisWeek, isThisYear } from 'date-fns'
 
 export function formatMessageTime(date) {
-  return format(new Date(date), 'hh:mm a')
+  if (!date) return ''
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return ''
+  if (isToday(d)) return format(d, 'hh:mm a')
+  if (isYesterday(d)) return `Yesterday, ${format(d, 'hh:mm a')}`
+  if (isThisYear(d)) return format(d, 'MMM d, hh:mm a')
+  return format(d, 'MMM d, yyyy, hh:mm a')
 }
 
 export function formatLastSeen(date) {
