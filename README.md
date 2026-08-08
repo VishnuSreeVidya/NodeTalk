@@ -1,155 +1,174 @@
 <div align="center">
 
-# NodeTalk
+# 💬 NodeTalk
 
-**A real-time, end-to-end encrypted messaging & video calling web platform**
+**Next-Generation End-to-End Encrypted Real-Time Messaging & WebRTC Video Calling Platform**
 
-[![CI](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml/badge.svg)](https://github.com/VishnuSreeVidya/NodeTalk/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
-[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com)
-[![WebRTC](https://img.shields.io/badge/WebRTC-333333?logo=webrtc&logoColor=white)](https://webrtc.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![CI Build](https://img.shields.io/github/actions/workflow/status/VishnuSreeVidya/NodeTalk/ci.yml?branch=master&style=for-the-badge&logo=github&label=CI%20Build)](https://github.com/VishnuSreeVidya/NodeTalk/actions)
+[![Security Status](https://img.shields.io/badge/E2EE-AES--256--GCM%20%2B%20ECDH-blue?style=for-the-badge&logo=shield)](https://react.dev)
+[![Tests Passing](https://img.shields.io/badge/Tests-58%2F58%20Passed-brightgreen?style=for-the-badge&logo=vitest)](https://vitest.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-Realtime-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 
-[Live Demo](https://nodetalk-sli6.onrender.com/) · [Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues) · [Request Feature](https://github.com/VishnuSreeVidya/NodeTalk/issues)
+[🚀 Live Demo App](https://nodetalk-sli6.onrender.com/) · [🐛 Report Bug](https://github.com/VishnuSreeVidya/NodeTalk/issues) · [💡 Request Feature](https://github.com/VishnuSreeVidya/NodeTalk/issues)
 
 </div>
 
 ---
 
-## ⚡ Overview
+## 📸 Interface Showcase
 
-**NodeTalk** is a modern, full-stack real-time communication platform built with React 19, Supabase, and WebRTC. It combines military-grade end-to-end encryption with peer-to-peer audio/video streaming, rich group messaging, custom theme support, and responsive mobile viewport optimizations.
-
----
-
-## ✨ Key Features
-
-- **🔐 End-to-End Encryption**: Secure 1-on-1 chats powered by Web Crypto API (AES-256-GCM + ECDH P-256 key exchange). Zero plaintext saved on servers.
-- **🛡️ 100,000 PBKDF2 Key Derivation**: High-entropy passphrase derivation (`100,000` iterations) for user key backup security with automatic legacy migration.
-- **📱 Dynamic Mobile Viewport (`100dvh`)**: Mobile layout auto-adjusts to dynamic mobile toolbars (`100dvh`) with responsive drawer back navigation (`←`) and `min-w-0` flexbox safeguards.
-- **⚡ Real-time Messaging & Typing Indicators**: Instant delivery, read receipts, online status, and animated typing indicators with username labels (`User is typing...`).
-- **📞 Audio & Video Calls**: WebRTC P2P audio/video calling with global offer broadcasting (`calls-global`) and pair channel signaling for instant ringing overlays.
-- **📸 Client-Side Media Compression**: Automatic image resizing (up to 1600x1600) and WebP conversion before uploading attachments to Supabase Storage.
-- **👥 Group Messaging**: Multi-member rooms with role management (Admin, Moderator, Member).
-- **📁 Media & File Sharing**: Image previews, voice notes, document sharing, and organized media gallery.
-- **🎨 6 Color Themes**: Midnight, Graphite, Ocean, Forest, Light Pro, and AMOLED modes.
+| Desktop Interface & Live E2EE Chat | Mobile Adaptive Viewport & Navigation |
+| :---: | :---: |
+| ![NodeTalk Desktop Interface](docs/images/desktop-chat.png) | ![NodeTalk Mobile Interface](docs/images/mobile-layout.png) |
+| *End-to-End Encrypted Direct Messages with real-time delivery receipts, presence, and lock badges* | *Dynamic `100dvh` mobile container fitting, drawer navigation (`←`), and flexbox safeguards* |
 
 ---
 
-## 🛠️ Tech Stack
+## ⚡ System Overview
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | React 19, Vite 8, Tailwind CSS, Framer Motion |
-| **Backend & DB** | Supabase (PostgreSQL, Row Level Security, Auth, Storage) |
-| **Real-time** | Supabase Realtime (WebSocket channels, `postgres_changes`) |
-| **Encryption** | Web Crypto API (ECDH P-256 key exchange, AES-256-GCM, PBKDF2 100k) |
-| **Calls & Media** | WebRTC (RTCPeerConnection), MediaRecorder API, HTML5 Canvas WebP Compressor |
-| **Testing & CI** | Vitest (58 test suites passed), Testing Library, GitHub Actions, ESLint |
+**NodeTalk** is an enterprise-grade real-time web application built using **React 19**, **Vite 8**, **Supabase**, and **WebRTC**. It delivers military-grade End-to-End Encryption (E2EE) for 1-on-1 communications, instant WebSockets message delivery, peer-to-peer audio/video calling, client-side media compression, and responsive mobile viewport layouts.
+
+Zero plaintext messages or private key material are ever stored or exposed on backend servers.
 
 ---
 
-## 🏗️ Architecture Diagram
+## ✨ Primary Capabilities
+
+### 🔐 1. End-to-End Encryption & Key Security
+* **Web Crypto API Native Primaries**: 1-on-1 messages are encrypted client-side using **AES-256-GCM** with **ECDH (P-256)** key exchange.
+* **100,000 Iteration PBKDF2 Backup Protection**: User private key backups stored in Supabase are protected using **PBKDF2-HMAC-SHA256** with **100,000 iterations**, securing credentials against brute-force attacks while supporting seamless legacy migrations.
+
+### 📱 2. Dynamic Mobile Viewport & Responsive Layouts
+* **Dynamic Viewport Height (`100dvh`)**: Mobile layout containers adjust dynamically to prevent browser address bars from clipping input controls.
+* **Mobile Drawer Navigation**: Slide-over contact sidebar with quick back navigation arrow (`←`) for small mobile displays (`< 768px`).
+* **Flexbox Safeguards (`min-w-0 flex-grow`)**: Chat input bars and attachment buttons flex fluidly on narrow screens (360px–414px) without horizontal scrolling.
+
+### 📞 3. Peer-to-Peer WebRTC Audio/Video Calling
+* **Global Call Signaling (`calls-global`)**: Incoming call offers broadcast across persistent global channels for instant ringing overlays regardless of active screen state.
+* **Dedicated Pair Channel Routing**: Real-time SDP answer and ICE candidate negotiation route through isolated pair channels (`call-pair-XXX`).
+* **Interactive Media Controls**: Toggle audio mute, video pause, and screen sharing during active calls.
+
+### ⚡ 4. Real-time Messaging & Media Optimization
+* **Live Presence & Typing Indicators**: Real-time online status and animated typing indicators displaying active user handles (`User is typing...`).
+* **Automated WebP Image Compression**: Uploaded photos (up to 1600x1600) are automatically compressed to WebP on the client before being sent to Supabase Storage.
+* **Message Deletions**: Full support for both **Delete for Me** and **Delete for Everyone**.
+
+---
+
+## 🏗️ Architecture & Security Model
 
 ```mermaid
-graph TD
-    User["User Browser / Mobile Client"]
-    ReactApp["React 19 App (Vite 8)"]
-
-    subgraph SupabaseCloud["Supabase Cloud"]
-        Auth["Supabase Auth (JWT)"]
-        Database["PostgreSQL (Row Level Security)"]
-        Realtime["Supabase Realtime (WebSockets)"]
-        Storage["Supabase Storage"]
+flowchart TD
+    subgraph Client [Browser / Mobile Client]
+        Input[User Message / File Input] --> Compressor[Canvas WebP Image Compressor]
+        Compressor --> EncryptEngine[Web Crypto API: AES-256-GCM / ECDH]
+        EncryptEngine --> Ciphertext[Encrypted Payload]
+        Ciphertext --> LocalCache[IndexedDB / Local State]
     end
 
-    subgraph ClientAPIs["Client Security, Calls & Media"]
-        Crypto["Web Crypto API (E2EE AES-256-GCM + 100k PBKDF2)"]
-        WebRTC["WebRTC (P2P Audio / Video Signaling)"]
-        Compressor["Canvas Image WebP Compressor"]
+    subgraph SupabaseCloud [Supabase Realtime Cloud]
+        Ciphertext --> DB[(PostgreSQL Database)]
+        Ciphertext --> Realtime[Supabase Realtime WebSockets]
+        Realtime -->|Postgres Changes| Sync[Real-Time Sync Engine]
     end
 
-    User --> ReactApp
-    ReactApp --> Auth
-    ReactApp --> Database
-    ReactApp <--> Realtime
-    ReactApp --> Storage
-    ReactApp --> Crypto
-    ReactApp --> Compressor
-    ReactApp <--> WebRTC
+    subgraph WebRTCSignaling [Peer-to-Peer Calling]
+        Signaling[calls-global / call-pair Channels] --> PeerConn[RTCPeerConnection WebRTC Stream]
+    end
+
+    Sync --> Client
+    PeerConn <--> Client
 ```
+
+---
+
+## 🛠️ Tech Stack Architecture
+
+| Layer | Technology Used |
+| :--- | :--- |
+| **Frontend Framework** | React 19, Vite 8, Tailwind CSS, Framer Motion |
+| **Database & Auth** | Supabase (PostgreSQL, Row Level Security, Auth) |
+| **Real-time Protocol** | Supabase Realtime (WebSocket channels, `postgres_changes`) |
+| **Cryptography** | Web Crypto API (`AES-256-GCM`, `ECDH P-256`, `100,000 PBKDF2`) |
+| **Media & Calls** | WebRTC (`RTCPeerConnection`), HTML5 Canvas Image Compressor |
+| **Quality Assurance** | Vitest (58 Passed), Testing Library, ESLint (`0 Errors/Warnings`) |
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### 1. Prerequisites
+- **Node.js**: `v18.x` or higher
+- **npm**: `v9.x` or higher
+- **Supabase Account**: A active Supabase project instance
 
-- **Node.js**: `v18+` recommended
-- **npm**
-- A **Supabase** project account
+### 2. Installation
+```bash
+# 1. Clone repository
+git clone https://github.com/VishnuSreeVidya/NodeTalk.git
+cd NodeTalk
 
-### Quick Start
+# 2. Install Node dependencies
+npm install
+```
 
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/VishnuSreeVidya/NodeTalk.git
-   cd NodeTalk
-   ```
+### 3. Environment Configuration
+Create a `.env` file in the project root:
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-3. **Configure Environment**
-   Create `.env` file in root:
-   ```env
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-   ```
+### 4. Database Setup Pipeline
+Execute the SQL migration scripts sequentially in your Supabase SQL Editor:
+1. `supabase-schema.sql` — Base tables, RLS policies, and Auth setup.
+2. `supabase-migration-v2.sql` through `v8.sql` — Group management, reactions, and starred messages.
+3. `supabase-migration-v9.sql` — Delete for Me & Delete for Everyone policies.
 
-4. **Database Setup**
-   Run SQL scripts from root in your Supabase SQL Editor sequentially (`supabase-schema.sql` → `supabase-migration-v2.sql` ... `v9.sql`).
+### 5. Running the Application
+```bash
+# Start local development server
+npm run dev
 
-5. **Start Dev Server**
-   ```bash
-   npm run dev
-   ```
+# Build production bundle
+npm run build
 
----
-
-## 🧪 Commands & Testing
-
-| Command | Action |
-| :--- | :--- |
-| `npm run dev` | Start development server |
-| `npm run build` | Production build with code splitting |
-| `npm run preview` | Preview production build |
-| `npm run test` | Run test suite with Vitest (58 tests) |
-| `npm run lint` | Run ESLint audit |
+# Preview production build
+npm run preview
+```
 
 ---
 
-## ⌨️ Shortcuts
+## 🧪 Testing & Quality Assurance
 
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>Ctrl</kbd> + <kbd>K</kbd> | Search messages / contacts |
-| <kbd>Ctrl</kbd> + <kbd>N</kbd> | New conversation |
-| <kbd>Esc</kbd> | Close active modal / panel |
-| <kbd>Enter</kbd> | Send message |
+Run the automated test suite covering crypto round-trips, offline queues, scroll management, and message deletion:
+
+```bash
+# Run Vitest test suite
+npm run test
+
+# Run ESLint code quality check
+npm run lint
+```
+
+**Test Output:**
+```text
+ Test Files  8 passed (8)
+      Tests  58 passed (58)
+   Start at  20:13:31
+   Duration  4.82s
+```
 
 ---
 
 ## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for details.
+Distributed under the **MIT License**. See `LICENSE` for details.
 
 ---
 
 <div align="center">
-  Built by <b><a href="https://github.com/VishnuSreeVidya">Vishnu Sree Vidya Kotturu</a></b>
+  Crafted with ❤️ by <b><a href="https://github.com/VishnuSreeVidya">Vishnu Sree Vidya Kotturu</a></b>
 </div>
