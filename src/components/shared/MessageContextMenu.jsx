@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
-function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPin, onInfo, onClose }) {
+function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPin, onStar, onInfo, onClose }) {
   const message = contextMenu?.message
 
   const handleCopy = useCallback(() => {
@@ -23,9 +23,10 @@ function MessageContextMenu({ contextMenu, user, onReply, onEdit, onDelete, onPi
   ] : [
     { label: 'Copy', icon: 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-2a2 2 0 00-2-2h-8a2 2 0 00-2 2v2a2 2 0 002 2z', action: handleCopy },
     { label: 'Reply', icon: 'M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6', action: () => { onReply(message); onClose() } },
+    { label: message.is_starred ? 'Unstar' : 'Star', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z', action: () => { onStar?.(message); onClose() } },
     { label: 'Message Info', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', action: () => { onInfo?.(message); onClose() } },
     ...(isOwn ? [
-      { label: 'Edit', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', action: () => { onEdit(message); onClose() } },
+      { label: 'Edit', icon: 'M11 5H6a2 2 0 01-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', action: () => { onEdit(message); onClose() } },
     ] : []),
     { label: 'Delete for me', icon: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16', action: () => { onDelete(message, 'self'); onClose() }, danger: false },
     ...(canDeleteForEveryone ? [

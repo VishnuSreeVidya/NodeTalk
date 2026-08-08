@@ -663,10 +663,15 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
           <MessageContextMenu
             contextMenu={contextMenu}
             user={user}
-            onReply={handleReply}
-            onEdit={handleEdit}
+            onReply={setReplyTo}
+            onEdit={setEditingMsg}
             onDelete={handleDeleteMessage}
             onPin={handlePinMessage}
+            onStar={async (msg) => {
+              const isStarred = !msg.is_starred
+              await supabase.from('messages').update({ is_starred: isStarred }).eq('id', msg.id)
+              setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, is_starred: isStarred } : m))
+            }}
             onInfo={(msg) => setSelectedInfoMessage(msg)}
             onClose={() => setContextMenu(null)}
           />
