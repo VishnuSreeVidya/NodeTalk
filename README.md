@@ -20,19 +20,21 @@
 
 ## ⚡ Overview
 
-**NodeTalk** is a modern, full-stack real-time communication platform built with React 19, Supabase, and WebRTC. It combines military-grade end-to-end encryption with peer-to-peer audio/video streaming, rich group messaging, and custom theme support.
+**NodeTalk** is a modern, full-stack real-time communication platform built with React 19, Supabase, and WebRTC. It combines military-grade end-to-end encryption with peer-to-peer audio/video streaming, rich group messaging, custom theme support, and responsive mobile viewport optimizations.
 
 ---
 
 ## ✨ Key Features
 
 - **🔐 End-to-End Encryption**: Secure 1-on-1 chats powered by Web Crypto API (AES-256-GCM + ECDH P-256 key exchange). Zero plaintext saved on servers.
-- **⚡ Real-time Messaging**: Instant delivery, typing indicators, read receipts, and online presence via Supabase Realtime.
-- **📞 Audio & Video Calls**: Peer-to-peer HD video, voice calling, and screen sharing built on WebRTC with quality indicators.
+- **🛡️ 100,000 PBKDF2 Key Derivation**: High-entropy passphrase derivation (`100,000` iterations) for user key backup security with automatic legacy migration.
+- **📱 Dynamic Mobile Viewport (`100dvh`)**: Mobile layout auto-adjusts to dynamic mobile toolbars (`100dvh`) with responsive drawer back navigation (`←`) and `min-w-0` flexbox safeguards.
+- **⚡ Real-time Messaging & Typing Indicators**: Instant delivery, read receipts, online status, and animated typing indicators with username labels (`User is typing...`).
+- **📞 Audio & Video Calls**: WebRTC P2P audio/video calling with global offer broadcasting (`calls-global`) and pair channel signaling for instant ringing overlays.
+- **📸 Client-Side Media Compression**: Automatic image resizing (up to 1600x1600) and WebP conversion before uploading attachments to Supabase Storage.
 - **👥 Group Messaging**: Multi-member rooms with role management (Admin, Moderator, Member).
 - **📁 Media & File Sharing**: Image previews, voice notes, document sharing, and organized media gallery.
 - **🎨 6 Color Themes**: Midnight, Graphite, Ocean, Forest, Light Pro, and AMOLED modes.
-- **📱 PWA & Accessibility**: Installable Progressive Web App with offline caching, screen-reader optimizations, and keyboard navigation.
 
 ---
 
@@ -43,9 +45,9 @@
 | **Frontend** | React 19, Vite 8, Tailwind CSS, Framer Motion |
 | **Backend & DB** | Supabase (PostgreSQL, Row Level Security, Auth, Storage) |
 | **Real-time** | Supabase Realtime (WebSocket channels, `postgres_changes`) |
-| **Encryption** | Web Crypto API (ECDH P-256 key exchange, AES-256-GCM) |
-| **Calls & Media** | WebRTC (RTCPeerConnection), MediaRecorder API |
-| **Testing & CI** | Vitest, Testing Library, GitHub Actions |
+| **Encryption** | Web Crypto API (ECDH P-256 key exchange, AES-256-GCM, PBKDF2 100k) |
+| **Calls & Media** | WebRTC (RTCPeerConnection), MediaRecorder API, HTML5 Canvas WebP Compressor |
+| **Testing & CI** | Vitest (58 test suites passed), Testing Library, GitHub Actions, ESLint |
 
 ---
 
@@ -53,7 +55,7 @@
 
 ```mermaid
 graph TD
-    User["User Browser / Client"]
+    User["User Browser / Mobile Client"]
     ReactApp["React 19 App (Vite 8)"]
 
     subgraph SupabaseCloud["Supabase Cloud"]
@@ -63,9 +65,10 @@ graph TD
         Storage["Supabase Storage"]
     end
 
-    subgraph ClientAPIs["Client Security & Calls"]
-        Crypto["Web Crypto API (E2EE AES-256-GCM)"]
-        WebRTC["WebRTC (P2P Audio / Video / Screen)"]
+    subgraph ClientAPIs["Client Security, Calls & Media"]
+        Crypto["Web Crypto API (E2EE AES-256-GCM + 100k PBKDF2)"]
+        WebRTC["WebRTC (P2P Audio / Video Signaling)"]
+        Compressor["Canvas Image WebP Compressor"]
     end
 
     User --> ReactApp
@@ -74,6 +77,7 @@ graph TD
     ReactApp <--> Realtime
     ReactApp --> Storage
     ReactApp --> Crypto
+    ReactApp --> Compressor
     ReactApp <--> WebRTC
 ```
 
@@ -83,7 +87,7 @@ graph TD
 
 ### Prerequisites
 
-- **Node.js**: `v24+` recommended
+- **Node.js**: `v18+` recommended
 - **npm**
 - A **Supabase** project account
 
@@ -108,7 +112,7 @@ graph TD
    ```
 
 4. **Database Setup**
-   Run SQL scripts from root in your Supabase SQL Editor sequentially (`supabase-schema.sql` → `supabase-migration-v2.sql` ... `v5.sql`).
+   Run SQL scripts from root in your Supabase SQL Editor sequentially (`supabase-schema.sql` → `supabase-migration-v2.sql` ... `v9.sql`).
 
 5. **Start Dev Server**
    ```bash
@@ -124,8 +128,8 @@ graph TD
 | `npm run dev` | Start development server |
 | `npm run build` | Production build with code splitting |
 | `npm run preview` | Preview production build |
-| `npm run test` | Run test suite with Vitest |
-| `npm run lint` | Run ESLint check |
+| `npm run test` | Run test suite with Vitest (58 tests) |
+| `npm run lint` | Run ESLint audit |
 
 ---
 
