@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { supabase } from '../supabaseClient'
 import { useToast } from './Toast'
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE, IMAGE_BUCKET } from '../lib/constants'
-import { getFileType, formatFileSize } from '../lib/utils'
+import { getFileType, formatFileSize, compressImage } from '../lib/utils'
 
 export default function FileUpload({ onUpload, disabled, children }) {
   const inputRef = useRef(null)
@@ -11,19 +11,20 @@ export default function FileUpload({ onUpload, disabled, children }) {
   const toast = useToast()
 
   const handleFile = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const rawFile = e.target.files?.[0]
+    if (!rawFile) return
 
-    if (!ALLOWED_FILE_TYPES.includes(file.type) && !file.type.startsWith('image/')) {
+    if (!ALLOWED_FILE_TYPES.includes(rawFile.type) && !rawFile.type.startsWith('image/')) {
       toast.error('File type not supported.')
       return
     }
-    if (file.size > MAX_FILE_SIZE) {
+    if (rawFile.size > MAX_FILE_SIZE) {
       toast.error(`File must be under ${formatFileSize(MAX_FILE_SIZE)}.`)
       return
     }
 
     setUploading(true)
+    const file = await compressImage(rawFile)
     const ext = file.name.split('.').pop()
     const path = `files/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 

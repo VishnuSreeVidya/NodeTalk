@@ -240,8 +240,9 @@ export async function backupPrivateKeyWithPassphrase(passphrase, userId) {
     ['deriveKey']
   )
 
+  const iterations = 100000
   const key = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 100, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
     keyMaterial,
     AES_ALGO,
     false,
@@ -259,6 +260,7 @@ export async function backupPrivateKeyWithPassphrase(passphrase, userId) {
     salt: arrayBufferToBase64(salt),
     iv: arrayBufferToBase64(iv),
     data: arrayBufferToBase64(ciphertext),
+    iterations,
   })
 
   const { error } = await supabase
@@ -292,6 +294,7 @@ export async function restorePrivateKeyWithPassphrase(passphrase, userId) {
   const salt = new Uint8Array(base64ToArrayBuffer(payload.salt))
   const iv = new Uint8Array(base64ToArrayBuffer(payload.iv))
   const ciphertext = base64ToArrayBuffer(payload.data)
+  const iterations = payload.iterations || 100
 
   const enc = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
@@ -303,7 +306,7 @@ export async function restorePrivateKeyWithPassphrase(passphrase, userId) {
   )
 
   const key = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 100, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
     keyMaterial,
     AES_ALGO,
     false,
