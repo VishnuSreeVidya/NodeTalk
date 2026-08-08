@@ -53,6 +53,7 @@ export default function ChatWindow({ selectedUser, onStartCall }) {
   const isTypingRef = useRef(false)
   const inputRef = useRef(null)
   const messagesRef = useRef(messages)
+  const markReadTimerRef = useRef(null)
   const [wallpaper, setWallpaper] = useState(() => {
     try {
       const saved = localStorage.getItem('nodetalk_chat_wallpaper')

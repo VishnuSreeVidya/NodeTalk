@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { formatFileSize, getFileType } from '../lib/utils'
 
 const FILE_ICONS = {
