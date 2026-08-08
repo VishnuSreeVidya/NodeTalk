@@ -6,7 +6,14 @@ const ICE_CONFIG = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
   ],
+}
+
+function getPairChannelName(userA, userB) {
+  if (!userA || !userB) return ''
+  return `call-pair-${[userA, userB].sort().join('-')}`
 }
 
 export default function useWebRTC(selectedUser, onCallChange) {
@@ -43,7 +50,7 @@ export default function useWebRTC(selectedUser, onCallChange) {
       channelRef.current.send({
         type: 'broadcast',
         event: 'call-end',
-        payload: { senderId: user.id },
+        payload: { senderId: user?.id },
       })
       supabase.removeChannel(channelRef.current)
       channelRef.current = null
@@ -55,7 +62,7 @@ export default function useWebRTC(selectedUser, onCallChange) {
   }, [user, cleanupStreams, onCallChange])
 
   const startCall = useCallback(async (type) => {
-    if (!selectedUser) return
+    if (!selectedUser || !user) return
     setCallType(type)
     setCalleeName(selectedUser.username)
     setState('calling')
@@ -74,6 +81,12 @@ export default function useWebRTC(selectedUser, onCallChange) {
 
       pc.ontrack = (event) => setRemoteStream(event.streams[0])
 
+      const pairChannelName = getPairChannelName(user.id, selectedUser.id)
+      const ch = supabase.channel(pairChannelName, {
+        config: { broadcast: { self: false } },
+      })
+      channelRef.current = ch
+
       pc.onicecandidate = (event) => {
         if (event.candidate && channelRef.current) {
           channelRef.current.send({
@@ -83,14 +96,6 @@ export default function useWebRTC(selectedUser, onCallChange) {
           })
         }
       }
-
-      const offer = await pc.createOffer()
-      await pc.setLocalDescription(offer)
-
-      const ch = supabase.channel(`calls-${selectedUser.id}`, {
-        config: { broadcast: { self: false } },
-      })
-      channelRef.current = ch
 
       ch.on('broadcast', { event: 'call-answer' }, async (payload) => {
         if (payload.payload.senderId === selectedUser.id) {
@@ -106,20 +111,39 @@ export default function useWebRTC(selectedUser, onCallChange) {
         }
       })
 
+      ch.on('broadcast', { event: 'call-decline' }, () => {
+        setState('idle')
+        cleanupStreams()
+        onCallChange?.(null)
+      })
+
       ch.on('broadcast', { event: 'call-end' }, () => endCall())
 
       await ch.subscribe()
-      await ch.send({
-        type: 'broadcast',
-        event: 'call-offer',
-        payload: {
-          senderId: user.id,
-          senderName: profile?.username,
-          callType: type,
-          offer: pc.localDescription,
-        },
+
+      const offer = await pc.createOffer()
+      await pc.setLocalDescription(offer)
+
+      // Send incoming call offer to Callee's personal listener channel
+      const calleeChannel = supabase.channel(`calls-listener-${selectedUser.id}`)
+      calleeChannel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          calleeChannel.send({
+            type: 'broadcast',
+            event: 'call-offer',
+            payload: {
+              senderId: user.id,
+              senderName: profile?.username || user.email?.split('@')[0] || 'User',
+              callType: type,
+              offer: pc.localDescription,
+              pairChannelName,
+            },
+          })
+          setTimeout(() => supabase.removeChannel(calleeChannel), 2000)
+        }
       })
-    } catch {
+    } catch (err) {
+      console.error('Call initialization error:', err)
       setState('idle')
       cleanupStreams()
       onCallChange?.(null)
@@ -127,16 +151,14 @@ export default function useWebRTC(selectedUser, onCallChange) {
   }, [selectedUser, user, profile, cleanupStreams, endCall, onCallChange])
 
   const declineCall = useCallback(() => {
-    if (pendingOffer) {
-      const ch = supabase.channel(`calls-${pendingOffer.senderId}`, {
-        config: { broadcast: { self: false } },
-      })
+    if (pendingOffer?.pairChannelName) {
+      const ch = supabase.channel(pendingOffer.pairChannelName)
       ch.subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           ch.send({
             type: 'broadcast',
             event: 'call-decline',
-            payload: { from: user.id },
+            payload: { from: user?.id },
           })
         }
       })
@@ -149,9 +171,8 @@ export default function useWebRTC(selectedUser, onCallChange) {
   }, [pendingOffer, user, cleanupStreams, onCallChange])
 
   const acceptCall = useCallback(async () => {
-    if (!pendingOffer) return
+    if (!pendingOffer || !user) return
     setState('connecting')
-    setPendingOffer(null)
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -167,6 +188,11 @@ export default function useWebRTC(selectedUser, onCallChange) {
 
       pc.ontrack = (event) => setRemoteStream(event.streams[0])
 
+      const ch = supabase.channel(pendingOffer.pairChannelName, {
+        config: { broadcast: { self: false } },
+      })
+      channelRef.current = ch
+
       pc.onicecandidate = (event) => {
         if (event.candidate && channelRef.current) {
           channelRef.current.send({
@@ -177,15 +203,6 @@ export default function useWebRTC(selectedUser, onCallChange) {
         }
       }
 
-      await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer.offer))
-      const answer = await pc.createAnswer()
-      await pc.setLocalDescription(answer)
-
-      const ch = supabase.channel(`calls-${pendingOffer.senderId}`, {
-        config: { broadcast: { self: false } },
-      })
-      channelRef.current = ch
-
       ch.on('broadcast', { event: 'ice-candidate' }, async (payload) => {
         if (payload.payload.senderId === pendingOffer.senderId && pc.remoteDescription) {
           await pc.addIceCandidate(new RTCIceCandidate(payload.payload.candidate))
@@ -195,6 +212,11 @@ export default function useWebRTC(selectedUser, onCallChange) {
       ch.on('broadcast', { event: 'call-end' }, () => endCall())
 
       await ch.subscribe()
+
+      await pc.setRemoteDescription(new RTCSessionDescription(pendingOffer.offer))
+      const answer = await pc.createAnswer()
+      await pc.setLocalDescription(answer)
+
       await ch.send({
         type: 'broadcast',
         event: 'call-answer',
@@ -203,7 +225,9 @@ export default function useWebRTC(selectedUser, onCallChange) {
 
       setState('connected')
       onCallChange?.({ type: 'connected', callerName: pendingOffer.senderName, callType: pendingOffer.cType })
-    } catch {
+      setPendingOffer(null)
+    } catch (err) {
+      console.error('Accept call error:', err)
       setState('idle')
       cleanupStreams()
       onCallChange?.(null)
@@ -224,7 +248,7 @@ export default function useWebRTC(selectedUser, onCallChange) {
     }
   }, [localStream, videoOff])
 
-  // Listen for incoming calls
+  // Listen for incoming calls on user's personal channel
   useEffect(() => {
     if (!user) return
 
@@ -233,9 +257,9 @@ export default function useWebRTC(selectedUser, onCallChange) {
     })
 
     channel.on('broadcast', { event: 'call-offer' }, (payload) => {
-      const { senderId, senderName, callType: cType, offer } = payload.payload
+      const { senderId, senderName, callType: cType, offer, pairChannelName } = payload.payload
       if (senderId === user.id) return
-      setPendingOffer({ senderId, offer, cType, senderName })
+      setPendingOffer({ senderId, offer, cType, senderName, pairChannelName })
       setCallType(cType)
       setCallerName(senderName)
       setState('ringing')
@@ -246,7 +270,7 @@ export default function useWebRTC(selectedUser, onCallChange) {
     })
 
     channel.on('broadcast', { event: 'call-decline' }, (payload) => {
-      if (payload.payload.from === user.id) {
+      if (payload.payload.from !== user.id) {
         setState('idle')
         cleanupStreams()
       }
