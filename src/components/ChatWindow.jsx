@@ -625,7 +625,7 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
           </AnimatePresence>
         )}
 
-        {receiverTyping && <SingleTypingIndicator />}
+        {receiverTyping && <SingleTypingIndicator username={selectedUser?.username} />}
 
         <div ref={bottomRef} />
       </div>

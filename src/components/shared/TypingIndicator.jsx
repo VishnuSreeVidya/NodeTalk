@@ -31,21 +31,31 @@ function TypingIndicator({ names = {} }) {
   )
 }
 
-function SingleTypingIndicator() {
+function SingleTypingIndicator({ username }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-      className="flex justify-start"
+      initial={{ opacity: 0, y: 6, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 6, scale: 0.95 }}
+      transition={{ duration: 0.15 }}
+      className="flex justify-start my-1"
     >
       <div
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
-        style={{ background: 'var(--surface-tertiary)' }}
+        className="flex items-center gap-2 px-3.5 py-2 rounded-2xl rounded-bl-[4px] border"
+        style={{
+          background: 'var(--bubble-other)',
+          borderColor: 'var(--border-primary)',
+          boxShadow: 'var(--shadow-bubble)',
+        }}
       >
-        <span className="typing-dot" />
-        <span className="typing-dot" />
-        <span className="typing-dot" />
+        <div className="flex items-center gap-1 py-0.5">
+          <span className="w-1.5 h-1.5 rounded-full typing-dot" style={{ background: 'var(--accent)' }} />
+          <span className="w-1.5 h-1.5 rounded-full typing-dot" style={{ background: 'var(--accent)' }} />
+          <span className="w-1.5 h-1.5 rounded-full typing-dot" style={{ background: 'var(--accent)' }} />
+        </div>
+        <span className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>
+          {username ? `${username} is typing...` : 'typing...'}
+        </span>
       </div>
     </motion.div>
   )
