@@ -216,10 +216,18 @@ export async function initEncryption(userId) {
  * Encrypt user private key with passphrase for secure DB backup
  */
 export async function backupPrivateKeyWithPassphrase(passphrase, userId) {
-  const stored = localStorage.getItem(KEY_STORAGE)
-  const all = JSON.parse(stored || '{}')
-  const entry = all[userId]
-  if (!entry?.privateKeyJwk) throw new Error('No local keypair found to backup')
+  let stored = localStorage.getItem(KEY_STORAGE)
+  let all = JSON.parse(stored || '{}')
+  let entry = all[userId]
+
+  if (!entry?.privateKeyJwk) {
+    const generated = await generateKeyPair()
+    await storeKeyPair(userId, generated.keyPair, generated.publicKeyJwk)
+    stored = localStorage.getItem(KEY_STORAGE)
+    all = JSON.parse(stored || '{}')
+    entry = all[userId]
+  }
+
   const { privateKeyJwk, publicKeyJwk } = entry
 
   const enc = new TextEncoder()
@@ -255,8 +263,14 @@ export async function backupPrivateKeyWithPassphrase(passphrase, userId) {
 
   const { error } = await supabase
     .from('user_keys')
-    .update({ encrypted_key_backup: btoa(payload) })
-    .eq('id', userId)
+    .upsert(
+      {
+        id: userId,
+        public_key: btoa(JSON.stringify(publicKeyJwk)),
+        encrypted_key_backup: btoa(payload),
+      },
+      { onConflict: 'id' }
+    )
 
   if (error) throw new Error('Failed to save key backup: ' + error.message)
   return true
