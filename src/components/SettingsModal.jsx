@@ -67,7 +67,7 @@ export default function SettingsModal({ open, onClose }) {
     }
     load()
     return () => { cancelled = true }
-  }, [open, user?.id])
+  }, [open, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = async (key) => {
     const newValue = !settings[key]

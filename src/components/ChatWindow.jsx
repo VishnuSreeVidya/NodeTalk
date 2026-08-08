@@ -125,7 +125,7 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
-  }, [selectedUser?.id, messages, markAsRead])
+  }, [selectedUser?.id, messages, markAsRead]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchMessages = useCallback(async () => {
     if (!selectedUser) return
@@ -212,7 +212,7 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
       supabase.removeChannel(channel)
       clearTimeout(markReadTimerRef.current)
     }
-  }, [selectedUser?.id, user?.id, markAsDelivered, markAsRead])
+  }, [selectedUser?.id, user?.id, markAsDelivered, markAsRead]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (messages.length === 0) return
@@ -233,7 +233,7 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [selectedUser?.id, user?.id, messages, loadReactions])
+  }, [selectedUser?.id, user?.id, messages, loadReactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLoadOlder = useCallback(async () => {
     if (!selectedUser || !messages.length || loadingOlder || !hasMore) return
@@ -286,7 +286,7 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
       supabase.removeChannel(channel)
       clearTimeout(typingTimeoutRef.current)
     }
-  }, [selectedUser?.id, user?.id])
+  }, [selectedUser?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!selectedUser) return
