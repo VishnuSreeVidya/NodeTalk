@@ -381,15 +381,6 @@ npm run lint
 
 ---
 
-## 📸 Screenshots
-
-| Direct Message Chat Interface | Mobile Adaptive Layout |
-| :---: | :---: |
-| ![NodeTalk Desktop Interface](docs/images/desktop-chat.png) | ![NodeTalk Mobile Interface](docs/images/mobile-layout.png) |
-| *Encrypted 1-on-1 conversation view* | *Responsive mobile interface with drawer navigation* |
-
----
-
 ## 🌐 Live Demo
 
 Experience NodeTalk live in your browser:
