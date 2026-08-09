@@ -74,11 +74,34 @@ export default function GroupChatWindow({ group, onBack }) {
         }
       )
       .on(
+        'broadcast',
+        { event: 'new-group-message' },
+        (payload) => {
+          const msg = payload.payload
+          if (msg.group_id === group.id) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev
+              return [...prev, msg]
+            })
+          }
+        }
+      )
+      .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'group_messages' },
         (payload) => {
           setMessages((prev) =>
             prev.map((m) => m.id === payload.new.id ? { ...m, ...payload.new } : m)
+          )
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'update-group-message' },
+        (payload) => {
+          const updated = payload.payload
+          setMessages((prev) =>
+            prev.map((m) => m.id === updated.id ? { ...m, ...updated } : m)
           )
         }
       )
@@ -218,6 +241,12 @@ export default function GroupChatWindow({ group, onBack }) {
         setMessages((prev) => {
           if (prev.some((m) => m.id === data.id)) return prev
           return [...prev, data]
+        })
+        const channel = supabase.channel(`group-messages-${group.id}`)
+        channel.send({
+          type: 'broadcast',
+          event: 'new-group-message',
+          payload: data,
         })
       }
     }

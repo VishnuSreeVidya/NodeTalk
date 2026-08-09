@@ -137,9 +137,14 @@ CREATE POLICY "Users can delete own reactions"
   TO authenticated
   USING (user_id = auth.uid());
 
--- 6. ENABLE REALTIME (run in Supabase SQL editor)
--- ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
--- ALTER PUBLICATION supabase_realtime ADD TABLE public.reactions;
+-- 6. ENABLE REALTIME & REPLICA IDENTITY (Required for instant message updates without page refresh)
+ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.reactions;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+
+ALTER TABLE public.messages REPLICA IDENTITY FULL;
+ALTER TABLE public.reactions REPLICA IDENTITY FULL;
+ALTER TABLE public.profiles REPLICA IDENTITY FULL;
 
 -- 8. CLEANUP STALE ONLINE USERS (run periodically or on connect)
 CREATE OR REPLACE FUNCTION public.cleanup_stale_users()

@@ -190,11 +190,44 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
         }
       )
       .on(
+        'broadcast',
+        { event: 'new-message' },
+        (payload) => {
+          const msg = payload.payload
+          if (
+            (msg.sender_id === selectedUser.id && msg.receiver_id === user.id) ||
+            (msg.sender_id === user.id && msg.receiver_id === selectedUser.id)
+          ) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === msg.id)) return prev
+              return [...prev, msg]
+            })
+            if (msg.sender_id === selectedUser.id) {
+              clearTimeout(markReadTimerRef.current)
+              markReadTimerRef.current = setTimeout(() => {
+                markAsDelivered()
+                markAsRead()
+              }, 300)
+            }
+          }
+        }
+      )
+      .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'messages' },
         (payload) => {
           setMessages((prev) =>
             prev.map((m) => m.id === payload.new.id ? { ...m, ...payload.new } : m)
+          )
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'update-message' },
+        (payload) => {
+          const updated = payload.payload
+          setMessages((prev) =>
+            prev.map((m) => m.id === updated.id ? { ...m, ...updated } : m)
           )
         }
       )
@@ -206,13 +239,21 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
           setMessages((prev) => prev.filter((m) => m.id !== deletedMsgId))
         }
       )
+      .on(
+        'broadcast',
+        { event: 'delete-message' },
+        (payload) => {
+          const deletedMsgId = payload.payload.message_id
+          setMessages((prev) => prev.filter((m) => m.id !== deletedMsgId))
+        }
+      )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
       clearTimeout(markReadTimerRef.current)
     }
-  }, [selectedUser?.id, user?.id, markAsDelivered, markAsRead]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (messages.length === 0) return
@@ -423,6 +464,13 @@ export default function ChatWindow({ selectedUser, onStartCall, onBack }) {
         setMessages((prev) => {
           if (prev.some((m) => m.id === data.id)) return prev
           return [...prev, data]
+        })
+        const convChannelId = getConversationChannelId(user.id, selectedUser.id)
+        const channel = supabase.channel(`messages-${convChannelId}`)
+        channel.send({
+          type: 'broadcast',
+          event: 'new-message',
+          payload: data,
         })
       }
     } else {
