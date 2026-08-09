@@ -160,23 +160,6 @@ sequenceDiagram
     User->>DB: Send Message with Image URL Payload
 ```
 
-### Calling Flow
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant GlobalCh as calls-global Channel
-    participant PairCh as call-pair-XXX Channel
-    participant Callee
-
-    Caller->>GlobalCh: Broadcast 'call-offer' (targetId: Callee.id, SDP Offer)
-    GlobalCh-->>Callee: Receive Offer & Trigger Ringing Overlay
-    Callee->>PairCh: Accept Call & Send 'call-answer' (SDP Answer)
-    PairCh-->>Caller: Receive Answer & Exchange ICE Candidates
-    Caller<--WebRTC P2P Media Stream-->Callee: Established Audio / Video Stream
-```
-
----
-
 ## 🗄️ Database
 
 NodeTalk utilizes PostgreSQL managed by Supabase, enforcing strict Row Level Security (RLS) policies across all tables.
